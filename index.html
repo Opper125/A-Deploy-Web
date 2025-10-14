@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Opper Deploy - Netlify Alternative</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <!-- Login/Register Section -->
+    <div id="loginSection" class="section active">
+        <div class="login-container">
+            <div class="logo">
+                <h1>🚀 Opper Deploy</h1>
+                <p>Deploy your websites instantly</p>
+            </div>
+            <form id="loginForm" class="form">
+                <h2>Login / Register</h2>
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="username" required placeholder="Enter username">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" required placeholder="Enter password">
+                </div>
+                <button type="submit" class="btn btn-primary">Continue</button>
+                <div id="loginError" class="error-message"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard Section -->
+    <div id="dashboardSection" class="section">
+        <nav class="navbar">
+            <div class="nav-brand">🚀 Opper Deploy</div>
+            <div class="nav-user">
+                <span id="userDisplay"></span>
+                <button onclick="logout()" class="btn btn-sm">Logout</button>
+            </div>
+        </nav>
+
+        <div class="dashboard-container">
+            <div class="dashboard-header">
+                <h1>My Projects</h1>
+                <button onclick="showNewProjectModal()" class="btn btn-primary">+ New Project</button>
+            </div>
+
+            <div id="projectsList" class="projects-grid">
+                <!-- Projects will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- New Project Modal -->
+    <div id="newProjectModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create New Project</h2>
+                <span class="close" onclick="closeNewProjectModal()">&times;</span>
+            </div>
+            <form id="newProjectForm">
+                <div class="form-group">
+                    <label>Project Name</label>
+                    <input type="text" id="projectName" required placeholder="my-awesome-site">
+                </div>
+                
+                <div class="form-group">
+                    <label>Domain Name *</label>
+                    <div class="domain-input">
+                        <input type="text" id="domainName" required placeholder="mywebsite">
+                        <span class="domain-suffix">.opper.mmr</span>
+                    </div>
+                    <small>Your site will be available at: <span id="domainPreview">yoursite.opper.mmr</span></small>
+                </div>
+
+                <div class="form-group">
+                    <label>Upload Files * (Max 1MB per file, 10MB total)</label>
+                    <input type="file" id="projectFiles" multiple required>
+                    <div id="filesList" class="files-list"></div>
+                    <div id="filesError" class="error-message"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>Build Settings (Optional)</label>
+                    <input type="text" id="buildCommand" placeholder="npm run build">
+                </div>
+
+                <div class="form-group">
+                    <label>Publish Directory (Optional)</label>
+                    <input type="text" id="publishDir" placeholder="dist">
+                </div>
+
+                <div class="form-group">
+                    <label>Environment Variables (Optional)</label>
+                    <div id="envVariables">
+                        <!-- Env vars will be added here -->
+                    </div>
+                    <button type="button" onclick="addEnvVariable()" class="btn btn-sm">+ Add Variable</button>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block" id="deployBtn">Deploy Project</button>
+                <div id="deployProgress" class="deploy-progress"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Project Modal -->
+    <div id="editProjectModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Project</h2>
+                <span class="close" onclick="closeEditModal()">&times;</span>
+            </div>
+            <div id="editProjectContent">
+                <div class="project-info">
+                    <h3 id="editProjectName"></h3>
+                    <p id="editProjectDomain"></p>
+                    <p class="status" id="editProjectStatus"></p>
+                </div>
+                <div class="files-section">
+                    <h3>Project Files</h3>
+                    <div id="editFilesList" class="edit-files-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- File Editor Modal -->
+    <div id="fileEditorModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2>Edit File: <span id="editFileName"></span></h2>
+                <span class="close" onclick="closeFileEditor()">&times;</span>
+            </div>
+            <div class="file-editor">
+                <textarea id="fileContentEditor" class="code-editor"></textarea>
+                <button onclick="saveFileChanges()" class="btn btn-primary">Save & Redeploy</button>
+                <div id="saveProgress" class="deploy-progress"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="index.js"></script>
+</body>
+</html>
