@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading Project...</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0F172A;
+            color: #F1F5F9;
+        }
+        #loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .spinner {
+            border: 4px solid #334155;
+            border-top: 4px solid #00AD9F;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        #app-container {
+            width: 100%;
+            height: 100vh;
+            display: none;
+        }
+        #app-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        #error {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+        #error h1 {
+            color: #DC2626;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading">
+        <div class="spinner"></div>
+        <p>Loading project...</p>
+    </div>
+    
+    <div id="app-container">
+        <iframe id="app-frame" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-downloads"></iframe>
+    </div>
+    
+    <div id="error">
+        <h1>❌ Project Not Found</h1>
+        <p>The requested project could not be loaded.</p>
+    </div>
+
+    <script>
+        const SUPABASE_URL = "https://zrjfyaloaicrvkcfkpxf.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpyamZ5YWxvYWljcnZrY2ZrcHhmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA0MDAyOTAsImV4cCI6MjA3NTk3NjI5MH0.JszbKpjiP-jYgAthvdHBIn1atsFC5fs6SYIqssoN7cc";
+
+        async function loadProject() {
+            try {
+                // Get project ID from URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const projectId = urlParams.get('project');
+                
+                if (!projectId) {
+                    throw new Error('No project ID provided');
+                }
+                
+                // Fetch project files
+                const response = await fetch(
+                    `${SUPABASE_URL}/rest/v1/project_files?project_id=eq.${projectId}&order=file_name.asc`,
+                    {
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                        }
+                    }
+                );
+                
+                if (!response.ok) {
+                    throw new Error('Project not found');
+                }
+                
+                const files = await response.json();
+                
+                if (!files || files.length === 0) {
+                    throw new Error('No files found');
+                }
+                
+                // Find index.html or first HTML file
+                const indexFile = files.find(f => f.file_name.toLowerCase() === 'index.html') ||
+                                 files.find(f => f.file_name.toLowerCase().endsWith('.html'));
+                
+                if (!indexFile) {
+                    // Show file list if no HTML file
+                    showFileList(files, projectId);
+                    return;
+                }
+                
+                // Load the HTML file with proper base URL
+                const baseURL = `${SUPABASE_URL}/storage/v1/object/public/project-files/${projectId}/`;
+                
+                let htmlContent = indexFile.file_content;
+                
+                // Inject base tag if not present
+                if (!htmlContent.includes('<base')) {
+                    htmlContent = htmlContent.replace(
+                        '<head>',
+                        `<head>\n    <base href="${baseURL}">`
+                    );
+                }
+                
+                // Hide loading, show iframe
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('app-container').style.display = 'block';
+                
+                // Load content in iframe
+                const frame = document.getElementById('app-frame');
+                const doc = frame.contentDocument || frame.contentWindow.document;
+                
+                doc.open();
+                doc.write(htmlContent);
+                doc.close();
+                
+                // Update page title
+                const project = await fetch(
+                    `${SUPABASE_URL}/rest/v1/projects?id=eq.${projectId}`,
+                    {
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                        }
+                    }
+                ).then(r => r.json());
+                
+                if (project && project[0]) {
+                    document.title = project[0].domain_name;
+                }
+                
+            } catch (error) {
+                console.error('Load error:', error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+            }
+        }
+        
+        function showFileList(files, projectId) {
+            const baseURL = `${SUPABASE_URL}/storage/v1/object/public/project-files/${projectId}/`;
+            
+            const html = `
+                <div style="max-width: 800px; margin: 40px auto; padding: 20px;">
+                    <h1 style="color: #00AD9F;">📁 Project Files</h1>
+                    <div style="background: #1E293B; padding: 20px; border-radius: 8px; margin-top: 20px;">
+                        ${files.map(f => `
+                            <a href="${baseURL}${f.file_name}" 
+                               target="_blank"
+                               style="display: block; padding: 12px; margin: 8px 0; background: #0F172A; 
+                                      color: #00AD9F; text-decoration: none; border-radius: 4px;">
+                                📄 ${f.file_name} <span style="color: #94A3B8; float: right;">${(f.file_size/1024).toFixed(2)} KB</span>
+                            </a>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('loading').style.display = 'none';
+            document.body.innerHTML = html;
+        }
+        
+        // Load project on page load
+        loadProject();
+    </script>
+</body>
+</html>
