@@ -1,3 +1,8 @@
+// =====================================================
+// OPPER DEPLOY PLATFORM - INDEX.JS
+// With Auto-Login & Session Persistence
+// =====================================================
+
 // Supabase Configuration
 const SUPABASE_URL = "https://zrjfyaloaicrvkcfkpxf.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpyamZ5YWxvYWljcnZrY2ZrcHhmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA0MDAyOTAsImV4cCI6MjA3NTk3NjI5MH0.JszbKpjiP-jYgAthvdHBIn1atsFC5fs6SYIqssoN7cc";
@@ -7,6 +12,171 @@ let currentUser = null;
 let currentProjectId = null;
 let currentFileId = null;
 let envVarCount = 0;
+let sessionCheckInterval = null;
+
+// Session Storage Keys
+const SESSION_KEY = 'opper_deploy_session';
+const SESSION_TIMESTAMP = 'opper_deploy_timestamp';
+
+// =====================================================
+// SESSION MANAGEMENT
+// =====================================================
+
+// Save session to localStorage
+function saveSession(user) {
+    try {
+        const sessionData = {
+            id: user.id,
+            username: user.username,
+            is_banned: user.is_banned,
+            device_limit: user.device_limit,
+            ip_address: user.ip_address,
+            timestamp: Date.now()
+        };
+        localStorage.setItem(SESSION_KEY, JSON.stringify(sessionData));
+        localStorage.setItem(SESSION_TIMESTAMP, Date.now().toString());
+        console.log('✅ Session saved to localStorage');
+    } catch (error) {
+        console.error('Session save error:', error);
+    }
+}
+
+// Get session from localStorage
+function getSession() {
+    try {
+        const sessionData = localStorage.getItem(SESSION_KEY);
+        if (sessionData) {
+            return JSON.parse(sessionData);
+        }
+    } catch (error) {
+        console.error('Session get error:', error);
+    }
+    return null;
+}
+
+// Clear session from localStorage
+function clearSession() {
+    try {
+        localStorage.removeItem(SESSION_KEY);
+        localStorage.removeItem(SESSION_TIMESTAMP);
+        console.log('✅ Session cleared from localStorage');
+    } catch (error) {
+        console.error('Session clear error:', error);
+    }
+}
+
+// Validate session with database
+async function validateSession(sessionData) {
+    try {
+        // Check if user still exists and is not banned
+        const users = await supabaseRequest(`users?id=eq.${sessionData.id}`);
+        
+        if (!users || users.length === 0) {
+            console.warn('⚠️ User not found in database');
+            return false;
+        }
+        
+        const user = users[0];
+        
+        // Check if user is banned
+        if (user.is_banned) {
+            console.warn('⚠️ User is banned');
+            return false;
+        }
+        
+        // Check IP restrictions if device limit is set
+        if (user.device_limit !== 999 && user.allowed_ips && user.allowed_ips.length > 0) {
+            const currentIP = await getUserIP();
+            if (!user.allowed_ips.includes(currentIP)) {
+                console.warn('⚠️ IP address not allowed');
+                return false;
+            }
+        }
+        
+        return user;
+        
+    } catch (error) {
+        console.error('Session validation error:', error);
+        return false;
+    }
+}
+
+// Auto-login from saved session
+async function autoLogin() {
+    const sessionData = getSession();
+    
+    if (!sessionData) {
+        console.log('ℹ️ No saved session found');
+        return false;
+    }
+    
+    console.log('🔄 Attempting auto-login...');
+    
+    // Validate session with database
+    const user = await validateSession(sessionData);
+    
+    if (!user) {
+        console.warn('⚠️ Session validation failed, clearing session');
+        clearSession();
+        return false;
+    }
+    
+    // Update last activity
+    try {
+        await supabaseRequest(`users?id=eq.${user.id}`, 'PATCH', {
+            last_login: new Date().toISOString()
+        });
+    } catch (error) {
+        console.error('Last login update error:', error);
+    }
+    
+    // Set current user
+    currentUser = user;
+    
+    // Show dashboard
+    showDashboard();
+    
+    console.log('✅ Auto-login successful');
+    return true;
+}
+
+// Keep session alive
+function startSessionKeepAlive() {
+    // Clear any existing interval
+    if (sessionCheckInterval) {
+        clearInterval(sessionCheckInterval);
+    }
+    
+    // Check session every 5 minutes
+    sessionCheckInterval = setInterval(async () => {
+        if (currentUser) {
+            const sessionData = getSession();
+            if (sessionData) {
+                const isValid = await validateSession(sessionData);
+                if (!isValid) {
+                    console.warn('⚠️ Session became invalid, logging out');
+                    logout();
+                } else {
+                    console.log('✅ Session still valid');
+                    // Update timestamp
+                    saveSession(currentUser);
+                }
+            }
+        }
+    }, 5 * 60 * 1000); // 5 minutes
+}
+
+// Stop session keep alive
+function stopSessionKeepAlive() {
+    if (sessionCheckInterval) {
+        clearInterval(sessionCheckInterval);
+        sessionCheckInterval = null;
+    }
+}
+
+// =====================================================
+// UTILITY FUNCTIONS
+// =====================================================
 
 // Simple Hash Function (SHA-256 simulation)
 async function hashPassword(password) {
@@ -58,13 +228,26 @@ async function supabaseRequest(endpoint, method = 'GET', body = null) {
 // Show Error Message
 function showError(elementId, message) {
     const errorEl = document.getElementById(elementId);
-    errorEl.textContent = message;
-    errorEl.classList.add('show');
-    setTimeout(() => errorEl.classList.remove('show'), 5000);
+    if (errorEl) {
+        errorEl.textContent = message;
+        errorEl.classList.add('show');
+        setTimeout(() => errorEl.classList.remove('show'), 5000);
+    }
 }
 
-// Login/Register Handler
-document.getElementById('loginForm').addEventListener('submit', async (e) => {
+// Escape HTML
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// =====================================================
+// LOGIN/REGISTER HANDLER
+// =====================================================
+
+document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     
     const username = document.getElementById('username').value.trim();
@@ -133,6 +316,13 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
             });
 
             currentUser = user;
+            
+            // Save session to localStorage
+            saveSession(user);
+            
+            // Start session keep alive
+            startSessionKeepAlive();
+            
             showDashboard();
 
         } else {
@@ -155,6 +345,13 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
                 });
 
                 currentUser = newUser[0];
+                
+                // Save session to localStorage
+                saveSession(newUser[0]);
+                
+                // Start session keep alive
+                startSessionKeepAlive();
+                
                 showDashboard();
             }
         }
@@ -164,6 +361,10 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
         showError('loginError', `❌ Error: ${error.message}`);
     }
 });
+
+// =====================================================
+// DASHBOARD FUNCTIONS
+// =====================================================
 
 // Show Dashboard
 function showDashboard() {
@@ -175,10 +376,21 @@ function showDashboard() {
 
 // Logout
 function logout() {
+    // Stop session keep alive
+    stopSessionKeepAlive();
+    
+    // Clear session
+    clearSession();
+    
+    // Reset current user
     currentUser = null;
+    
+    // Switch to login page
     document.getElementById('dashboardSection').classList.remove('active');
     document.getElementById('loginSection').classList.add('active');
     document.getElementById('loginForm').reset();
+    
+    console.log('✅ Logged out successfully');
 }
 
 // Load Projects
@@ -229,12 +441,9 @@ async function loadProjects() {
     }
 }
 
-// Escape HTML
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
+// =====================================================
+// PROJECT MODAL FUNCTIONS
+// =====================================================
 
 // Show New Project Modal
 function showNewProjectModal() {
@@ -444,6 +653,10 @@ function readFileAsText(file) {
     });
 }
 
+// =====================================================
+// EDIT PROJECT FUNCTIONS
+// =====================================================
+
 // Edit Project
 async function editProject(projectId) {
     currentProjectId = projectId;
@@ -569,7 +782,46 @@ async function deleteProject(projectId, projectName) {
     }
 }
 
-// Initialize
-document.addEventListener('DOMContentLoaded', () => {
+// =====================================================
+// INITIALIZATION
+// =====================================================
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', async () => {
     console.log('🚀 Opper Deploy Platform Initialized');
+    
+    // Try auto-login from saved session
+    const loggedIn = await autoLogin();
+    
+    if (loggedIn) {
+        console.log('✅ Auto-login successful');
+    } else {
+        console.log('ℹ️ No active session, showing login page');
+    }
 });
+
+// Handle page visibility change (when user switches tabs or returns)
+document.addEventListener('visibilitychange', async () => {
+    if (!document.hidden && currentUser) {
+        // Page is visible again, validate session
+        const sessionData = getSession();
+        if (sessionData) {
+            const isValid = await validateSession(sessionData);
+            if (!isValid) {
+                console.warn('⚠️ Session expired, logging out');
+                logout();
+            }
+        }
+    }
+});
+
+// Handle before unload (optional - update session timestamp)
+window.addEventListener('beforeunload', () => {
+    if (currentUser) {
+        saveSession(currentUser);
+    }
+});
+
+// =====================================================
+// END OF INDEX.JS
+// =====================================================
