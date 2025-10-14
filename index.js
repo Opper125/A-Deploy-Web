@@ -1,23 +1,20 @@
 // =====================================================
 // OPPER DEPLOY PLATFORM - INDEX.JS
-// With Public File Serving Support
+// With Multi-Page Navigation Support
 // =====================================================
 
 // Supabase Configuration
 const SUPABASE_URL = "https://zrjfyaloaicrvkcfkpxf.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpyamZ5YWxvYWljcnZrY2ZrcHhmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA0MDAyOTAsImV4cCI6MjA3NTk3NjI5MH0.JszbKpjiP-jYgAthvdHBIn1atsFC5fs6SYIqssoN7cc";
 
-// Storage bucket name
 const STORAGE_BUCKET = 'project-files';
 
-// Global Variables
 let currentUser = null;
 let currentProjectId = null;
 let currentFileId = null;
 let envVarCount = 0;
 let sessionCheckInterval = null;
 
-// Session Storage Keys
 const SESSION_KEY = 'opper_deploy_session';
 const SESSION_TIMESTAMP = 'opper_deploy_timestamp';
 
@@ -37,7 +34,6 @@ function saveSession(user) {
         };
         localStorage.setItem(SESSION_KEY, JSON.stringify(sessionData));
         localStorage.setItem(SESSION_TIMESTAMP, Date.now().toString());
-        console.log('✅ Session saved to localStorage');
     } catch (error) {
         console.error('Session save error:', error);
     }
@@ -59,7 +55,6 @@ function clearSession() {
     try {
         localStorage.removeItem(SESSION_KEY);
         localStorage.removeItem(SESSION_TIMESTAMP);
-        console.log('✅ Session cleared from localStorage');
     } catch (error) {
         console.error('Session clear error:', error);
     }
@@ -69,24 +64,15 @@ async function validateSession(sessionData) {
     try {
         const users = await supabaseRequest(`users?id=eq.${sessionData.id}`);
         
-        if (!users || users.length === 0) {
-            console.warn('⚠️ User not found in database');
-            return false;
-        }
+        if (!users || users.length === 0) return false;
         
         const user = users[0];
         
-        if (user.is_banned) {
-            console.warn('⚠️ User is banned');
-            return false;
-        }
+        if (user.is_banned) return false;
         
         if (user.device_limit !== 999 && user.allowed_ips && user.allowed_ips.length > 0) {
             const currentIP = await getUserIP();
-            if (!user.allowed_ips.includes(currentIP)) {
-                console.warn('⚠️ IP address not allowed');
-                return false;
-            }
+            if (!user.allowed_ips.includes(currentIP)) return false;
         }
         
         return user;
@@ -100,17 +86,11 @@ async function validateSession(sessionData) {
 async function autoLogin() {
     const sessionData = getSession();
     
-    if (!sessionData) {
-        console.log('ℹ️ No saved session found');
-        return false;
-    }
-    
-    console.log('🔄 Attempting auto-login...');
+    if (!sessionData) return false;
     
     const user = await validateSession(sessionData);
     
     if (!user) {
-        console.warn('⚠️ Session validation failed, clearing session');
         clearSession();
         return false;
     }
@@ -126,7 +106,6 @@ async function autoLogin() {
     currentUser = user;
     showDashboard();
     
-    console.log('✅ Auto-login successful');
     return true;
 }
 
@@ -141,10 +120,8 @@ function startSessionKeepAlive() {
             if (sessionData) {
                 const isValid = await validateSession(sessionData);
                 if (!isValid) {
-                    console.warn('⚠️ Session became invalid, logging out');
                     logout();
                 } else {
-                    console.log('✅ Session still valid');
                     saveSession(currentUser);
                 }
             }
@@ -207,12 +184,8 @@ async function supabaseRequest(endpoint, method = 'GET', body = null) {
     return method === 'DELETE' ? null : await response.json();
 }
 
-// Upload file to Supabase Storage
 async function uploadToStorage(file, projectId, fileName) {
     try {
-        const formData = new FormData();
-        formData.append('file', file);
-        
         const path = `${projectId}/${fileName}`;
         
         const response = await fetch(
@@ -232,7 +205,6 @@ async function uploadToStorage(file, projectId, fileName) {
             throw new Error(error.message || 'Upload failed');
         }
         
-        // Return public URL
         const publicURL = `${SUPABASE_URL}/storage/v1/object/public/${STORAGE_BUCKET}/${path}`;
         return publicURL;
         
@@ -242,111 +214,8 @@ async function uploadToStorage(file, projectId, fileName) {
     }
 }
 
-// Get public URL for stored file
 function getPublicURL(projectId, fileName) {
     return `${SUPABASE_URL}/storage/v1/object/public/${STORAGE_BUCKET}/${projectId}/${fileName}`;
-}
-
-// Generate viewer page HTML
-function generateViewerPage(projectId, files, domainName) {
-    // Find index.html or first HTML file
-    const indexFile = files.find(f => f.file_name.toLowerCase() === 'index.html') || 
-                     files.find(f => f.file_name.endsWith('.html'));
-    
-    if (!indexFile) {
-        return `<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${domainName}</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 40px;
-            font-family: system-ui, -apple-system, sans-serif;
-            background: #0f172a;
-            color: #f1f5f9;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            text-align: center;
-        }
-        h1 { color: #00AD9F; }
-        .file-list {
-            background: #1e293b;
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 20px;
-        }
-        a {
-            color: #00AD9F;
-            text-decoration: none;
-            display: block;
-            padding: 10px;
-            margin: 5px 0;
-            background: #0f172a;
-            border-radius: 4px;
-        }
-        a:hover { background: #334155; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>🚀 ${domainName}</h1>
-        <p>No index.html found. Available files:</p>
-        <div class="file-list">
-            ${files.map(f => `<a href="${getPublicURL(projectId, f.file_name)}" target="_blank">📄 ${f.file_name}</a>`).join('')}
-        </div>
-    </div>
-</body>
-</html>`;
-    }
-    
-    // Generate HTML that loads the main file and its dependencies
-    return `<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${domainName}</title>
-    <base href="${SUPABASE_URL}/storage/v1/object/public/${STORAGE_BUCKET}/${projectId}/">
-    <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-        }
-        #app-frame {
-            width: 100%;
-            height: 100vh;
-            border: none;
-        }
-    </style>
-</head>
-<body>
-    <iframe id="app-frame" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"></iframe>
-    <script>
-        // Load the main HTML file
-        fetch('${getPublicURL(projectId, indexFile.file_name)}')
-            .then(res => res.text())
-            .then(html => {
-                const frame = document.getElementById('app-frame');
-                const doc = frame.contentDocument || frame.contentWindow.document;
-                doc.open();
-                doc.write(html);
-                doc.close();
-            })
-            .catch(err => {
-                console.error('Load error:', err);
-                document.body.innerHTML = '<h1 style="color: red;">Error loading project</h1>';
-            });
-    </script>
-</body>
-</html>`;
 }
 
 function showError(elementId, message) {
@@ -414,7 +283,7 @@ document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
 
             if (user.device_limit !== 999 && user.allowed_ips && user.allowed_ips.length > 0) {
                 if (!user.allowed_ips.includes(userIP)) {
-                    showError('loginError', `🔒 Error: ဤ IP Address (${userIP}) မှ Login ဝင်ခွင့်မရှိပါ။ သင့်အကောင့်ကို ${user.device_limit} Device သက်မှတ်ထားပါသည်။`);
+                    showError('loginError', `🔒 Error: ဤ IP Address (${userIP}) မှ Login ဝင်ခွင့်မရှိပါ။`);
                     return;
                 }
             }
@@ -484,7 +353,6 @@ function logout() {
     document.getElementById('dashboardSection').classList.remove('active');
     document.getElementById('loginSection').classList.add('active');
     document.getElementById('loginForm').reset();
-    console.log('✅ Logged out successfully');
 }
 
 async function loadProjects() {
@@ -504,9 +372,44 @@ async function loadProjects() {
             return;
         }
 
-        projectsList.innerHTML = projects.map(project => {
-            // Generate viewer URL
+        // Load files for each project to show page links
+        const projectsWithFiles = await Promise.all(projects.map(async (project) => {
+            try {
+                const files = await supabaseRequest(`project_files?project_id=eq.${project.id}&select=file_name`);
+                const htmlFiles = files.filter(f => f.file_name.toLowerCase().endsWith('.html'));
+                return { ...project, htmlFiles };
+            } catch (error) {
+                return { ...project, htmlFiles: [] };
+            }
+        }));
+
+        projectsList.innerHTML = projectsWithFiles.map(project => {
             const viewerURL = `${window.location.origin}/viewer.html?project=${project.id}`;
+            
+            // Generate page links
+            let pageLinks = '';
+            if (project.htmlFiles && project.htmlFiles.length > 1) {
+                pageLinks = `
+                    <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color);">
+                        <small style="color: var(--text-secondary);">📄 Pages:</small>
+                        <div style="display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap;">
+                            ${project.htmlFiles.map(file => {
+                                const pageURL = `${viewerURL}&file=${file.file_name}`;
+                                const pageName = file.file_name.replace('.html', '');
+                                return `<a href="${pageURL}" target="_blank" style="
+                                    padding: 4px 12px; 
+                                    background: var(--bg-color); 
+                                    border-radius: 4px; 
+                                    font-size: 0.85rem;
+                                    color: var(--primary-color);
+                                    text-decoration: none;
+                                    border: 1px solid var(--border-color);
+                                ">${pageName}</a>`;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            }
             
             return `
             <div class="project-card">
@@ -524,7 +427,8 @@ async function loadProjects() {
                 <div class="project-info">
                     <p>📅 Created: ${new Date(project.created_at).toLocaleDateString('my-MM')}</p>
                     <p>🔄 Deploys: ${project.deploy_count}</p>
-                    <p>🕒 Updated: ${new Date(project.updated_at).toLocaleString('my-MM')}</p>
+                    <p>📄 Files: ${project.htmlFiles.length} HTML pages</p>
+                    ${pageLinks}
                 </div>
                 <div class="project-actions">
                     <button onclick="copyProjectURL('${viewerURL}')" class="btn btn-secondary btn-sm">📋 Copy URL</button>
@@ -539,7 +443,6 @@ async function loadProjects() {
     }
 }
 
-// Copy project URL to clipboard
 function copyProjectURL(url) {
     navigator.clipboard.writeText(url).then(() => {
         alert('✅ URL copied to clipboard!\n\n' + url);
@@ -579,10 +482,15 @@ document.getElementById('projectFiles')?.addEventListener('change', (e) => {
     
     let totalSize = 0;
     let hasError = false;
+    let htmlCount = 0;
     
     const filesHTML = files.map(file => {
         const sizeInMB = (file.size / (1024 * 1024)).toFixed(2);
         totalSize += file.size;
+        
+        if (file.name.toLowerCase().endsWith('.html')) {
+            htmlCount++;
+        }
         
         if (file.size > 1024 * 1024) {
             hasError = true;
@@ -596,10 +504,14 @@ document.getElementById('projectFiles')?.addEventListener('change', (e) => {
             `;
         }
         
+        const icon = file.name.toLowerCase().endsWith('.html') ? '📄' : 
+                     file.name.toLowerCase().endsWith('.css') ? '🎨' :
+                     file.name.toLowerCase().endsWith('.js') ? '⚙️' : '📎';
+        
         return `
             <div class="file-item">
                 <div class="file-info">
-                    <div class="file-name">📄 ${escapeHtml(file.name)}</div>
+                    <div class="file-name">${icon} ${escapeHtml(file.name)}</div>
                     <div class="file-size">${sizeInMB} MB</div>
                 </div>
             </div>
@@ -607,6 +519,12 @@ document.getElementById('projectFiles')?.addEventListener('change', (e) => {
     }).join('');
     
     filesList.innerHTML = filesHTML;
+    
+    if (htmlCount > 1) {
+        filesList.innerHTML += `<div style="padding: 12px; background: var(--bg-color); border-radius: 6px; margin-top: 8px; color: var(--success-color);">
+            ✅ Detected ${htmlCount} HTML pages - Multi-page navigation will be enabled!
+        </div>`;
+    }
     
     if (hasError) {
         showError('filesError', '❌ Error: ဖိုင်တစ်ခုချင်းသည် 1MB ထက်မကျော်ရပါ။');
@@ -639,7 +557,6 @@ function removeEnvVariable(id) {
     document.getElementById(id)?.remove();
 }
 
-// Deploy Project
 document.getElementById('newProjectForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     
@@ -665,15 +582,13 @@ document.getElementById('newProjectForm')?.addEventListener('submit', async (e) 
     deployProgress.innerHTML = '<div class="progress-step">🔄 Starting deployment...</div>';
     
     try {
-        // Check if domain exists
         const existingDomain = await supabaseRequest(`projects?domain_name=eq.${domainName}.opper.mmr`);
         if (existingDomain && existingDomain.length > 0) {
-            throw new Error('ဤ Domain name ကို အသုံးပြုပြီးသားဖြစ်ပါသည်။ အခြား Domain name ရွေးချယ်ပါ။');
+            throw new Error('ဤ Domain name ကို အသုံးပြုပြီးသားဖြစ်ပါသည်။');
         }
         
         deployProgress.innerHTML += '<div class="progress-step">✅ Domain validated</div>';
         
-        // Create project
         const project = await supabaseRequest('projects', 'POST', {
             user_id: currentUser.id,
             username: currentUser.username,
@@ -686,19 +601,14 @@ document.getElementById('newProjectForm')?.addEventListener('submit', async (e) 
         
         const projectId = project[0].id;
         
-        // Upload files to storage
-        deployProgress.innerHTML += '<div class="progress-step">📤 Uploading files to storage...</div>';
-        
-        const uploadedFiles = [];
+        deployProgress.innerHTML += '<div class="progress-step">📤 Uploading files...</div>';
         
         for (let file of files) {
             const content = await readFileAsText(file);
             
-            // Upload to Supabase Storage
             try {
                 const storageURL = await uploadToStorage(file, projectId, file.name);
                 
-                // Save file metadata to database
                 await supabaseRequest('project_files', 'POST', {
                     project_id: projectId,
                     file_name: file.name,
@@ -708,17 +618,8 @@ document.getElementById('newProjectForm')?.addEventListener('submit', async (e) 
                     storage_url: storageURL
                 });
                 
-                uploadedFiles.push({
-                    file_name: file.name,
-                    storage_url: storageURL
-                });
-                
-                deployProgress.innerHTML += `<div class="progress-step">✅ Uploaded ${file.name}</div>`;
+                deployProgress.innerHTML += `<div class="progress-step">✅ ${file.name}</div>`;
             } catch (uploadError) {
-                console.error('File upload error:', uploadError);
-                deployProgress.innerHTML += `<div class="progress-step error">⚠️ ${file.name} - saved to database only</div>`;
-                
-                // Save to database even if storage fails
                 await supabaseRequest('project_files', 'POST', {
                     project_id: projectId,
                     file_name: file.name,
@@ -727,14 +628,10 @@ document.getElementById('newProjectForm')?.addEventListener('submit', async (e) 
                     file_type: file.type || 'text/plain'
                 });
                 
-                uploadedFiles.push({
-                    file_name: file.name,
-                    storage_url: null
-                });
+                deployProgress.innerHTML += `<div class="progress-step">⚠️ ${file.name} (database only)</div>`;
             }
         }
         
-        // Save environment variables
         const envRows = document.querySelectorAll('.env-row');
         for (let row of envRows) {
             const key = row.querySelector('.env-key').value.trim();
@@ -749,30 +646,23 @@ document.getElementById('newProjectForm')?.addEventListener('submit', async (e) 
             }
         }
         
-        // Update project status
         await supabaseRequest(`projects?id=eq.${projectId}`, 'PATCH', {
             status: 'active',
             updated_at: new Date().toISOString()
         });
         
-        // Log deployment
         await supabaseRequest('deployment_logs', 'POST', {
             project_id: projectId,
             user_id: currentUser.id,
             action: 'deploy',
             status: 'success',
-            message: 'Project deployed successfully',
-            metadata: {
-                files_count: files.length,
-                domain: `${domainName}.opper.mmr`
-            }
+            message: 'Project deployed successfully'
         });
         
         deployProgress.innerHTML += '<div class="progress-step success">🎉 Deployment successful!</div>';
         
         const viewerURL = `${window.location.origin}/viewer.html?project=${projectId}`;
-        deployProgress.innerHTML += `<div class="progress-step success">🌐 Your site: <a href="${viewerURL}" target="_blank">${domainName}.opper.mmr</a></div>`;
-        deployProgress.innerHTML += `<div class="progress-step">📋 Click "Copy URL" button to share your site</div>`;
+        deployProgress.innerHTML += `<div class="progress-step success">🌐 <a href="${viewerURL}" target="_blank">${domainName}.opper.mmr</a></div>`;
         
         setTimeout(() => {
             closeNewProjectModal();
@@ -861,11 +751,9 @@ async function saveFileChanges() {
     saveProgress.innerHTML = '<div class="progress-step">🔄 Saving changes...</div>';
     
     try {
-        // Get file info
         const fileData = await supabaseRequest(`project_files?id=eq.${currentFileId}`);
         const file = fileData[0];
         
-        // Update file content in database
         await supabaseRequest(`project_files?id=eq.${currentFileId}`, 'PATCH', {
             file_content: newContent,
             file_size: new Blob([newContent]).size,
@@ -874,16 +762,10 @@ async function saveFileChanges() {
         
         saveProgress.innerHTML += '<div class="progress-step">✅ Database updated</div>';
         
-        // Update file in storage
         if (file.storage_url) {
             try {
-                const blob = new Blob([newContent], { type: file.file_type || 'text/plain' });
-                const storageFile = new File([blob], file.file_name, { type: file.file_type });
-                
-                // Delete old file and upload new one
                 const path = `${file.project_id}/${file.file_name}`;
                 
-                // Upload updated file
                 await fetch(
                     `${SUPABASE_URL}/storage/v1/object/${STORAGE_BUCKET}/${path}`,
                     {
@@ -899,12 +781,10 @@ async function saveFileChanges() {
                 
                 saveProgress.innerHTML += '<div class="progress-step">✅ Storage updated</div>';
             } catch (storageError) {
-                console.error('Storage update error:', storageError);
-                saveProgress.innerHTML += '<div class="progress-step error">⚠️ Storage update failed (database saved)</div>';
+                saveProgress.innerHTML += '<div class="progress-step error">⚠️ Storage update failed</div>';
             }
         }
         
-        // Update project
         const projectId = file.project_id;
         const project = await supabaseRequest(`projects?id=eq.${projectId}`);
         
@@ -913,7 +793,6 @@ async function saveFileChanges() {
             deploy_count: project[0].deploy_count + 1
         });
         
-        // Log redeploy
         await supabaseRequest('deployment_logs', 'POST', {
             project_id: projectId,
             user_id: currentUser.id,
@@ -922,7 +801,7 @@ async function saveFileChanges() {
             message: `File updated: ${file.file_name}`
         });
         
-        saveProgress.innerHTML += '<div class="progress-step success">🎉 Changes saved & redeployed!</div>';
+        saveProgress.innerHTML += '<div class="progress-step success">🎉 Saved & redeployed!</div>';
         
         setTimeout(() => {
             closeFileEditor();
@@ -942,24 +821,7 @@ async function deleteProject(projectId, projectName) {
     }
     
     try {
-        // Delete project (cascade will delete files, env vars, and logs)
         await supabaseRequest(`projects?id=eq.${projectId}`, 'DELETE');
-        
-        // Try to delete from storage (ignore errors)
-        try {
-            await fetch(
-                `${SUPABASE_URL}/storage/v1/object/${STORAGE_BUCKET}/${projectId}`,
-                {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                        'apikey': SUPABASE_ANON_KEY
-                    }
-                }
-            );
-        } catch (e) {
-            console.log('Storage deletion skipped');
-        }
         
         alert('✅ Project ကို အောင်မြင်စွာ ဖျက်ပြီးပါပြီ။');
         loadProjects();
@@ -979,9 +841,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     const loggedIn = await autoLogin();
     
-    if (loggedIn) {
-        console.log('✅ Auto-login successful');
-    } else {
+    if (!loggedIn) {
         console.log('ℹ️ No active session, showing login page');
     }
 });
@@ -992,7 +852,6 @@ document.addEventListener('visibilitychange', async () => {
         if (sessionData) {
             const isValid = await validateSession(sessionData);
             if (!isValid) {
-                console.warn('⚠️ Session expired, logging out');
                 logout();
             }
         }
@@ -1004,7 +863,3 @@ window.addEventListener('beforeunload', () => {
         saveSession(currentUser);
     }
 });
-
-// =====================================================
-// END OF INDEX.JS
-// =====================================================
