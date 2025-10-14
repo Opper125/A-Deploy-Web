@@ -1,11 +1,14 @@
 // =====================================================
 // OPPER DEPLOY PLATFORM - INDEX.JS
-// With Auto-Login & Session Persistence
+// With Public File Serving Support
 // =====================================================
 
 // Supabase Configuration
 const SUPABASE_URL = "https://zrjfyaloaicrvkcfkpxf.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpyamZ5YWxvYWljcnZrY2ZrcHhmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA0MDAyOTAsImV4cCI6MjA3NTk3NjI5MH0.JszbKpjiP-jYgAthvdHBIn1atsFC5fs6SYIqssoN7cc";
+
+// Storage bucket name
+const STORAGE_BUCKET = 'project-files';
 
 // Global Variables
 let currentUser = null;
@@ -22,7 +25,6 @@ const SESSION_TIMESTAMP = 'opper_deploy_timestamp';
 // SESSION MANAGEMENT
 // =====================================================
 
-// Save session to localStorage
 function saveSession(user) {
     try {
         const sessionData = {
@@ -41,7 +43,6 @@ function saveSession(user) {
     }
 }
 
-// Get session from localStorage
 function getSession() {
     try {
         const sessionData = localStorage.getItem(SESSION_KEY);
@@ -54,7 +55,6 @@ function getSession() {
     return null;
 }
 
-// Clear session from localStorage
 function clearSession() {
     try {
         localStorage.removeItem(SESSION_KEY);
@@ -65,10 +65,8 @@ function clearSession() {
     }
 }
 
-// Validate session with database
 async function validateSession(sessionData) {
     try {
-        // Check if user still exists and is not banned
         const users = await supabaseRequest(`users?id=eq.${sessionData.id}`);
         
         if (!users || users.length === 0) {
@@ -78,13 +76,11 @@ async function validateSession(sessionData) {
         
         const user = users[0];
         
-        // Check if user is banned
         if (user.is_banned) {
             console.warn('⚠️ User is banned');
             return false;
         }
         
-        // Check IP restrictions if device limit is set
         if (user.device_limit !== 999 && user.allowed_ips && user.allowed_ips.length > 0) {
             const currentIP = await getUserIP();
             if (!user.allowed_ips.includes(currentIP)) {
@@ -101,7 +97,6 @@ async function validateSession(sessionData) {
     }
 }
 
-// Auto-login from saved session
 async function autoLogin() {
     const sessionData = getSession();
     
@@ -112,7 +107,6 @@ async function autoLogin() {
     
     console.log('🔄 Attempting auto-login...');
     
-    // Validate session with database
     const user = await validateSession(sessionData);
     
     if (!user) {
@@ -121,7 +115,6 @@ async function autoLogin() {
         return false;
     }
     
-    // Update last activity
     try {
         await supabaseRequest(`users?id=eq.${user.id}`, 'PATCH', {
             last_login: new Date().toISOString()
@@ -130,24 +123,18 @@ async function autoLogin() {
         console.error('Last login update error:', error);
     }
     
-    // Set current user
     currentUser = user;
-    
-    // Show dashboard
     showDashboard();
     
     console.log('✅ Auto-login successful');
     return true;
 }
 
-// Keep session alive
 function startSessionKeepAlive() {
-    // Clear any existing interval
     if (sessionCheckInterval) {
         clearInterval(sessionCheckInterval);
     }
     
-    // Check session every 5 minutes
     sessionCheckInterval = setInterval(async () => {
         if (currentUser) {
             const sessionData = getSession();
@@ -158,15 +145,13 @@ function startSessionKeepAlive() {
                     logout();
                 } else {
                     console.log('✅ Session still valid');
-                    // Update timestamp
                     saveSession(currentUser);
                 }
             }
         }
-    }, 5 * 60 * 1000); // 5 minutes
+    }, 5 * 60 * 1000);
 }
 
-// Stop session keep alive
 function stopSessionKeepAlive() {
     if (sessionCheckInterval) {
         clearInterval(sessionCheckInterval);
@@ -178,7 +163,6 @@ function stopSessionKeepAlive() {
 // UTILITY FUNCTIONS
 // =====================================================
 
-// Simple Hash Function (SHA-256 simulation)
 async function hashPassword(password) {
     const msgBuffer = new TextEncoder().encode(password);
     const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
@@ -186,7 +170,6 @@ async function hashPassword(password) {
     return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-// Get User IP Address
 async function getUserIP() {
     try {
         const response = await fetch('https://api.ipify.org?format=json');
@@ -198,7 +181,6 @@ async function getUserIP() {
     }
 }
 
-// Supabase API Helper
 async function supabaseRequest(endpoint, method = 'GET', body = null) {
     const options = {
         method,
@@ -225,7 +207,148 @@ async function supabaseRequest(endpoint, method = 'GET', body = null) {
     return method === 'DELETE' ? null : await response.json();
 }
 
-// Show Error Message
+// Upload file to Supabase Storage
+async function uploadToStorage(file, projectId, fileName) {
+    try {
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        const path = `${projectId}/${fileName}`;
+        
+        const response = await fetch(
+            `${SUPABASE_URL}/storage/v1/object/${STORAGE_BUCKET}/${path}`,
+            {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                    'apikey': SUPABASE_ANON_KEY
+                },
+                body: file
+            }
+        );
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'Upload failed');
+        }
+        
+        // Return public URL
+        const publicURL = `${SUPABASE_URL}/storage/v1/object/public/${STORAGE_BUCKET}/${path}`;
+        return publicURL;
+        
+    } catch (error) {
+        console.error('Storage upload error:', error);
+        throw error;
+    }
+}
+
+// Get public URL for stored file
+function getPublicURL(projectId, fileName) {
+    return `${SUPABASE_URL}/storage/v1/object/public/${STORAGE_BUCKET}/${projectId}/${fileName}`;
+}
+
+// Generate viewer page HTML
+function generateViewerPage(projectId, files, domainName) {
+    // Find index.html or first HTML file
+    const indexFile = files.find(f => f.file_name.toLowerCase() === 'index.html') || 
+                     files.find(f => f.file_name.endsWith('.html'));
+    
+    if (!indexFile) {
+        return `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${domainName}</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 40px;
+            font-family: system-ui, -apple-system, sans-serif;
+            background: #0f172a;
+            color: #f1f5f9;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        h1 { color: #00AD9F; }
+        .file-list {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        a {
+            color: #00AD9F;
+            text-decoration: none;
+            display: block;
+            padding: 10px;
+            margin: 5px 0;
+            background: #0f172a;
+            border-radius: 4px;
+        }
+        a:hover { background: #334155; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 ${domainName}</h1>
+        <p>No index.html found. Available files:</p>
+        <div class="file-list">
+            ${files.map(f => `<a href="${getPublicURL(projectId, f.file_name)}" target="_blank">📄 ${f.file_name}</a>`).join('')}
+        </div>
+    </div>
+</body>
+</html>`;
+    }
+    
+    // Generate HTML that loads the main file and its dependencies
+    return `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${domainName}</title>
+    <base href="${SUPABASE_URL}/storage/v1/object/public/${STORAGE_BUCKET}/${projectId}/">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        #app-frame {
+            width: 100%;
+            height: 100vh;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <iframe id="app-frame" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"></iframe>
+    <script>
+        // Load the main HTML file
+        fetch('${getPublicURL(projectId, indexFile.file_name)}')
+            .then(res => res.text())
+            .then(html => {
+                const frame = document.getElementById('app-frame');
+                const doc = frame.contentDocument || frame.contentWindow.document;
+                doc.open();
+                doc.write(html);
+                doc.close();
+            })
+            .catch(err => {
+                console.error('Load error:', err);
+                document.body.innerHTML = '<h1 style="color: red;">Error loading project</h1>';
+            });
+    </script>
+</body>
+</html>`;
+}
+
 function showError(elementId, message) {
     const errorEl = document.getElementById(elementId);
     if (errorEl) {
@@ -235,7 +358,6 @@ function showError(elementId, message) {
     }
 }
 
-// Escape HTML
 function escapeHtml(text) {
     if (!text) return '';
     const div = document.createElement('div');
@@ -275,25 +397,21 @@ document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
         const userIP = await getUserIP();
         const hashedPassword = await hashPassword(password);
 
-        // Check if user exists
         const existingUsers = await supabaseRequest(`users?username=eq.${encodeURIComponent(username)}`);
 
         if (existingUsers && existingUsers.length > 0) {
             const user = existingUsers[0];
 
-            // Check if banned
             if (user.is_banned) {
                 showError('loginError', '🚫 Error: သင့်အကောင့်ကို ပိတ်ထားပါသည်။ Admin နှင့်ဆက်သွယ်ပါ။');
                 return;
             }
 
-            // Check password
             if (user.password_hash !== hashedPassword) {
                 showError('loginError', '❌ Error: Password မမှန်ကန်ပါ။');
                 return;
             }
 
-            // Check device limit
             if (user.device_limit !== 999 && user.allowed_ips && user.allowed_ips.length > 0) {
                 if (!user.allowed_ips.includes(userIP)) {
                     showError('loginError', `🔒 Error: ဤ IP Address (${userIP}) မှ Login ဝင်ခွင့်မရှိပါ။ သင့်အကောင့်ကို ${user.device_limit} Device သက်မှတ်ထားပါသည်။`);
@@ -301,13 +419,11 @@ document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
                 }
             }
 
-            // Update last login and IP
             await supabaseRequest(`users?id=eq.${user.id}`, 'PATCH', {
                 last_login: new Date().toISOString(),
                 ip_address: userIP
             });
 
-            // Create active session
             await supabaseRequest('active_sessions', 'POST', {
                 user_id: user.id,
                 username: user.username,
@@ -316,17 +432,11 @@ document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
             });
 
             currentUser = user;
-            
-            // Save session to localStorage
             saveSession(user);
-            
-            // Start session keep alive
             startSessionKeepAlive();
-            
             showDashboard();
 
         } else {
-            // Create new user
             const newUser = await supabaseRequest('users', 'POST', {
                 username,
                 password_hash: hashedPassword,
@@ -336,7 +446,6 @@ document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
             });
 
             if (newUser && newUser.length > 0) {
-                // Create session
                 await supabaseRequest('active_sessions', 'POST', {
                     user_id: newUser[0].id,
                     username: newUser[0].username,
@@ -345,13 +454,8 @@ document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
                 });
 
                 currentUser = newUser[0];
-                
-                // Save session to localStorage
                 saveSession(newUser[0]);
-                
-                // Start session keep alive
                 startSessionKeepAlive();
-                
                 showDashboard();
             }
         }
@@ -366,7 +470,6 @@ document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
 // DASHBOARD FUNCTIONS
 // =====================================================
 
-// Show Dashboard
 function showDashboard() {
     document.getElementById('loginSection').classList.remove('active');
     document.getElementById('dashboardSection').classList.add('active');
@@ -374,26 +477,16 @@ function showDashboard() {
     loadProjects();
 }
 
-// Logout
 function logout() {
-    // Stop session keep alive
     stopSessionKeepAlive();
-    
-    // Clear session
     clearSession();
-    
-    // Reset current user
     currentUser = null;
-    
-    // Switch to login page
     document.getElementById('dashboardSection').classList.remove('active');
     document.getElementById('loginSection').classList.add('active');
     document.getElementById('loginForm').reset();
-    
     console.log('✅ Logged out successfully');
 }
 
-// Load Projects
 async function loadProjects() {
     try {
         const projects = await supabaseRequest(`projects?user_id=eq.${currentUser.id}&order=created_at.desc`);
@@ -411,14 +504,18 @@ async function loadProjects() {
             return;
         }
 
-        projectsList.innerHTML = projects.map(project => `
+        projectsList.innerHTML = projects.map(project => {
+            // Generate viewer URL
+            const viewerURL = `${window.location.origin}/viewer.html?project=${project.id}`;
+            
+            return `
             <div class="project-card">
                 <div class="project-header">
                     <div>
                         <h3>${escapeHtml(project.project_name)}</h3>
                         <p class="project-domain">
-                            <a href="https://${escapeHtml(project.domain_name)}" target="_blank">
-                                ${escapeHtml(project.domain_name)}
+                            <a href="${viewerURL}" target="_blank">
+                                🌐 ${escapeHtml(project.domain_name)}
                             </a>
                         </p>
                     </div>
@@ -430,22 +527,31 @@ async function loadProjects() {
                     <p>🕒 Updated: ${new Date(project.updated_at).toLocaleString('my-MM')}</p>
                 </div>
                 <div class="project-actions">
+                    <button onclick="copyProjectURL('${viewerURL}')" class="btn btn-secondary btn-sm">📋 Copy URL</button>
                     <button onclick="editProject('${project.id}')" class="btn btn-secondary btn-sm">✏️ Edit</button>
                     <button onclick="deleteProject('${project.id}', '${escapeHtml(project.project_name)}')" class="btn btn-danger btn-sm">🗑️ Delete</button>
                 </div>
             </div>
-        `).join('');
+        `}).join('');
 
     } catch (error) {
         console.error('Load projects error:', error);
     }
 }
 
+// Copy project URL to clipboard
+function copyProjectURL(url) {
+    navigator.clipboard.writeText(url).then(() => {
+        alert('✅ URL copied to clipboard!\n\n' + url);
+    }).catch(err => {
+        prompt('Copy this URL:', url);
+    });
+}
+
 // =====================================================
 // PROJECT MODAL FUNCTIONS
 // =====================================================
 
-// Show New Project Modal
 function showNewProjectModal() {
     document.getElementById('newProjectModal').classList.add('show');
     document.getElementById('newProjectForm').reset();
@@ -454,19 +560,16 @@ function showNewProjectModal() {
     envVarCount = 0;
 }
 
-// Close New Project Modal
 function closeNewProjectModal() {
     document.getElementById('newProjectModal').classList.remove('show');
 }
 
-// Domain Preview
 document.getElementById('domainName')?.addEventListener('input', (e) => {
     const domain = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
     e.target.value = domain;
     document.getElementById('domainPreview').textContent = `${domain || 'yoursite'}.opper.mmr`;
 });
 
-// File Upload Handler
 document.getElementById('projectFiles')?.addEventListener('change', (e) => {
     const files = Array.from(e.target.files);
     const filesList = document.getElementById('filesList');
@@ -518,7 +621,6 @@ document.getElementById('projectFiles')?.addEventListener('change', (e) => {
     }
 });
 
-// Add Environment Variable
 function addEnvVariable() {
     envVarCount++;
     const envDiv = document.getElementById('envVariables');
@@ -560,7 +662,7 @@ document.getElementById('newProjectForm')?.addEventListener('submit', async (e) 
     
     deployBtn.disabled = true;
     deployProgress.classList.add('show');
-    deployProgress.innerHTML = '<div class="progress-step">🔄 Deploying...</div>';
+    deployProgress.innerHTML = '<div class="progress-step">🔄 Starting deployment...</div>';
     
     try {
         // Check if domain exists
@@ -584,19 +686,52 @@ document.getElementById('newProjectForm')?.addEventListener('submit', async (e) 
         
         const projectId = project[0].id;
         
-        // Upload files
+        // Upload files to storage
+        deployProgress.innerHTML += '<div class="progress-step">📤 Uploading files to storage...</div>';
+        
+        const uploadedFiles = [];
+        
         for (let file of files) {
             const content = await readFileAsText(file);
             
-            await supabaseRequest('project_files', 'POST', {
-                project_id: projectId,
-                file_name: file.name,
-                file_content: content,
-                file_size: file.size,
-                file_type: file.type || 'text/plain'
-            });
-            
-            deployProgress.innerHTML += `<div class="progress-step">✅ Uploaded ${file.name}</div>`;
+            // Upload to Supabase Storage
+            try {
+                const storageURL = await uploadToStorage(file, projectId, file.name);
+                
+                // Save file metadata to database
+                await supabaseRequest('project_files', 'POST', {
+                    project_id: projectId,
+                    file_name: file.name,
+                    file_content: content,
+                    file_size: file.size,
+                    file_type: file.type || 'text/plain',
+                    storage_url: storageURL
+                });
+                
+                uploadedFiles.push({
+                    file_name: file.name,
+                    storage_url: storageURL
+                });
+                
+                deployProgress.innerHTML += `<div class="progress-step">✅ Uploaded ${file.name}</div>`;
+            } catch (uploadError) {
+                console.error('File upload error:', uploadError);
+                deployProgress.innerHTML += `<div class="progress-step error">⚠️ ${file.name} - saved to database only</div>`;
+                
+                // Save to database even if storage fails
+                await supabaseRequest('project_files', 'POST', {
+                    project_id: projectId,
+                    file_name: file.name,
+                    file_content: content,
+                    file_size: file.size,
+                    file_type: file.type || 'text/plain'
+                });
+                
+                uploadedFiles.push({
+                    file_name: file.name,
+                    storage_url: null
+                });
+            }
         }
         
         // Save environment variables
@@ -623,18 +758,26 @@ document.getElementById('newProjectForm')?.addEventListener('submit', async (e) 
         // Log deployment
         await supabaseRequest('deployment_logs', 'POST', {
             project_id: projectId,
+            user_id: currentUser.id,
             action: 'deploy',
             status: 'success',
-            message: 'Project deployed successfully'
+            message: 'Project deployed successfully',
+            metadata: {
+                files_count: files.length,
+                domain: `${domainName}.opper.mmr`
+            }
         });
         
         deployProgress.innerHTML += '<div class="progress-step success">🎉 Deployment successful!</div>';
-        deployProgress.innerHTML += `<div class="progress-step success">🌐 Your site: <a href="https://${domainName}.opper.mmr" target="_blank">${domainName}.opper.mmr</a></div>`;
+        
+        const viewerURL = `${window.location.origin}/viewer.html?project=${projectId}`;
+        deployProgress.innerHTML += `<div class="progress-step success">🌐 Your site: <a href="${viewerURL}" target="_blank">${domainName}.opper.mmr</a></div>`;
+        deployProgress.innerHTML += `<div class="progress-step">📋 Click "Copy URL" button to share your site</div>`;
         
         setTimeout(() => {
             closeNewProjectModal();
             loadProjects();
-        }, 2000);
+        }, 3000);
         
     } catch (error) {
         console.error('Deploy error:', error);
@@ -643,7 +786,6 @@ document.getElementById('newProjectForm')?.addEventListener('submit', async (e) 
     }
 });
 
-// Read File as Text
 function readFileAsText(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -657,7 +799,6 @@ function readFileAsText(file) {
 // EDIT PROJECT FUNCTIONS
 // =====================================================
 
-// Edit Project
 async function editProject(projectId) {
     currentProjectId = projectId;
     
@@ -692,7 +833,6 @@ function closeEditModal() {
     document.getElementById('editProjectModal').classList.remove('show');
 }
 
-// Edit File
 async function editFile(fileId, fileName) {
     currentFileId = fileId;
     
@@ -713,7 +853,6 @@ function closeFileEditor() {
     document.getElementById('fileEditorModal').classList.remove('show');
 }
 
-// Save File Changes
 async function saveFileChanges() {
     const newContent = document.getElementById('fileContentEditor').value;
     const saveProgress = document.getElementById('saveProgress');
@@ -722,34 +861,68 @@ async function saveFileChanges() {
     saveProgress.innerHTML = '<div class="progress-step">🔄 Saving changes...</div>';
     
     try {
-        // Update file content
+        // Get file info
+        const fileData = await supabaseRequest(`project_files?id=eq.${currentFileId}`);
+        const file = fileData[0];
+        
+        // Update file content in database
         await supabaseRequest(`project_files?id=eq.${currentFileId}`, 'PATCH', {
             file_content: newContent,
             file_size: new Blob([newContent]).size,
             updated_at: new Date().toISOString()
         });
         
-        saveProgress.innerHTML += '<div class="progress-step">✅ File saved</div>';
+        saveProgress.innerHTML += '<div class="progress-step">✅ Database updated</div>';
         
-        // Get project ID
-        const file = await supabaseRequest(`project_files?id=eq.${currentFileId}`);
-        const projectId = file[0].project_id;
+        // Update file in storage
+        if (file.storage_url) {
+            try {
+                const blob = new Blob([newContent], { type: file.file_type || 'text/plain' });
+                const storageFile = new File([blob], file.file_name, { type: file.file_type });
+                
+                // Delete old file and upload new one
+                const path = `${file.project_id}/${file.file_name}`;
+                
+                // Upload updated file
+                await fetch(
+                    `${SUPABASE_URL}/storage/v1/object/${STORAGE_BUCKET}/${path}`,
+                    {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Content-Type': file.file_type || 'text/plain'
+                        },
+                        body: newContent
+                    }
+                );
+                
+                saveProgress.innerHTML += '<div class="progress-step">✅ Storage updated</div>';
+            } catch (storageError) {
+                console.error('Storage update error:', storageError);
+                saveProgress.innerHTML += '<div class="progress-step error">⚠️ Storage update failed (database saved)</div>';
+            }
+        }
         
         // Update project
+        const projectId = file.project_id;
+        const project = await supabaseRequest(`projects?id=eq.${projectId}`);
+        
         await supabaseRequest(`projects?id=eq.${projectId}`, 'PATCH', {
             updated_at: new Date().toISOString(),
-            deploy_count: (await supabaseRequest(`projects?id=eq.${projectId}`))[0].deploy_count + 1
+            deploy_count: project[0].deploy_count + 1
         });
         
         // Log redeploy
         await supabaseRequest('deployment_logs', 'POST', {
             project_id: projectId,
+            user_id: currentUser.id,
             action: 'redeploy',
             status: 'success',
-            message: 'Auto-redeployed after file edit'
+            message: `File updated: ${file.file_name}`
         });
         
-        saveProgress.innerHTML += '<div class="progress-step success">🎉 Auto-redeployed successfully!</div>';
+        saveProgress.innerHTML += '<div class="progress-step success">🎉 Changes saved & redeployed!</div>';
         
         setTimeout(() => {
             closeFileEditor();
@@ -763,7 +936,6 @@ async function saveFileChanges() {
     }
 }
 
-// Delete Project
 async function deleteProject(projectId, projectName) {
     if (!confirm(`သင် "${projectName}" ကို ဖျက်ရန် သေချာပါသလား?`)) {
         return;
@@ -772,6 +944,22 @@ async function deleteProject(projectId, projectName) {
     try {
         // Delete project (cascade will delete files, env vars, and logs)
         await supabaseRequest(`projects?id=eq.${projectId}`, 'DELETE');
+        
+        // Try to delete from storage (ignore errors)
+        try {
+            await fetch(
+                `${SUPABASE_URL}/storage/v1/object/${STORAGE_BUCKET}/${projectId}`,
+                {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'apikey': SUPABASE_ANON_KEY
+                    }
+                }
+            );
+        } catch (e) {
+            console.log('Storage deletion skipped');
+        }
         
         alert('✅ Project ကို အောင်မြင်စွာ ဖျက်ပြီးပါပြီ။');
         loadProjects();
@@ -786,11 +974,9 @@ async function deleteProject(projectId, projectName) {
 // INITIALIZATION
 // =====================================================
 
-// Initialize on page load
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('🚀 Opper Deploy Platform Initialized');
     
-    // Try auto-login from saved session
     const loggedIn = await autoLogin();
     
     if (loggedIn) {
@@ -800,10 +986,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-// Handle page visibility change (when user switches tabs or returns)
 document.addEventListener('visibilitychange', async () => {
     if (!document.hidden && currentUser) {
-        // Page is visible again, validate session
         const sessionData = getSession();
         if (sessionData) {
             const isValid = await validateSession(sessionData);
@@ -815,7 +999,6 @@ document.addEventListener('visibilitychange', async () => {
     }
 });
 
-// Handle before unload (optional - update session timestamp)
 window.addEventListener('beforeunload', () => {
     if (currentUser) {
         saveSession(currentUser);
