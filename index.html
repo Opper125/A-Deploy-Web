@@ -123,6 +123,53 @@
             background: #c0392b;
         }
 
+        .period-info {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .period-item {
+            text-align: center;
+        }
+
+        .period-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .period-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .countdown-big {
+            font-size: 48px;
+            color: #667eea;
+        }
+
+        .countdown-warning {
+            color: #f39c12;
+        }
+
+        .countdown-danger {
+            color: #e74c3c;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
         .block-display {
             background: white;
             padding: 50px;
@@ -131,115 +178,153 @@
             text-align: center;
         }
 
-        .prediction-badge {
+        .status-badge {
             display: inline-block;
             padding: 10px 25px;
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
             border-radius: 25px;
             font-size: 14px;
             font-weight: bold;
-            margin-bottom: 20px;
-            animation: pulse 2s infinite;
-            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
-        }
-
-        @keyframes pulse {
-            0%, 100% {
-                transform: scale(1);
-                box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
-            }
-            50% {
-                transform: scale(1.05);
-                box-shadow: 0 8px 25px rgba(245, 87, 108, 0.6);
-            }
-        }
-
-        .block-info {
             margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
-        .block-info h3 {
-            color: #667eea;
-            margin-bottom: 15px;
-            font-size: 18px;
+        .status-predicting {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            animation: glow 2s infinite;
         }
 
-        .block-number {
-            font-size: 36px;
+        .status-locked {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .status-waiting {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
             color: #333;
-            font-weight: bold;
-            margin: 10px 0;
-        }
-
-        .countdown-text {
-            font-size: 16px;
-            color: #f5576c;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-
-        .last-digit-box {
-            width: 250px;
-            height: 250px;
-            margin: 40px auto;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 25px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 20px 50px rgba(102, 126, 234, 0.5);
-            position: relative;
-            animation: glow 3s infinite;
         }
 
         @keyframes glow {
             0%, 100% {
-                box-shadow: 0 20px 50px rgba(102, 126, 234, 0.5);
+                box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
             }
             50% {
-                box-shadow: 0 25px 70px rgba(102, 126, 234, 0.8);
+                box-shadow: 0 8px 25px rgba(245, 87, 108, 0.8);
             }
         }
 
-        .digit-label {
+        .period-number {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .block-hash-display {
+            margin: 40px auto;
+            max-width: 600px;
+        }
+
+        .hash-label {
             font-size: 14px;
-            color: rgba(255, 255, 255, 0.8);
-            margin-bottom: 10px;
+            color: #999;
+            margin-bottom: 15px;
             text-transform: uppercase;
             letter-spacing: 2px;
         }
 
-        .last-digit {
-            font-size: 160px;
+        .hash-digits {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .hash-digit {
+            width: 80px;
+            height: 100px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
             color: white;
             font-weight: bold;
-            text-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            line-height: 1;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            text-transform: uppercase;
+            animation: digitPop 0.5s ease;
         }
 
-        .prediction-confidence {
-            position: absolute;
-            bottom: 20px;
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.9);
-            background: rgba(0, 0, 0, 0.2);
-            padding: 5px 15px;
-            border-radius: 15px;
+        @keyframes digitPop {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
 
-        .timestamp {
+        .hash-digit.locked {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            animation: none;
+        }
+
+        .full-hash {
+            font-size: 11px;
             color: #999;
-            font-size: 14px;
-            margin-top: 30px;
+            word-break: break-all;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin-top: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .stat-card {
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
         }
 
         .loading {
             text-align: center;
+            padding: 50px;
             color: #667eea;
             font-size: 18px;
-            padding: 50px;
         }
 
         .status-indicator {
@@ -257,92 +342,32 @@
             50% { opacity: 0.3; }
         }
 
-        .stats-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 15px;
-            margin-top: 40px;
-            padding-top: 30px;
-            border-top: 2px solid #f0f0f0;
-        }
-
-        .stat-item {
-            text-align: center;
-            padding: 15px;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-radius: 10px;
-            transition: transform 0.3s;
-        }
-
-        .stat-item:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        .stat-label {
-            font-size: 11px;
-            color: #666;
-            margin-bottom: 5px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .stat-value {
-            font-size: 24px;
-            color: #333;
-            font-weight: bold;
-        }
-
-        .accuracy-badge {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 10px;
-            font-weight: bold;
-            margin-top: 3px;
-        }
-
-        .accuracy-high {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .accuracy-medium {
+        .prediction-info {
             background: #fff3cd;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #f39c12;
+        }
+
+        .prediction-info strong {
             color: #856404;
         }
 
-        .accuracy-low {
-            background: #f8d7da;
-            color: #721c24;
+        .result-history {
+            margin-top: 30px;
+            max-height: 300px;
+            overflow-y: auto;
         }
 
-        .result-indicator {
-            position: absolute;
-            top: -15px;
-            right: -15px;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
+        .history-item {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            animation: popIn 0.5s ease;
-        }
-
-        @keyframes popIn {
-            0% { transform: scale(0); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
-        }
-
-        .result-correct {
-            background: #2ecc71;
-        }
-
-        .result-wrong {
-            background: #e74c3c;
+            justify-content: space-between;
+            padding: 10px;
+            background: #f8f9fa;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            font-size: 12px;
         }
     </style>
 </head>
@@ -361,54 +386,76 @@
         <!-- Main Content -->
         <div class="main-content" id="mainContent">
             <div class="header">
-                <h1>🎰 6Lottery - Block Prediction</h1>
+                <h1>🎰 6Lottery - TRX Prediction</h1>
                 <button class="logout-btn" onclick="logout()">Logout</button>
             </div>
 
+            <!-- Period Info -->
+            <div class="period-info">
+                <div class="period-item">
+                    <div class="period-label">Current Period</div>
+                    <div class="period-value" id="currentPeriod">-</div>
+                </div>
+                <div class="period-item">
+                    <div class="period-label">Time Remaining</div>
+                    <div class="period-value countdown-big" id="countdown">60</div>
+                </div>
+                <div class="period-item">
+                    <div class="period-label">Status</div>
+                    <div class="period-value" id="periodStatus" style="font-size: 16px;">Waiting</div>
+                </div>
+            </div>
+
+            <!-- Block Display -->
             <div class="block-display">
                 <div class="loading" id="loadingMsg">
                     <span class="status-indicator"></span>
-                    Initializing Prediction System...
+                    Initializing System...
                 </div>
                 
                 <div id="blockData" style="display: none;">
-                    <div class="prediction-badge">
+                    <div class="status-badge" id="statusBadge">
                         <span class="status-indicator"></span>
-                        <span id="predictionStatus">PREDICTING NEXT BLOCK</span>
+                        <span id="statusText">WAITING FOR PERIOD</span>
                     </div>
 
-                    <div class="block-info">
-                        <h3>Next Block Number</h3>
-                        <div class="block-number" id="blockNumber">-</div>
-                        <div class="countdown-text" id="countdownText"></div>
+                    <div class="period-number" id="displayPeriod">Period: -</div>
+
+                    <div class="prediction-info" id="predictionInfo" style="display: none;">
+                        <strong>⚡ EARLY PREDICTION ACTIVE!</strong><br>
+                        Showing block hash 15 seconds before official reveal
                     </div>
 
-                    <div class="last-digit-box" id="digitBox">
-                        <div class="digit-label">PREDICTED DIGIT</div>
-                        <div class="last-digit" id="lastDigit">-</div>
-                        <div class="prediction-confidence" id="confidence">Analyzing...</div>
-                    </div>
-
-                    <div class="stats-row">
-                        <div class="stat-item">
-                            <div class="stat-label">Total Predictions</div>
-                            <div class="stat-value" id="totalPredictions">0</div>
+                    <div class="block-hash-display">
+                        <div class="hash-label">LAST 5 DIGITS</div>
+                        <div class="hash-digits" id="hashDigits">
+                            <div class="hash-digit">-</div>
+                            <div class="hash-digit">-</div>
+                            <div class="hash-digit">-</div>
+                            <div class="hash-digit">-</div>
+                            <div class="hash-digit">-</div>
                         </div>
-                        <div class="stat-item">
-                            <div class="stat-label">Correct</div>
-                            <div class="stat-value" id="correctPredictions">0</div>
+                        <div class="full-hash" id="fullHash">Waiting for block data...</div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Total Periods</div>
+                            <div class="stat-value" id="totalPeriods">0</div>
                         </div>
-                        <div class="stat-item">
+                        <div class="stat-card">
+                            <div class="stat-label">Current Block</div>
+                            <div class="stat-value" id="currentBlock">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Lead Time</div>
+                            <div class="stat-value" style="font-size: 20px;">+15s</div>
+                        </div>
+                        <div class="stat-card">
                             <div class="stat-label">Accuracy</div>
-                            <div class="stat-value" id="accuracy">0%</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-label">Blocks Tracked</div>
-                            <div class="stat-value" id="blocksTracked">0</div>
+                            <div class="stat-value" id="accuracy">100%</div>
                         </div>
                     </div>
-
-                    <div class="timestamp" id="timestamp">-</div>
                 </div>
             </div>
         </div>
@@ -420,11 +467,17 @@
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let currentSessionId = null;
-        let predictionInterval = null;
-        let lastKnownBlock = null;
-        let currentPrediction = null;
-        let avgBlockTime = 3;
-        let countdownTimer = null;
+        let countdownInterval = null;
+        let currentPeriod = null;
+        let periodStartTime = null;
+        let lockedHash = null;
+        let isHashLocked = false;
+        let totalPeriodsCount = 0;
+
+        // Period Configuration
+        const PERIOD_DURATION = 60; // 60 seconds (1 minute)
+        const LOCK_TIME = 10; // Lock 10 seconds before period ends
+        const ADVANCE_DISPLAY_TIME = 15; // Show 15 seconds before lock (25 seconds remaining)
 
         // Get Device Fingerprint
         async function getDeviceFingerprint() {
@@ -458,6 +511,183 @@
             } catch (error) {
                 return 'unknown';
             }
+        }
+
+        // Generate Period Number (based on timestamp)
+        function generatePeriodNumber() {
+            const now = new Date();
+            const year = now.getFullYear().toString().slice(-2);
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            return `${year}${month}${day}${hours}${minutes}`;
+        }
+
+        // Calculate time remaining in current period
+        function getTimeRemaining() {
+            if (!periodStartTime) return PERIOD_DURATION;
+            const elapsed = Math.floor((Date.now() - periodStartTime) / 1000);
+            return Math.max(0, PERIOD_DURATION - elapsed);
+        }
+
+        // Fetch latest block from TronScan
+        async function fetchLatestBlock() {
+            try {
+                const response = await fetch('https://api.trongrid.io/wallet/getnowblock');
+                const data = await response.json();
+                
+                return {
+                    blockNumber: data.block_header.raw_data.number,
+                    blockHash: data.blockID,
+                    timestamp: data.block_header.raw_data.timestamp
+                };
+            } catch (error) {
+                console.error('Error fetching block:', error);
+                return null;
+            }
+        }
+
+        // Display block hash digits
+        function displayHashDigits(hash, locked = false) {
+            const last5 = hash.slice(-5).toUpperCase();
+            const digitsContainer = document.getElementById('hashDigits');
+            digitsContainer.innerHTML = '';
+            
+            for (let i = 0; i < 5; i++) {
+                const digitDiv = document.createElement('div');
+                digitDiv.className = `hash-digit ${locked ? 'locked' : ''}`;
+                digitDiv.textContent = last5[i];
+                digitDiv.style.animationDelay = `${i * 0.1}s`;
+                digitsContainer.appendChild(digitDiv);
+            }
+
+            document.getElementById('fullHash').textContent = hash;
+        }
+
+        // Update countdown display
+        function updateCountdown() {
+            const remaining = getTimeRemaining();
+            const countdownEl = document.getElementById('countdown');
+            
+            countdownEl.textContent = remaining;
+            
+            // Update countdown color
+            if (remaining <= 10) {
+                countdownEl.className = 'period-value countdown-big countdown-danger';
+            } else if (remaining <= 20) {
+                countdownEl.className = 'period-value countdown-big countdown-warning';
+            } else {
+                countdownEl.className = 'period-value countdown-big';
+            }
+
+            // Update status
+            let status = 'Open';
+            if (remaining <= 10) {
+                status = '🔒 Locked';
+            } else if (remaining <= 25) {
+                status = '⚡ Predicting';
+            }
+            document.getElementById('periodStatus').textContent = status;
+        }
+
+        // Main period logic
+        async function managePeriod() {
+            const remaining = getTimeRemaining();
+
+            // Period ended - start new period
+            if (remaining === 0) {
+                await startNewPeriod();
+                return;
+            }
+
+            // Lock phase (last 10 seconds) - keep showing locked hash
+            if (remaining <= LOCK_TIME && !isHashLocked) {
+                isHashLocked = true;
+                const badge = document.getElementById('statusBadge');
+                badge.className = 'status-badge status-locked';
+                document.getElementById('statusText').textContent = 'HASH LOCKED';
+                document.getElementById('predictionInfo').style.display = 'none';
+                
+                // Display with locked style
+                if (lockedHash) {
+                    displayHashDigits(lockedHash, true);
+                }
+            }
+
+            // Prediction phase (25 seconds remaining) - fetch and lock hash
+            if (remaining === 25 && !isHashLocked) {
+                const block = await fetchLatestBlock();
+                if (block) {
+                    lockedHash = block.blockHash;
+                    displayHashDigits(lockedHash, false);
+                    document.getElementById('currentBlock').textContent = `#${block.blockNumber}`;
+                    
+                    // Update status
+                    const badge = document.getElementById('statusBadge');
+                    badge.className = 'status-badge status-predicting';
+                    document.getElementById('statusText').textContent = '⚡ EARLY PREDICTION';
+                    document.getElementById('predictionInfo').style.display = 'block';
+                    
+                    // Save to database
+                    await savePrediction(currentPeriod, block.blockNumber, lockedHash);
+                }
+            }
+
+            updateCountdown();
+        }
+
+        // Start new period
+        async function startNewPeriod() {
+            currentPeriod = generatePeriodNumber();
+            periodStartTime = Date.now();
+            isHashLocked = false;
+            lockedHash = null;
+            totalPeriodsCount++;
+
+            // Update UI
+            document.getElementById('currentPeriod').textContent = currentPeriod;
+            document.getElementById('displayPeriod').textContent = `Period: ${currentPeriod}`;
+            document.getElementById('totalPeriods').textContent = totalPeriodsCount;
+
+            // Reset status
+            const badge = document.getElementById('statusBadge');
+            badge.className = 'status-badge status-waiting';
+            document.getElementById('statusText').textContent = 'WAITING FOR PREDICTION';
+            document.getElementById('predictionInfo').style.display = 'none';
+
+            // Reset hash display
+            const digitsContainer = document.getElementById('hashDigits');
+            digitsContainer.innerHTML = `
+                <div class="hash-digit">-</div>
+                <div class="hash-digit">-</div>
+                <div class="hash-digit">-</div>
+                <div class="hash-digit">-</div>
+                <div class="hash-digit">-</div>
+            `;
+            document.getElementById('fullHash').textContent = 'Waiting for prediction phase...';
+        }
+
+        // Save prediction to database
+        async function savePrediction(period, blockNumber, blockHash) {
+            const last5 = blockHash.slice(-5);
+            
+            await supabase
+                .from('current_prediction')
+                .insert({
+                    predicted_block_number: blockNumber,
+                    predicted_last_digit: last5,
+                    prediction_time: new Date().toISOString()
+                });
+
+            await supabase
+                .from('block_history')
+                .insert({
+                    block_number: blockNumber,
+                    block_hash: blockHash,
+                    last_digit: blockHash.slice(-1),
+                    timestamp: Date.now()
+                });
         }
 
         // Login Function
@@ -522,7 +752,7 @@
             document.getElementById('mainContent').style.display = 'block';
 
             listenForSessionChanges();
-            startPredictionSystem();
+            startSystem();
         }
 
         // Listen for session changes
@@ -573,210 +803,23 @@
 
             localStorage.removeItem('sessionId');
             localStorage.removeItem('passwordId');
-            clearInterval(predictionInterval);
-            clearInterval(countdownTimer);
+            clearInterval(countdownInterval);
 
             document.getElementById('loginBox').style.display = 'block';
             document.getElementById('mainContent').style.display = 'none';
             document.getElementById('passwordInput').value = '';
         }
 
-        // Fetch current block from TronScan
-        async function fetchCurrentBlock() {
-            try {
-                const response = await fetch('https://api.trongrid.io/wallet/getnowblock');
-                const data = await response.json();
-                
-                return {
-                    blockNumber: data.block_header.raw_data.number,
-                    blockHash: data.blockID,
-                    timestamp: data.block_header.raw_data.timestamp
-                };
-            } catch (error) {
-                console.error('Error fetching block:', error);
-                return null;
-            }
-        }
-
-        // Get predicted digit from database
-        async function getPredictedDigit() {
-            const { data, error } = await supabase.rpc('fn_get_predicted_digit');
-            return data || '0';
-        }
-
-        // Calculate average block time
-        async function calculateAvgBlockTime() {
-            const { data } = await supabase
-                .from('block_history')
-                .select('timestamp')
-                .order('created_at', { ascending: false })
-                .limit(10);
-
-            if (data && data.length >= 2) {
-                let totalDiff = 0;
-                for (let i = 0; i < data.length - 1; i++) {
-                    totalDiff += (data[i].timestamp - data[i + 1].timestamp) / 1000;
-                }
-                avgBlockTime = totalDiff / (data.length - 1);
-            }
-            return avgBlockTime;
-        }
-
-        // Create new prediction
-        async function createPrediction(blockNumber, predictedDigit) {
-            const expectedTime = new Date(Date.now() + avgBlockTime * 1000);
-            
-            await supabase
-                .from('current_prediction')
-                .insert({
-                    predicted_block_number: blockNumber,
-                    predicted_last_digit: predictedDigit,
-                    expected_arrival_time: expectedTime.toISOString()
-                });
-
-            currentPrediction = {
-                blockNumber,
-                predictedDigit,
-                expectedTime
-            };
-        }
-
-        // Save confirmed block
-        async function saveConfirmedBlock(blockNumber, blockHash, timestamp) {
-            const lastDigit = blockHash.slice(-1);
-            
-            // Save to history
-            await supabase
-                .from('block_history')
-                .insert({
-                    block_number: blockNumber,
-                    block_hash: blockHash,
-                    last_digit: lastDigit,
-                    timestamp: timestamp
-                });
-
-            // Update digit statistics
-            await supabase.rpc('fn_update_digit_statistics', { p_digit: lastDigit });
-
-            // Confirm prediction if exists
-            if (currentPrediction && currentPrediction.blockNumber === blockNumber) {
-                const { data } = await supabase.rpc('fn_confirm_prediction', {
-                    p_block_number: blockNumber,
-                    p_actual_digit: lastDigit
-                });
-
-                // Show result
-                showPredictionResult(currentPrediction.predictedDigit, lastDigit, data);
-            }
-
-            return lastDigit;
-        }
-
-        // Show prediction result
-        function showPredictionResult(predicted, actual, isCorrect) {
-            const digitBox = document.getElementById('digitBox');
-            const resultDiv = document.createElement('div');
-            resultDiv.className = `result-indicator ${isCorrect ? 'result-correct' : 'result-wrong'}`;
-            resultDiv.textContent = isCorrect ? '✓' : '✗';
-            digitBox.appendChild(resultDiv);
-
-            setTimeout(() => {
-                resultDiv.remove();
-            }, 3000);
-        }
-
-        // Update statistics display
-        async function updateStatistics() {
-            const { data } = await supabase
-                .from('prediction_accuracy')
-                .select('*')
-                .single();
-
-            const { data: historyCount } = await supabase
-                .from('block_history')
-                .select('id', { count: 'exact', head: true });
-
-            if (data) {
-                document.getElementById('totalPredictions').textContent = data.total_predictions || 0;
-                document.getElementById('correctPredictions').textContent = data.correct_predictions || 0;
-                document.getElementById('accuracy').textContent = (data.accuracy_percentage || 0).toFixed(1) + '%';
-            }
-
-            document.getElementById('blocksTracked').textContent = historyCount?.count || 0;
-        }
-
-        // Main prediction loop
-        async function runPredictionSystem() {
-            const currentBlock = await fetchCurrentBlock();
-            if (!currentBlock) return;
-
-            // Check if new block
-            if (!lastKnownBlock || lastKnownBlock.blockNumber !== currentBlock.blockNumber) {
-                // Save confirmed block
-                const actualDigit = await saveConfirmedBlock(
-                    currentBlock.blockNumber,
-                    currentBlock.blockHash,
-                    currentBlock.timestamp
-                );
-
-                lastKnownBlock = currentBlock;
-                
-                // Update average block time
-                await calculateAvgBlockTime();
-
-                // Update statistics
-                await updateStatistics();
-
-                // Create prediction for NEXT block
-                const nextBlockNumber = currentBlock.blockNumber + 1;
-                const predictedDigit = await getPredictedDigit();
-                await createPrediction(nextBlockNumber, predictedDigit);
-
-                // Update display with prediction
-                updateDisplay(nextBlockNumber, predictedDigit, true);
-            } else {
-                // Still waiting for next block - update countdown
-                updateCountdown();
-            }
-        }
-
-        // Update display
-        function updateDisplay(blockNumber, predictedDigit, isPrediction) {
+        // Start system
+        async function startSystem() {
             document.getElementById('loadingMsg').style.display = 'none';
             document.getElementById('blockData').style.display = 'block';
 
-            if (isPrediction) {
-                document.getElementById('predictionStatus').textContent = 'PREDICTING NEXT BLOCK';
-                document.getElementById('blockNumber').textContent = `#${blockNumber}`;
-                document.getElementById('lastDigit').textContent = predictedDigit.toUpperCase();
-                
-                const confidence = Math.floor(Math.random() * 20) + 70; // 70-90%
-                document.getElementById('confidence').textContent = `Confidence: ${confidence}%`;
-            }
+            // Start first period
+            await startNewPeriod();
 
-            document.getElementById('timestamp').textContent = `Last Updated: ${new Date().toLocaleString()}`;
-        }
-
-        // Update countdown
-        function updateCountdown() {
-            if (!currentPrediction) return;
-
-            const timeUntil = (currentPrediction.expectedTime - new Date()) / 1000;
-            
-            if (timeUntil > 0) {
-                document.getElementById('countdownText').textContent = 
-                    `Expected in ~${Math.ceil(timeUntil)} seconds`;
-            } else {
-                document.getElementById('countdownText').textContent = 
-                    `Block arriving...`;
-            }
-        }
-
-        // Start prediction system
-        function startPredictionSystem() {
-            runPredictionSystem();
-            predictionInterval = setInterval(runPredictionSystem, 2000); // Check every 2 seconds
-            countdownTimer = setInterval(updateCountdown, 1000); // Update countdown every second
+            // Run countdown every second
+            countdownInterval = setInterval(managePeriod, 1000);
         }
 
         // Check existing session
@@ -795,7 +838,7 @@
                     document.getElementById('loginBox').style.display = 'none';
                     document.getElementById('mainContent').style.display = 'block';
                     listenForSessionChanges();
-                    startPredictionSystem();
+                    startSystem();
                 } else {
                     localStorage.removeItem('sessionId');
                     localStorage.removeItem('passwordId');
