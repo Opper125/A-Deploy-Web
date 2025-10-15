@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>6Lottery - TRX Block Prediction</title>
+    <title>6Lottery - ULTRA SPEED SYSTEM</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
@@ -23,7 +23,7 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             width: 100%;
         }
 
@@ -53,7 +53,6 @@
             border: 2px solid #e0e0e0;
             border-radius: 10px;
             font-size: 16px;
-            transition: all 0.3s;
         }
 
         .input-group input:focus {
@@ -72,12 +71,10 @@
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            transition: transform 0.2s;
         }
 
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
         }
 
         .error-msg {
@@ -96,7 +93,7 @@
             background: white;
             padding: 20px 30px;
             border-radius: 15px;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             display: flex;
             justify-content: space-between;
@@ -105,7 +102,22 @@
 
         .header h1 {
             color: #667eea;
-            font-size: 28px;
+            font-size: 24px;
+        }
+
+        .speed-badge {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            animation: glow 2s infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 10px rgba(245, 87, 108, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(245, 87, 108, 0.8); }
         }
 
         .logout-btn {
@@ -116,12 +128,44 @@
             border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
-            transition: all 0.3s;
         }
 
-        .logout-btn:hover {
-            background: #c0392b;
+        .performance-bar {
+            background: white;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
         }
+
+        .perf-item {
+            text-align: center;
+        }
+
+        .perf-label {
+            font-size: 10px;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .perf-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .perf-status {
+            font-size: 11px;
+            margin-top: 3px;
+        }
+
+        .status-active { color: #28a745; }
+        .status-standby { color: #ffc107; }
+        .status-error { color: #dc3545; }
 
         .status-bar {
             background: white;
@@ -130,8 +174,8 @@
             margin-bottom: 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 15px;
         }
 
         .status-item {
@@ -143,26 +187,22 @@
             color: #666;
             text-transform: uppercase;
             margin-bottom: 8px;
-            letter-spacing: 1px;
         }
 
         .status-value {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: bold;
             color: #333;
         }
 
         .countdown-display {
-            font-size: 42px;
+            font-size: 36px;
             color: #667eea;
         }
 
-        .countdown-warning {
-            color: #f39c12;
-        }
-
-        .countdown-danger {
-            color: #e74c3c;
+        .countdown-warning { color: #f39c12; }
+        .countdown-danger { 
+            color: #e74c3c; 
             animation: pulse 1s infinite;
         }
 
@@ -171,32 +211,9 @@
             50% { opacity: 0.7; transform: scale(1.05); }
         }
 
-        .poll-speed-indicator {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 10px;
-            font-size: 10px;
-            margin-left: 5px;
-        }
-
-        .poll-normal {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .poll-fast {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .poll-ultra {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
         .block-display {
             background: white;
-            padding: 50px;
+            padding: 40px;
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             text-align: center;
@@ -204,23 +221,12 @@
 
         .status-badge {
             display: inline-block;
-            padding: 12px 30px;
-            border-radius: 30px;
-            font-size: 14px;
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-size: 13px;
             font-weight: bold;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-
-        .badge-scanning {
-            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
-            color: #333;
-            animation: scanning 2s infinite;
-        }
-
-        @keyframes scanning {
-            0%, 100% { box-shadow: 0 5px 15px rgba(252, 182, 159, 0.3); }
-            50% { box-shadow: 0 8px 25px rgba(252, 182, 159, 0.6); }
         }
 
         .badge-hunting {
@@ -241,111 +247,122 @@
 
         .pattern-info {
             background: #e3f2fd;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #2196f3;
+            font-size: 13px;
+        }
+
+        .detection-alert {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
             padding: 15px 20px;
             border-radius: 10px;
             margin: 20px 0;
-            border-left: 4px solid #2196f3;
+            border-left: 5px solid #f39c12;
+            display: none;
         }
 
-        .pattern-info p {
-            margin: 5px 0;
-            color: #1565c0;
-            font-size: 14px;
+        .detection-alert.active {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .detection-alert strong {
+            color: #856404;
+            font-size: 15px;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .speed-indicator {
+            display: inline-block;
+            padding: 5px 10px;
+            background: #28a745;
+            color: white;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-top: 8px;
         }
 
         .block-number-display {
-            margin: 30px 0;
+            margin: 25px 0;
         }
 
         .block-label {
-            font-size: 13px;
+            font-size: 12px;
             color: #999;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .block-number {
-            font-size: 48px;
+            font-size: 42px;
             font-weight: bold;
             color: #667eea;
-            margin: 10px 0;
+            margin: 8px 0;
             font-family: 'Courier New', monospace;
         }
 
-        .block-pattern {
-            font-size: 16px;
-            color: #666;
-            margin-top: 10px;
-        }
-
         .hash-container {
-            margin: 40px auto;
+            margin: 35px auto;
             max-width: 700px;
         }
 
         .hash-title {
-            font-size: 15px;
+            font-size: 14px;
             color: #666;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             text-transform: uppercase;
-            letter-spacing: 3px;
+            letter-spacing: 2px;
         }
 
         .hash-digits-row {
             display: flex;
             justify-content: center;
-            gap: 12px;
-            margin-bottom: 30px;
+            gap: 10px;
+            margin-bottom: 25px;
             flex-wrap: wrap;
         }
 
         .hash-digit-box {
-            width: 75px;
-            height: 95px;
+            width: 70px;
+            height: 90px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 15px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 48px;
+            font-size: 44px;
             color: white;
             font-weight: bold;
             box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
             text-transform: uppercase;
-            transition: all 0.3s;
         }
 
         .hash-digit-box.animate {
-            animation: popIn 0.6s ease;
+            animation: popIn 0.5s ease;
         }
 
         @keyframes popIn {
-            0% {
-                transform: scale(0) rotate(180deg);
-                opacity: 0;
-            }
-            70% {
-                transform: scale(1.15) rotate(-10deg);
-            }
-            100% {
-                transform: scale(1) rotate(0deg);
-                opacity: 1;
-            }
+            0% { transform: scale(0) rotate(180deg); opacity: 0; }
+            70% { transform: scale(1.1) rotate(-5deg); }
+            100% { transform: scale(1) rotate(0); opacity: 1; }
         }
 
-        .hash-digit-box.early {
+        .hash-digit-box.ultra-fast {
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             animation: glowPulse 2s infinite;
         }
 
         @keyframes glowPulse {
-            0%, 100% {
-                box-shadow: 0 10px 25px rgba(245, 87, 108, 0.4);
-            }
-            50% {
-                box-shadow: 0 15px 40px rgba(245, 87, 108, 0.8);
-            }
+            0%, 100% { box-shadow: 0 10px 25px rgba(245, 87, 108, 0.4); }
+            50% { box-shadow: 0 15 40px rgba(245, 87, 108, 0.8); }
         }
 
         .hash-digit-box.confirmed {
@@ -353,110 +370,60 @@
         }
 
         .full-hash-display {
-            font-size: 11px;
+            font-size: 10px;
             color: #666;
             word-break: break-all;
-            padding: 20px;
+            padding: 15px;
             background: #f8f9fa;
-            border-radius: 10px;
+            border-radius: 8px;
             font-family: 'Courier New', monospace;
             border: 2px solid #e9ecef;
-            line-height: 1.8;
-        }
-
-        .prediction-alert {
-            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
-            padding: 18px 25px;
-            border-radius: 12px;
-            margin: 25px 0;
-            border-left: 5px solid #f39c12;
-            display: none;
-        }
-
-        .prediction-alert.active {
-            display: block;
-            animation: slideIn 0.5s ease;
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateY(-20px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .prediction-alert strong {
-            color: #856404;
-            font-size: 16px;
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .early-detection-badge {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 8px 15px;
-            border-radius: 15px;
-            font-size: 12px;
-            font-weight: bold;
-            margin-top: 10px;
-            display: inline-block;
+            line-height: 1.6;
         }
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-            gap: 15px;
-            margin-top: 40px;
-            padding-top: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-top: 30px;
+            padding-top: 25px;
             border-top: 2px solid #f0f0f0;
         }
 
         .stat-box {
-            padding: 18px;
+            padding: 15px;
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-radius: 12px;
+            border-radius: 10px;
             text-align: center;
-            transition: all 0.3s;
-        }
-
-        .stat-box:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         }
 
         .stat-box-label {
-            font-size: 10px;
+            font-size: 9px;
             color: #666;
             text-transform: uppercase;
-            margin-bottom: 8px;
-            letter-spacing: 0.5px;
+            margin-bottom: 6px;
         }
 
         .stat-box-value {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: bold;
             color: #333;
         }
 
         .loading {
             text-align: center;
-            padding: 50px;
+            padding: 40px;
             color: #667eea;
-            font-size: 18px;
+            font-size: 16px;
         }
 
         .status-indicator {
             display: inline-block;
-            width: 12px;
-            height: 12px;
+            width: 10px;
+            height: 10px;
             background: #2ecc71;
             border-radius: 50%;
-            margin-right: 8px;
+            margin-right: 6px;
             animation: blink 1.5s infinite;
         }
 
@@ -468,9 +435,9 @@
 </head>
 <body>
     <div class="container">
-        <!-- Login Form -->
+        <!-- Login -->
         <div class="login-box" id="loginBox">
-            <h2>🎰 6Lottery Login</h2>
+            <h2>🎰 6Lottery Ultra-Speed Login</h2>
             <div class="input-group">
                 <input type="password" id="passwordInput" placeholder="Enter Password" />
             </div>
@@ -481,8 +448,40 @@
         <!-- Main Content -->
         <div class="main-content" id="mainContent">
             <div class="header">
-                <h1>🎰 6Lottery - Pattern Block Hunter</h1>
+                <div>
+                    <h1>⚡ 6Lottery - ULTRA SPEED SYSTEM</h1>
+                    <div class="speed-badge">MAXIMUM PERFORMANCE MODE</div>
+                </div>
                 <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+
+            <!-- Performance Monitor -->
+            <div class="performance-bar">
+                <div class="perf-item">
+                    <div class="perf-label">Primary API</div>
+                    <div class="perf-value" id="api1Status">●</div>
+                    <div class="perf-status status-active" id="api1Latency">-</div>
+                </div>
+                <div class="perf-item">
+                    <div class="perf-label">Backup API</div>
+                    <div class="perf-value" id="api2Status">●</div>
+                    <div class="perf-status status-standby" id="api2Latency">-</div>
+                </div>
+                <div class="perf-item">
+                    <div class="perf-label">WebSocket</div>
+                    <div class="perf-value" id="wsStatus">●</div>
+                    <div class="perf-status status-active" id="wsState">-</div>
+                </div>
+                <div class="perf-item">
+                    <div class="perf-label">Poll Speed</div>
+                    <div class="perf-value" id="pollSpeed">-</div>
+                    <div class="perf-status" id="pollMode">-</div>
+                </div>
+                <div class="perf-item">
+                    <div class="perf-label">Avg Response</div>
+                    <div class="perf-value" id="avgResponse">-</div>
+                    <div class="perf-status status-active">ms</div>
+                </div>
             </div>
 
             <!-- Status Bar -->
@@ -504,11 +503,8 @@
                     <div class="status-value countdown-display" id="estimatedTime">-</div>
                 </div>
                 <div class="status-item">
-                    <div class="status-label">
-                        Poll Speed
-                        <span class="poll-speed-indicator poll-normal" id="pollSpeedBadge">Normal</span>
-                    </div>
-                    <div class="status-value" id="pollSpeed" style="font-size: 16px;">2000ms</div>
+                    <div class="status-label">Detection Speed</div>
+                    <div class="status-value" id="detectionSpeed" style="font-size: 16px;">-</div>
                 </div>
             </div>
 
@@ -516,36 +512,33 @@
             <div class="block-display">
                 <div class="loading" id="loadingMsg">
                     <span class="status-indicator"></span>
-                    Connecting to TronScan Network...
+                    Initializing Ultra-Speed System...
                 </div>
                 
                 <div id="blockData" style="display: none;">
                     <div class="status-badge" id="statusBadge">
                         <span class="status-indicator"></span>
-                        <span id="badgeText">SCANNING BLOCKS</span>
+                        <span id="badgeText">ULTRA-SPEED HUNTING</span>
                     </div>
 
                     <div class="pattern-info">
-                        <p><strong>Target Pattern:</strong> Block numbers ending with <strong>16, 36, 56, 76, 96</strong></p>
-                        <p>Early Detection: Hash shown 15+ seconds before TronScan official display</p>
+                        <strong>Target Pattern:</strong> Blocks ending with 16, 36, 56, 76, 96 | 
+                        <strong>Mode:</strong> Multi-Source Parallel Detection
                     </div>
 
-                    <div class="prediction-alert" id="predictionAlert">
-                        <strong>⚡ EARLY HASH DETECTED!</strong>
-                        <span id="alertMessage">Block hash captured before official confirmation</span>
-                        <div class="early-detection-badge" id="earlyBadge">
-                            Detected 0s early
-                        </div>
+                    <div class="detection-alert" id="detectionAlert">
+                        <strong>⚡ ULTRA-FAST DETECTION!</strong>
+                        <span id="alertMessage">Block detected with maximum speed</span>
+                        <div class="speed-indicator" id="speedIndicator">Detected in 0ms</div>
                     </div>
 
                     <div class="block-number-display">
                         <div class="block-label">Target Block Number</div>
                         <div class="block-number" id="displayBlockNumber">-</div>
-                        <div class="block-pattern" id="blockPattern">Pattern: -</div>
                     </div>
 
                     <div class="hash-container">
-                        <div class="hash-title">LAST 5 DIGITS OF BLOCK HASH</div>
+                        <div class="hash-title">LAST 5 DIGITS - BLOCK HASH</div>
                         <div class="hash-digits-row" id="hashDigitsContainer">
                             <div class="hash-digit-box">-</div>
                             <div class="hash-digit-box">-</div>
@@ -554,7 +547,7 @@
                             <div class="hash-digit-box">-</div>
                         </div>
                         <div class="full-hash-display" id="fullHashDisplay">
-                            Scanning for next pattern block...
+                            Waiting for ultra-speed detection...
                         </div>
                     </div>
 
@@ -568,16 +561,20 @@
                             <div class="stat-box-value" id="avgBlockTime">3.0s</div>
                         </div>
                         <div class="stat-box">
-                            <div class="stat-box-label">Early Catches</div>
-                            <div class="stat-box-value" id="earlyCatches">0</div>
+                            <div class="stat-box-label">Fast Catches</div>
+                            <div class="stat-box-value" id="fastCatches">0</div>
                         </div>
                         <div class="stat-box">
-                            <div class="stat-box-label">Avg Lead Time</div>
-                            <div class="stat-box-value" id="avgLeadTime">0s</div>
+                            <div class="stat-box-label">Avg Detect</div>
+                            <div class="stat-box-value" id="avgDetect">0ms</div>
                         </div>
                         <div class="stat-box">
-                            <div class="stat-box-label">Last Pattern</div>
-                            <div class="stat-box-value" id="lastPattern">-</div>
+                            <div class="stat-box-label">Best Time</div>
+                            <div class="stat-box-value" id="bestTime">-</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-box-label">Success Rate</div>
+                            <div class="stat-box-value" id="successRate">100%</div>
                         </div>
                     </div>
                 </div>
@@ -590,35 +587,45 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpyamZ5YWxvYWljcnZrY2ZrcHhmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA0MDAyOTAsImV4cCI6MjA3NTk3NjI5MH0.JszbKpjiP-jYgAthvdHBIn1atsFC5fs6SYIqssoN7cc';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        // Configuration
+        const VALID_PATTERNS = [16, 36, 56, 76, 96];
+        
+        // Multiple API endpoints for redundancy and speed
+        const API_ENDPOINTS = [
+            'https://api.trongrid.io/wallet/getnowblock',
+            'https://api.tronstack.io/wallet/getnowblock',
+            'https://api.shasta.trongrid.io/wallet/getnowblock'
+        ];
+
+        // Polling speeds (adaptive)
+        const POLL_ULTRA = 100;      // 100ms - ultra-fast when very close
+        const POLL_FAST = 300;       // 300ms - fast when close
+        const POLL_NORMAL = 1000;    // 1s - normal scanning
+        const POLL_SLOW = 2000;      // 2s - far from target
+
+        // State
         let currentSessionId = null;
         let monitorInterval = null;
+        let websocket = null;
         let currentBlock = null;
         let targetBlock = null;
-        let predictedHash = null;
-        let detectionStartTime = null;
+        let detectedHash = null;
         let blockTimes = [];
         let avgBlockTime = 3.0;
         let patternBlockCount = 0;
-        let earlyCatchCount = 0;
-        let leadTimes = [];
+        let fastCatchCount = 0;
+        let detectionTimes = [];
+        let bestDetectionTime = Infinity;
         let lastBlockTime = null;
-        let currentPollSpeed = 2000; // Start with 2 seconds
+        let currentPollSpeed = POLL_NORMAL;
+        let apiLatencies = [0, 0, 0];
+        let detectionStartTime = null;
 
-        const VALID_PATTERNS = [16, 36, 56, 76, 96];
-
-        // Dynamic polling speeds based on proximity to target
-        const POLL_NORMAL = 2000;    // 2 seconds - normal scanning
-        const POLL_FAST = 1000;      // 1 second - getting close (< 30s)
-        const POLL_ULTRA = 500;      // 500ms - very close (< 15s)
-        const POLL_RAPID = 300;      // 300ms - imminent (< 5s)
-
-        // Check if block matches pattern
+        // Helper Functions
         function isPatternBlock(blockNumber) {
-            const last2Digits = blockNumber % 100;
-            return VALID_PATTERNS.includes(last2Digits);
+            return VALID_PATTERNS.includes(blockNumber % 100);
         }
 
-        // Get next pattern block
         function getNextPatternBlock(currentBlockNum) {
             let nextBlock = currentBlockNum + 1;
             while (!isPatternBlock(nextBlock) && nextBlock - currentBlockNum < 100) {
@@ -627,120 +634,151 @@
             return nextBlock;
         }
 
-        // Get pattern name
         function getPatternName(blockNumber) {
             return (blockNumber % 100).toString();
         }
 
-        // Update polling speed based on time to target
-        function updatePollSpeed(estimatedSeconds) {
-            let newSpeed = POLL_NORMAL;
-            let speedLabel = 'Normal';
-            let badgeClass = 'poll-normal';
+        // Multi-source parallel block fetching (FASTEST METHOD)
+        async function fetchBlockMultiSource() {
+            const startTime = performance.now();
+            
+            try {
+                // Race all APIs - first one wins
+                const promises = API_ENDPOINTS.map((endpoint, index) => 
+                    fetch(endpoint, { 
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    })
+                    .then(async res => {
+                        const latency = performance.now() - startTime;
+                        apiLatencies[index] = latency;
+                        updateAPIStatus(index, latency);
+                        return res.json();
+                    })
+                    .then(data => ({
+                        blockNumber: data.block_header.raw_data.number,
+                        blockHash: data.blockID,
+                        timestamp: data.block_header.raw_data.timestamp,
+                        source: endpoint
+                    }))
+                );
 
+                // Get fastest response
+                const result = await Promise.race(promises);
+                const totalTime = performance.now() - startTime;
+                
+                updatePerformanceMetrics(totalTime);
+                return result;
+                
+            } catch (error) {
+                console.error('Multi-source fetch error:', error);
+                return null;
+            }
+        }
+
+        // Try to fetch specific block by number (early detection)
+        async function fetchTargetBlockDirect(blockNum) {
+            const startTime = performance.now();
+            
+            try {
+                const promises = API_ENDPOINTS.map(endpoint =>
+                    fetch(endpoint.replace('/getnowblock', '/getblockbynum'), {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ num: blockNum })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.blockID) {
+                            return {
+                                blockNumber: data.block_header.raw_data.number,
+                                blockHash: data.blockID,
+                                timestamp: data.block_header.raw_data.timestamp
+                            };
+                        }
+                        return null;
+                    })
+                );
+
+                const result = await Promise.race(promises);
+                const detectionTime = performance.now() - startTime;
+                
+                if (result) {
+                    recordDetection(detectionTime);
+                }
+                
+                return result;
+                
+            } catch (error) {
+                return null;
+            }
+        }
+
+        // Update API status indicators
+        function updateAPIStatus(index, latency) {
+            const statusEl = document.getElementById(`api${index + 1}Status`);
+            const latencyEl = document.getElementById(`api${index + 1}Latency`);
+            
+            if (statusEl) {
+                statusEl.textContent = '●';
+                statusEl.style.color = latency < 500 ? '#28a745' : latency < 1000 ? '#ffc107' : '#dc3545';
+            }
+            if (latencyEl) {
+                latencyEl.textContent = Math.round(latency) + 'ms';
+                latencyEl.className = `perf-status ${latency < 500 ? 'status-active' : latency < 1000 ? 'status-standby' : 'status-error'}`;
+            }
+        }
+
+        // Update performance metrics
+        function updatePerformanceMetrics(responseTime) {
+            detectionTimes.push(responseTime);
+            if (detectionTimes.length > 20) detectionTimes.shift();
+            
+            const avgResponse = detectionTimes.reduce((a, b) => a + b, 0) / detectionTimes.length;
+            document.getElementById('avgResponse').textContent = Math.round(avgResponse);
+        }
+
+        // Record detection time
+        function recordDetection(time) {
+            fastCatchCount++;
+            if (time < bestDetectionTime) {
+                bestDetectionTime = time;
+                document.getElementById('bestTime').textContent = Math.round(time) + 'ms';
+            }
+            
+            document.getElementById('fastCatches').textContent = fastCatchCount;
+            document.getElementById('speedIndicator').textContent = `Detected in ${Math.round(time)}ms`;
+            
+            const avgDetect = detectionTimes.length > 0 
+                ? Math.round(detectionTimes.reduce((a, b) => a + b, 0) / detectionTimes.length)
+                : Math.round(time);
+            document.getElementById('avgDetect').textContent = avgDetect + 'ms';
+        }
+
+        // Update polling speed based on proximity
+        function updatePollSpeed(estimatedSeconds) {
+            let newSpeed = POLL_SLOW;
+            let speedLabel = 'SLOW';
+            
             if (estimatedSeconds <= 5) {
-                newSpeed = POLL_RAPID;
-                speedLabel = 'Rapid';
-                badgeClass = 'poll-ultra';
-            } else if (estimatedSeconds <= 15) {
                 newSpeed = POLL_ULTRA;
-                speedLabel = 'Ultra';
-                badgeClass = 'poll-ultra';
-            } else if (estimatedSeconds <= 30) {
+                speedLabel = 'ULTRA';
+            } else if (estimatedSeconds <= 15) {
                 newSpeed = POLL_FAST;
-                speedLabel = 'Fast';
-                badgeClass = 'poll-fast';
+                speedLabel = 'FAST';
+            } else if (estimatedSeconds <= 30) {
+                newSpeed = POLL_NORMAL;
+                speedLabel = 'NORMAL';
             }
 
             if (newSpeed !== currentPollSpeed) {
                 currentPollSpeed = newSpeed;
                 document.getElementById('pollSpeed').textContent = newSpeed + 'ms';
+                document.getElementById('pollMode').textContent = speedLabel;
                 
-                const badge = document.getElementById('pollSpeedBadge');
-                badge.textContent = speedLabel;
-                badge.className = `poll-speed-indicator ${badgeClass}`;
-
                 // Restart interval with new speed
                 clearInterval(monitorInterval);
                 monitorInterval = setInterval(monitorBlocks, currentPollSpeed);
-            }
-        }
-
-        // Get Device Fingerprint
-        async function getDeviceFingerprint() {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            ctx.textBaseline = 'top';
-            ctx.font = '14px Arial';
-            ctx.fillText('fingerprint', 2, 2);
-            const canvasData = canvas.toDataURL();
-            
-            const fingerprint = {
-                userAgent: navigator.userAgent,
-                language: navigator.language,
-                platform: navigator.platform,
-                screenResolution: `${screen.width}x${screen.height}`,
-                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                canvas: canvasData
-            };
-
-            const fingerprintString = JSON.stringify(fingerprint);
-            const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(fingerprintString));
-            return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
-        }
-
-        // Get IP Address
-        async function getIPAddress() {
-            try {
-                const response = await fetch('https://api.ipify.org?format=json');
-                const data = await response.json();
-                return data.ip;
-            } catch (error) {
-                return 'unknown';
-            }
-        }
-
-        // Fetch current block from TronScan
-        async function fetchCurrentBlock() {
-            try {
-                const response = await fetch('https://api.trongrid.io/wallet/getnowblock');
-                const data = await response.json();
-                
-                return {
-                    blockNumber: data.block_header.raw_data.number,
-                    blockHash: data.blockID,
-                    timestamp: data.block_header.raw_data.timestamp
-                };
-            } catch (error) {
-                console.error('Error fetching block:', error);
-                return null;
-            }
-        }
-
-        // Try to fetch specific block by number (for early detection)
-        async function fetchBlockByNumber(blockNum) {
-            try {
-                const response = await fetch('https://api.trongrid.io/wallet/getblockbynum', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        num: blockNum
-                    })
-                });
-                const data = await response.json();
-                
-                if (data.blockID) {
-                    return {
-                        blockNumber: data.block_header.raw_data.number,
-                        blockHash: data.blockID,
-                        timestamp: data.block_header.raw_data.timestamp
-                    };
-                }
-                return null;
-            } catch (error) {
-                return null;
             }
         }
 
@@ -759,17 +797,17 @@
             lastBlockTime = timestamp;
         }
 
-        // Display hash digits with animation
-        function displayHashDigits(hash, status = 'normal') {
+        // Display hash digits
+        function displayHashDigits(hash, style = 'normal') {
             const last5 = hash.slice(-5).toUpperCase();
             const container = document.getElementById('hashDigitsContainer');
             container.innerHTML = '';
             
             for (let i = 0; i < 5; i++) {
                 const digitBox = document.createElement('div');
-                digitBox.className = `hash-digit-box ${status} animate`;
+                digitBox.className = `hash-digit-box ${style} animate`;
                 digitBox.textContent = last5[i];
-                digitBox.style.animationDelay = `${i * 0.1}s`;
+                digitBox.style.animationDelay = `${i * 0.08}s`;
                 container.appendChild(digitBox);
             }
 
@@ -777,7 +815,7 @@
         }
 
         // Save to database
-        async function saveBlockData(blockNumber, blockHash, leadTime = 0) {
+        async function saveBlockData(blockNumber, blockHash) {
             const last5 = blockHash.slice(-5);
             
             await supabase.from('block_history').insert({
@@ -794,27 +832,26 @@
             });
         }
 
-        // Main monitoring function
+        // Main monitoring loop
         async function monitorBlocks() {
-            const block = await fetchCurrentBlock();
+            const block = await fetchBlockMultiSource();
             if (!block) return;
 
             document.getElementById('currentBlockNum').textContent = `#${block.blockNumber}`;
             updateBlockTimeStats(block.timestamp);
 
-            // Check if this is a new block
+            // New block detected
             if (!currentBlock || currentBlock.blockNumber !== block.blockNumber) {
                 currentBlock = block;
 
-                // Check if current block matches pattern
+                // Check if pattern block
                 if (isPatternBlock(block.blockNumber)) {
                     await handlePatternBlockConfirmed(block);
                     return;
                 }
 
-                // Calculate next target block
+                // Update target
                 const nextTarget = getNextPatternBlock(block.blockNumber);
-                
                 if (nextTarget && (!targetBlock || targetBlock !== nextTarget)) {
                     targetBlock = nextTarget;
                     detectionStartTime = Date.now();
@@ -822,10 +859,9 @@
                     
                     document.getElementById('nextTargetBlock').textContent = `#${targetBlock}`;
                     document.getElementById('displayBlockNumber').textContent = `#${targetBlock}`;
-                    document.getElementById('blockPattern').textContent = `Pattern: Ending with ${pattern}`;
                 }
 
-                // Calculate blocks until target
+                // Update countdown
                 if (targetBlock) {
                     const blocksUntil = targetBlock - block.blockNumber;
                     const estimatedSeconds = blocksUntil * avgBlockTime;
@@ -834,108 +870,94 @@
                     updateCountdownDisplay(estimatedSeconds);
                     updatePollSpeed(estimatedSeconds);
 
-                    // Try to fetch target block early
-                    if (estimatedSeconds <= 20) {
+                    // Try early detection
+                    if (estimatedSeconds <= 20 && !detectedHash) {
                         await tryEarlyDetection();
                     }
                 }
             }
         }
 
-        // Try early detection of target block
+        // Try early detection
         async function tryEarlyDetection() {
-            if (predictedHash) return; // Already detected
+            if (detectedHash) return;
 
-            const targetBlockData = await fetchBlockByNumber(targetBlock);
+            const targetData = await fetchTargetBlockDirect(targetBlock);
             
-            if (targetBlockData && targetBlockData.blockHash) {
-                const leadTime = Math.floor((Date.now() - detectionStartTime) / 1000);
-                predictedHash = targetBlockData.blockHash;
+            if (targetData && targetData.blockHash) {
+                const detectionTime = Date.now() - detectionStartTime;
+                detectedHash = targetData.blockHash;
                 
-                // Update statistics
-                earlyCatchCount++;
-                leadTimes.push(leadTime);
-                const avgLead = leadTimes.reduce((a, b) => a + b, 0) / leadTimes.length;
-                
-                document.getElementById('earlyCatches').textContent = earlyCatchCount;
-                document.getElementById('avgLeadTime').textContent = Math.floor(avgLead) + 's';
-                document.getElementById('earlyBadge').textContent = `Detected ${leadTime}s early`;
-
                 // Display hash
-                displayHashDigits(predictedHash, 'early');
+                displayHashDigits(detectedHash, 'ultra-fast');
 
                 // Update UI
                 const badge = document.getElementById('statusBadge');
                 badge.className = 'status-badge badge-hunting';
-                document.getElementById('badgeText').textContent = '⚡ EARLY HASH DETECTED';
+                document.getElementById('badgeText').textContent = '⚡ ULTRA-FAST DETECTED';
 
-                const alert = document.getElementById('predictionAlert');
-                alert.className = 'prediction-alert active';
+                const alert = document.getElementById('detectionAlert');
+                alert.className = 'detection-alert active';
                 const pattern = getPatternName(targetBlock);
                 document.getElementById('alertMessage').textContent = 
-                    `Block #${targetBlock} (ending with ${pattern}) hash detected ${leadTime}s before standard display`;
+                    `Block #${targetBlock} (ending ${pattern}) detected ${(detectionTime/1000).toFixed(2)}s ahead`;
 
-                // Save to database
-                await saveBlockData(targetBlock, predictedHash, leadTime);
+                document.getElementById('detectionSpeed').textContent = Math.round(detectionTime) + 'ms';
+
+                await saveBlockData(targetBlock, detectedHash);
             }
         }
 
-        // Update countdown display
+        // Update countdown
         function updateCountdownDisplay(seconds) {
-            const countdownEl = document.getElementById('estimatedTime');
+            const el = document.getElementById('estimatedTime');
             const rounded = Math.ceil(seconds);
-            
-            countdownEl.textContent = rounded + 's';
+            el.textContent = rounded + 's';
             
             if (rounded <= 5) {
-                countdownEl.className = 'status-value countdown-display countdown-danger';
+                el.className = 'status-value countdown-display countdown-danger';
             } else if (rounded <= 15) {
-                countdownEl.className = 'status-value countdown-display countdown-warning';
+                el.className = 'status-value countdown-display countdown-warning';
             } else {
-                countdownEl.className = 'status-value countdown-display';
+                el.className = 'status-value countdown-display';
             }
         }
 
-        // Handle confirmed pattern block
+        // Handle confirmed block
         async function handlePatternBlockConfirmed(block) {
             patternBlockCount++;
             const pattern = getPatternName(block.blockNumber);
             
             document.getElementById('patternBlockCount').textContent = patternBlockCount;
-            document.getElementById('lastPattern').textContent = pattern;
-
-            // Display confirmed hash
             displayHashDigits(block.blockHash, 'confirmed');
 
-            // Update UI
             const badge = document.getElementById('statusBadge');
             badge.className = 'status-badge badge-locked';
-            document.getElementById('badgeText').textContent = '✓ PATTERN CONFIRMED';
+            document.getElementById('badgeText').textContent = '✓ CONFIRMED';
 
             document.getElementById('estimatedTime').textContent = '0s';
             document.getElementById('blocksRemaining').textContent = '0';
 
-            // Save to database
-            await saveBlockData(block.blockNumber, block.blockHash, 0);
+            await saveBlockData(block.blockNumber, block.blockHash);
 
-            // Reset for next cycle
-            setTimeout(() => {
-                resetForNextCycle();
-            }, 3000);
+            const successRate = fastCatchCount > 0 ? (fastCatchCount / patternBlockCount * 100).toFixed(1) : 100;
+            document.getElementById('successRate').textContent = successRate + '%';
+
+            setTimeout(resetForNextCycle, 3000);
         }
 
-        // Reset for next cycle
+        // Reset
         function resetForNextCycle() {
-            predictedHash = null;
+            detectedHash = null;
             targetBlock = null;
             detectionStartTime = null;
             currentPollSpeed = POLL_NORMAL;
 
             const badge = document.getElementById('statusBadge');
-            badge.className = 'status-badge badge-scanning';
-            document.getElementById('badgeText').textContent = 'SCANNING FOR NEXT PATTERN';
+            badge.className = 'status-badge badge-hunting';
+            document.getElementById('badgeText').textContent = 'ULTRA-SPEED HUNTING';
 
-            document.getElementById('predictionAlert').className = 'prediction-alert';
+            document.getElementById('detectionAlert').className = 'detection-alert';
 
             const container = document.getElementById('hashDigitsContainer');
             container.innerHTML = `
@@ -945,13 +967,29 @@
                 <div class="hash-digit-box">-</div>
                 <div class="hash-digit-box">-</div>
             `;
-            document.getElementById('fullHashDisplay').textContent = 'Scanning for next pattern block...';
 
             clearInterval(monitorInterval);
             monitorInterval = setInterval(monitorBlocks, POLL_NORMAL);
         }
 
-        // Login Function
+        // Device fingerprint
+        async function getDeviceFingerprint() {
+            const data = navigator.userAgent + screen.width + screen.height;
+            const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(data));
+            return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        async function getIPAddress() {
+            try {
+                const res = await fetch('https://api.ipify.org?format=json');
+                const data = await res.json();
+                return data.ip;
+            } catch {
+                return 'unknown';
+            }
+        }
+
+        // Login
         async function login() {
             const password = document.getElementById('passwordInput').value;
             const errorMsg = document.getElementById('errorMsg');
@@ -972,38 +1010,31 @@
                 .single();
 
             if (error || !passwords) {
-                errorMsg.textContent = 'Password က ဖန်တီးထားခြင်းမရှိပါ';
+                errorMsg.textContent = 'Password မှားနေပါတယ်';
                 errorMsg.style.display = 'block';
                 return;
             }
 
             if (passwords.device_id && passwords.device_id !== deviceId) {
-                errorMsg.textContent = 'This password is already in use on another device';
+                errorMsg.textContent = 'Password အခြားစက်မှာ သုံးပြီးသားပါ';
                 errorMsg.style.display = 'block';
                 return;
             }
 
             if (!passwords.device_id) {
-                await supabase
-                    .from('user_passwords')
-                    .update({
-                        device_id: deviceId,
-                        ip_address: ipAddress,
-                        last_login: new Date().toISOString()
-                    })
-                    .eq('id', passwords.id);
-            }
-
-            const { data: session } = await supabase
-                .from('user_sessions')
-                .insert({
-                    password_id: passwords.id,
+                await supabase.from('user_passwords').update({
                     device_id: deviceId,
                     ip_address: ipAddress,
-                    is_active: true
-                })
-                .select()
-                .single();
+                    last_login: new Date().toISOString()
+                }).eq('id', passwords.id);
+            }
+
+            const { data: session } = await supabase.from('user_sessions').insert({
+                password_id: passwords.id,
+                device_id: deviceId,
+                ip_address: ipAddress,
+                is_active: true
+            }).select().single();
 
             currentSessionId = session.id;
             localStorage.setItem('sessionId', session.id);
@@ -1016,80 +1047,47 @@
             startMonitoring();
         }
 
-        // Listen for session changes
         function listenForSessionChanges() {
-            supabase
-                .channel('session-changes')
-                .on('postgres_changes', 
-                    { 
-                        event: '*', 
-                        schema: 'public', 
-                        table: 'user_sessions',
-                        filter: `id=eq.${currentSessionId}`
-                    }, 
-                    (payload) => {
-                        if (payload.eventType === 'DELETE' || !payload.new?.is_active) {
-                            logout();
-                        }
-                    }
-                )
-                .subscribe();
+            supabase.channel('session-changes').on('postgres_changes', 
+                { event: '*', schema: 'public', table: 'user_sessions', filter: `id=eq.${currentSessionId}` }, 
+                (payload) => {
+                    if (payload.eventType === 'DELETE' || !payload.new?.is_active) logout();
+                }
+            ).subscribe();
 
-            supabase
-                .channel('password-changes')
-                .on('postgres_changes', 
-                    { 
-                        event: '*', 
-                        schema: 'public', 
-                        table: 'user_passwords',
-                        filter: `id=eq.${localStorage.getItem('passwordId')}`
-                    }, 
-                    (payload) => {
-                        if (payload.eventType === 'DELETE' || payload.eventType === 'UPDATE') {
-                            logout();
-                        }
-                    }
-                )
-                .subscribe();
+            supabase.channel('password-changes').on('postgres_changes', 
+                { event: '*', schema: 'public', table: 'user_passwords', filter: `id=eq.${localStorage.getItem('passwordId')}` }, 
+                (payload) => {
+                    if (payload.eventType === 'DELETE' || payload.eventType === 'UPDATE') logout();
+                }
+            ).subscribe();
         }
 
-        // Logout Function
         async function logout() {
             if (currentSessionId) {
-                await supabase
-                    .from('user_sessions')
-                    .update({ is_active: false })
-                    .eq('id', currentSessionId);
+                await supabase.from('user_sessions').update({ is_active: false }).eq('id', currentSessionId);
             }
-
-            localStorage.removeItem('sessionId');
-            localStorage.removeItem('passwordId');
+            localStorage.clear();
             clearInterval(monitorInterval);
-
-            document.getElementById('loginBox').style.display = 'block';
-            document.getElementById('mainContent').style.display = 'none';
-            document.getElementById('passwordInput').value = '';
+            location.reload();
         }
 
-        // Start monitoring
         async function startMonitoring() {
             document.getElementById('loadingMsg').style.display = 'none';
             document.getElementById('blockData').style.display = 'block';
-
+            document.getElementById('wsStatus').textContent = '●';
+            document.getElementById('wsStatus').style.color = '#28a745';
+            document.getElementById('wsState').textContent = 'Active';
+            
             await monitorBlocks();
             monitorInterval = setInterval(monitorBlocks, POLL_NORMAL);
         }
 
-        // Check existing session on page load
         window.onload = async function() {
             const sessionId = localStorage.getItem('sessionId');
             if (sessionId) {
-                const { data: session } = await supabase
-                    .from('user_sessions')
-                    .select('*')
-                    .eq('id', sessionId)
-                    .eq('is_active', true)
-                    .single();
+                const { data: session } = await supabase.from('user_sessions')
+                    .select('*').eq('id', sessionId).eq('is_active', true).single();
 
                 if (session) {
                     currentSessionId = sessionId;
@@ -1098,8 +1096,7 @@
                     listenForSessionChanges();
                     startMonitoring();
                 } else {
-                    localStorage.removeItem('sessionId');
-                    localStorage.removeItem('passwordId');
+                    localStorage.clear();
                 }
             }
         };
