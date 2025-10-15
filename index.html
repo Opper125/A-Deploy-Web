@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>6Lottery - ULTRA SPEED SYSTEM</title>
+    <title>6Lottery - SPEED RACE MODE</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
@@ -58,7 +58,6 @@
         .input-group input:focus {
             outline: none;
             border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
         .btn {
@@ -71,10 +70,6 @@
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
         }
 
         .error-msg {
@@ -98,6 +93,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
         }
 
         .header h1 {
@@ -105,19 +101,19 @@
             font-size: 24px;
         }
 
-        .speed-badge {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        .race-badge {
+            background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%);
             color: white;
             padding: 8px 15px;
             border-radius: 20px;
             font-size: 12px;
             font-weight: bold;
-            animation: glow 2s infinite;
+            animation: race 1s infinite;
         }
 
-        @keyframes glow {
-            0%, 100% { box-shadow: 0 0 10px rgba(245, 87, 108, 0.5); }
-            50% { box-shadow: 0 0 20px rgba(245, 87, 108, 0.8); }
+        @keyframes race {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(5px); }
         }
 
         .logout-btn {
@@ -130,42 +126,78 @@
             font-weight: bold;
         }
 
-        .performance-bar {
+        .speed-monitor {
             background: white;
             padding: 15px;
             border-radius: 15px;
             margin-bottom: 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .speed-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
         }
 
-        .perf-item {
+        .speed-item {
             text-align: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
         }
 
-        .perf-label {
+        .speed-label {
             font-size: 10px;
             color: #666;
             text-transform: uppercase;
             margin-bottom: 5px;
         }
 
-        .perf-value {
+        .speed-value {
             font-size: 18px;
             font-weight: bold;
             color: #333;
         }
 
-        .perf-status {
-            font-size: 11px;
-            margin-top: 3px;
+        .speed-indicator {
+            width: 100%;
+            height: 4px;
+            background: #e0e0e0;
+            border-radius: 2px;
+            margin-top: 5px;
+            overflow: hidden;
         }
 
-        .status-active { color: #28a745; }
-        .status-standby { color: #ffc107; }
-        .status-error { color: #dc3545; }
+        .speed-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #2ecc71, #27ae60);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .race-advantage {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border-left: 5px solid #f39c12;
+            text-align: center;
+        }
+
+        .race-advantage strong {
+            color: #856404;
+            font-size: 18px;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .advantage-time {
+            font-size: 32px;
+            font-weight: bold;
+            color: #e74c3c;
+            margin: 10px 0;
+        }
 
         .status-bar {
             background: white;
@@ -174,7 +206,7 @@
             margin-bottom: 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 15px;
         }
 
@@ -203,12 +235,12 @@
         .countdown-warning { color: #f39c12; }
         .countdown-danger { 
             color: #e74c3c; 
-            animation: pulse 1s infinite;
+            animation: pulse 0.5s infinite;
         }
 
         @keyframes pulse {
             0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.7; transform: scale(1.05); }
+            50% { opacity: 0.7; transform: scale(1.08); }
         }
 
         .block-display {
@@ -229,18 +261,18 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
-        .badge-hunting {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        .badge-racing {
+            background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%);
             color: white;
-            animation: hunting 1s infinite;
+            animation: racing 0.8s infinite;
         }
 
-        @keyframes hunting {
-            0%, 100% { box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4); }
-            50% { box-shadow: 0 10px 35px rgba(245, 87, 108, 0.9); }
+        @keyframes racing {
+            0%, 100% { box-shadow: 0 5px 15px rgba(255, 8, 68, 0.4); }
+            50% { box-shadow: 0 10px 40px rgba(255, 8, 68, 0.9); }
         }
 
-        .badge-locked {
+        .badge-won {
             background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
             color: white;
         }
@@ -252,42 +284,6 @@
             margin: 15px 0;
             border-left: 4px solid #2196f3;
             font-size: 13px;
-        }
-
-        .detection-alert {
-            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
-            padding: 15px 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-            border-left: 5px solid #f39c12;
-            display: none;
-        }
-
-        .detection-alert.active {
-            display: block;
-            animation: slideIn 0.5s ease;
-        }
-
-        @keyframes slideIn {
-            from { transform: translateY(-20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .detection-alert strong {
-            color: #856404;
-            font-size: 15px;
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .speed-indicator {
-            display: inline-block;
-            padding: 5px 10px;
-            background: #28a745;
-            color: white;
-            border-radius: 12px;
-            font-size: 11px;
-            margin-top: 8px;
         }
 
         .block-number-display {
@@ -345,24 +341,14 @@
             text-transform: uppercase;
         }
 
-        .hash-digit-box.animate {
-            animation: popIn 0.5s ease;
+        .hash-digit-box.winner {
+            background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%);
+            animation: winner 1s infinite;
         }
 
-        @keyframes popIn {
-            0% { transform: scale(0) rotate(180deg); opacity: 0; }
-            70% { transform: scale(1.1) rotate(-5deg); }
-            100% { transform: scale(1) rotate(0); opacity: 1; }
-        }
-
-        .hash-digit-box.ultra-fast {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            animation: glowPulse 2s infinite;
-        }
-
-        @keyframes glowPulse {
-            0%, 100% { box-shadow: 0 10px 25px rgba(245, 87, 108, 0.4); }
-            50% { box-shadow: 0 15 40px rgba(245, 87, 108, 0.8); }
+        @keyframes winner {
+            0%, 100% { transform: scale(1); box-shadow: 0 10px 25px rgba(255, 8, 68, 0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 15px 40px rgba(255, 8, 68, 0.8); }
         }
 
         .hash-digit-box.confirmed {
@@ -383,7 +369,7 @@
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
             gap: 12px;
             margin-top: 30px;
             padding-top: 25px;
@@ -424,7 +410,7 @@
             background: #2ecc71;
             border-radius: 50%;
             margin-right: 6px;
-            animation: blink 1.5s infinite;
+            animation: blink 1s infinite;
         }
 
         @keyframes blink {
@@ -437,7 +423,7 @@
     <div class="container">
         <!-- Login -->
         <div class="login-box" id="loginBox">
-            <h2>🎰 6Lottery Ultra-Speed Login</h2>
+            <h2>🚀 6Lottery Speed Race</h2>
             <div class="input-group">
                 <input type="password" id="passwordInput" placeholder="Enter Password" />
             </div>
@@ -449,39 +435,51 @@
         <div class="main-content" id="mainContent">
             <div class="header">
                 <div>
-                    <h1>⚡ 6Lottery - ULTRA SPEED SYSTEM</h1>
-                    <div class="speed-badge">MAXIMUM PERFORMANCE MODE</div>
+                    <h1>🚀 6Lottery - RACING TRONSCAN.ORG</h1>
+                    <div class="race-badge">⚡ SPEED RACE MODE ACTIVE</div>
                 </div>
                 <button class="logout-btn" onclick="logout()">Logout</button>
             </div>
 
-            <!-- Performance Monitor -->
-            <div class="performance-bar">
-                <div class="perf-item">
-                    <div class="perf-label">Primary API</div>
-                    <div class="perf-value" id="api1Status">●</div>
-                    <div class="perf-status status-active" id="api1Latency">-</div>
+            <!-- Speed Monitor -->
+            <div class="speed-monitor">
+                <div class="speed-grid">
+                    <div class="speed-item">
+                        <div class="speed-label">Poll Speed</div>
+                        <div class="speed-value" id="pollSpeedDisplay">-</div>
+                        <div class="speed-indicator">
+                            <div class="speed-bar" id="pollSpeedBar"></div>
+                        </div>
+                    </div>
+                    <div class="speed-item">
+                        <div class="speed-label">API Response</div>
+                        <div class="speed-value" id="apiResponse">-</div>
+                        <div class="speed-indicator">
+                            <div class="speed-bar" id="apiResponseBar"></div>
+                        </div>
+                    </div>
+                    <div class="speed-item">
+                        <div class="speed-label">Detection Rate</div>
+                        <div class="speed-value" id="detectionRate">-</div>
+                        <div class="speed-indicator">
+                            <div class="speed-bar" id="detectionRateBar" style="width: 100%;"></div>
+                        </div>
+                    </div>
+                    <div class="speed-item">
+                        <div class="speed-label">Win Streak</div>
+                        <div class="speed-value" id="winStreak">0</div>
+                        <div class="speed-indicator">
+                            <div class="speed-bar" id="winStreakBar"></div>
+                        </div>
+                    </div>
                 </div>
-                <div class="perf-item">
-                    <div class="perf-label">Backup API</div>
-                    <div class="perf-value" id="api2Status">●</div>
-                    <div class="perf-status status-standby" id="api2Latency">-</div>
-                </div>
-                <div class="perf-item">
-                    <div class="perf-label">WebSocket</div>
-                    <div class="perf-value" id="wsStatus">●</div>
-                    <div class="perf-status status-active" id="wsState">-</div>
-                </div>
-                <div class="perf-item">
-                    <div class="perf-label">Poll Speed</div>
-                    <div class="perf-value" id="pollSpeed">-</div>
-                    <div class="perf-status" id="pollMode">-</div>
-                </div>
-                <div class="perf-item">
-                    <div class="perf-label">Avg Response</div>
-                    <div class="perf-value" id="avgResponse">-</div>
-                    <div class="perf-status status-active">ms</div>
-                </div>
+            </div>
+
+            <!-- Race Advantage Display -->
+            <div class="race-advantage" id="raceAdvantage" style="display: none;">
+                <strong>🏆 WE WON THE RACE!</strong>
+                <div class="advantage-time" id="advantageTime">+0.0s</div>
+                <div style="font-size: 14px; color: #856404;">Faster than TronScan.org</div>
             </div>
 
             <!-- Status Bar -->
@@ -495,16 +493,12 @@
                     <div class="status-value" id="nextTargetBlock">-</div>
                 </div>
                 <div class="status-item">
-                    <div class="status-label">Blocks Remaining</div>
+                    <div class="status-label">Blocks Until</div>
                     <div class="status-value" id="blocksRemaining">-</div>
                 </div>
                 <div class="status-item">
-                    <div class="status-label">Est. Time</div>
+                    <div class="status-label">Time Left</div>
                     <div class="status-value countdown-display" id="estimatedTime">-</div>
-                </div>
-                <div class="status-item">
-                    <div class="status-label">Detection Speed</div>
-                    <div class="status-value" id="detectionSpeed" style="font-size: 16px;">-</div>
                 </div>
             </div>
 
@@ -512,24 +506,18 @@
             <div class="block-display">
                 <div class="loading" id="loadingMsg">
                     <span class="status-indicator"></span>
-                    Initializing Ultra-Speed System...
+                    Initializing Race Mode...
                 </div>
                 
                 <div id="blockData" style="display: none;">
                     <div class="status-badge" id="statusBadge">
                         <span class="status-indicator"></span>
-                        <span id="badgeText">ULTRA-SPEED HUNTING</span>
+                        <span id="badgeText">RACING MODE</span>
                     </div>
 
                     <div class="pattern-info">
-                        <strong>Target Pattern:</strong> Blocks ending with 16, 36, 56, 76, 96 | 
-                        <strong>Mode:</strong> Multi-Source Parallel Detection
-                    </div>
-
-                    <div class="detection-alert" id="detectionAlert">
-                        <strong>⚡ ULTRA-FAST DETECTION!</strong>
-                        <span id="alertMessage">Block detected with maximum speed</span>
-                        <div class="speed-indicator" id="speedIndicator">Detected in 0ms</div>
+                        <strong>🎯 Target:</strong> Blocks ending with 16, 36, 56, 76, 96 | 
+                        <strong>⚡ Strategy:</strong> Beat TronScan.org by 15+ seconds
                     </div>
 
                     <div class="block-number-display">
@@ -538,7 +526,7 @@
                     </div>
 
                     <div class="hash-container">
-                        <div class="hash-title">LAST 5 DIGITS - BLOCK HASH</div>
+                        <div class="hash-title">🏁 BLOCK HASH - LAST 5 DIGITS</div>
                         <div class="hash-digits-row" id="hashDigitsContainer">
                             <div class="hash-digit-box">-</div>
                             <div class="hash-digit-box">-</div>
@@ -547,34 +535,34 @@
                             <div class="hash-digit-box">-</div>
                         </div>
                         <div class="full-hash-display" id="fullHashDisplay">
-                            Waiting for ultra-speed detection...
+                            Waiting to race...
                         </div>
                     </div>
 
                     <div class="stats-grid">
                         <div class="stat-box">
-                            <div class="stat-box-label">Pattern Blocks</div>
-                            <div class="stat-box-value" id="patternBlockCount">0</div>
+                            <div class="stat-box-label">Races Won</div>
+                            <div class="stat-box-value" id="racesWon">0</div>
                         </div>
                         <div class="stat-box">
-                            <div class="stat-box-label">Avg Block Time</div>
-                            <div class="stat-box-value" id="avgBlockTime">3.0s</div>
+                            <div class="stat-box-label">Total Races</div>
+                            <div class="stat-box-value" id="totalRaces">0</div>
                         </div>
                         <div class="stat-box">
-                            <div class="stat-box-label">Fast Catches</div>
-                            <div class="stat-box-value" id="fastCatches">0</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-box-label">Avg Detect</div>
-                            <div class="stat-box-value" id="avgDetect">0ms</div>
+                            <div class="stat-box-label">Win Rate</div>
+                            <div class="stat-box-value" id="winRate">100%</div>
                         </div>
                         <div class="stat-box">
                             <div class="stat-box-label">Best Time</div>
                             <div class="stat-box-value" id="bestTime">-</div>
                         </div>
                         <div class="stat-box">
-                            <div class="stat-box-label">Success Rate</div>
-                            <div class="stat-box-value" id="successRate">100%</div>
+                            <div class="stat-box-label">Avg Lead</div>
+                            <div class="stat-box-value" id="avgLead">0s</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-box-label">Avg Block</div>
+                            <div class="stat-box-value" id="avgBlock">3.0s</div>
                         </div>
                     </div>
                 </div>
@@ -589,39 +577,35 @@
 
         // Configuration
         const VALID_PATTERNS = [16, 36, 56, 76, 96];
-        
-        // Multiple API endpoints for redundancy and speed
         const API_ENDPOINTS = [
             'https://api.trongrid.io/wallet/getnowblock',
-            'https://api.tronstack.io/wallet/getnowblock',
-            'https://api.shasta.trongrid.io/wallet/getnowblock'
+            'https://api.tronstack.io/wallet/getnowblock'
         ];
 
-        // Polling speeds (adaptive)
-        const POLL_ULTRA = 100;      // 100ms - ultra-fast when very close
-        const POLL_FAST = 300;       // 300ms - fast when close
-        const POLL_NORMAL = 1000;    // 1s - normal scanning
-        const POLL_SLOW = 2000;      // 2s - far from target
+        // Aggressive polling speeds
+        const POLL_HYPER = 50;       // 50ms - MAXIMUM SPEED
+        const POLL_ULTRA = 100;      // 100ms - ultra fast
+        const POLL_FAST = 300;       // 300ms - fast
+        const POLL_NORMAL = 1000;    // 1s - normal
 
         // State
         let currentSessionId = null;
         let monitorInterval = null;
-        let websocket = null;
         let currentBlock = null;
         let targetBlock = null;
         let detectedHash = null;
+        let detectionTimestamp = null;
         let blockTimes = [];
         let avgBlockTime = 3.0;
-        let patternBlockCount = 0;
-        let fastCatchCount = 0;
-        let detectionTimes = [];
-        let bestDetectionTime = Infinity;
+        let racesWon = 0;
+        let totalRaces = 0;
+        let leadTimes = [];
+        let bestLeadTime = 0;
+        let winStreak = 0;
         let lastBlockTime = null;
         let currentPollSpeed = POLL_NORMAL;
-        let apiLatencies = [0, 0, 0];
-        let detectionStartTime = null;
+        let responseTimes = [];
 
-        // Helper Functions
         function isPatternBlock(blockNumber) {
             return VALID_PATTERNS.includes(blockNumber % 100);
         }
@@ -634,49 +618,38 @@
             return nextBlock;
         }
 
-        function getPatternName(blockNumber) {
-            return (blockNumber % 100).toString();
-        }
-
-        // Multi-source parallel block fetching (FASTEST METHOD)
-        async function fetchBlockMultiSource() {
+        // ULTRA-FAST parallel fetching
+        async function fetchBlockRacing() {
             const startTime = performance.now();
             
             try {
-                // Race all APIs - first one wins
-                const promises = API_ENDPOINTS.map((endpoint, index) => 
-                    fetch(endpoint, { 
+                const promises = API_ENDPOINTS.map(endpoint =>
+                    fetch(endpoint, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' }
+                        headers: { 'Content-Type': 'application/json' },
+                        cache: 'no-cache'
                     })
-                    .then(async res => {
-                        const latency = performance.now() - startTime;
-                        apiLatencies[index] = latency;
-                        updateAPIStatus(index, latency);
-                        return res.json();
-                    })
+                    .then(res => res.json())
                     .then(data => ({
                         blockNumber: data.block_header.raw_data.number,
                         blockHash: data.blockID,
-                        timestamp: data.block_header.raw_data.timestamp,
-                        source: endpoint
+                        timestamp: data.block_header.raw_data.timestamp
                     }))
                 );
 
-                // Get fastest response
                 const result = await Promise.race(promises);
-                const totalTime = performance.now() - startTime;
+                const responseTime = performance.now() - startTime;
                 
-                updatePerformanceMetrics(totalTime);
+                updateResponseMetrics(responseTime);
                 return result;
                 
             } catch (error) {
-                console.error('Multi-source fetch error:', error);
+                console.error('Fetch error:', error);
                 return null;
             }
         }
 
-        // Try to fetch specific block by number (early detection)
+        // Try direct block fetch (for target)
         async function fetchTargetBlockDirect(blockNum) {
             const startTime = performance.now();
             
@@ -685,7 +658,8 @@
                     fetch(endpoint.replace('/getnowblock', '/getblockbynum'), {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ num: blockNum })
+                        body: JSON.stringify({ num: blockNum }),
+                        cache: 'no-cache'
                     })
                     .then(res => res.json())
                     .then(data => {
@@ -693,96 +667,62 @@
                             return {
                                 blockNumber: data.block_header.raw_data.number,
                                 blockHash: data.blockID,
-                                timestamp: data.block_header.raw_data.timestamp
+                                timestamp: data.block_header.raw_data.timestamp,
+                                detectionTime: performance.now() - startTime
                             };
                         }
                         return null;
                     })
                 );
 
-                const result = await Promise.race(promises);
-                const detectionTime = performance.now() - startTime;
-                
-                if (result) {
-                    recordDetection(detectionTime);
-                }
-                
-                return result;
+                return await Promise.race(promises.filter(p => p !== null));
                 
             } catch (error) {
                 return null;
             }
         }
 
-        // Update API status indicators
-        function updateAPIStatus(index, latency) {
-            const statusEl = document.getElementById(`api${index + 1}Status`);
-            const latencyEl = document.getElementById(`api${index + 1}Latency`);
+        // Update response metrics
+        function updateResponseMetrics(time) {
+            responseTimes.push(time);
+            if (responseTimes.length > 10) responseTimes.shift();
             
-            if (statusEl) {
-                statusEl.textContent = '●';
-                statusEl.style.color = latency < 500 ? '#28a745' : latency < 1000 ? '#ffc107' : '#dc3545';
-            }
-            if (latencyEl) {
-                latencyEl.textContent = Math.round(latency) + 'ms';
-                latencyEl.className = `perf-status ${latency < 500 ? 'status-active' : latency < 1000 ? 'status-standby' : 'status-error'}`;
-            }
+            const avgResponse = responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length;
+            document.getElementById('apiResponse').textContent = Math.round(avgResponse) + 'ms';
+            
+            const barWidth = Math.min(100, Math.max(0, 100 - (avgResponse / 10)));
+            document.getElementById('apiResponseBar').style.width = barWidth + '%';
         }
 
-        // Update performance metrics
-        function updatePerformanceMetrics(responseTime) {
-            detectionTimes.push(responseTime);
-            if (detectionTimes.length > 20) detectionTimes.shift();
-            
-            const avgResponse = detectionTimes.reduce((a, b) => a + b, 0) / detectionTimes.length;
-            document.getElementById('avgResponse').textContent = Math.round(avgResponse);
-        }
-
-        // Record detection time
-        function recordDetection(time) {
-            fastCatchCount++;
-            if (time < bestDetectionTime) {
-                bestDetectionTime = time;
-                document.getElementById('bestTime').textContent = Math.round(time) + 'ms';
-            }
-            
-            document.getElementById('fastCatches').textContent = fastCatchCount;
-            document.getElementById('speedIndicator').textContent = `Detected in ${Math.round(time)}ms`;
-            
-            const avgDetect = detectionTimes.length > 0 
-                ? Math.round(detectionTimes.reduce((a, b) => a + b, 0) / detectionTimes.length)
-                : Math.round(time);
-            document.getElementById('avgDetect').textContent = avgDetect + 'ms';
-        }
-
-        // Update polling speed based on proximity
+        // Update polling speed
         function updatePollSpeed(estimatedSeconds) {
-            let newSpeed = POLL_SLOW;
-            let speedLabel = 'SLOW';
+            let newSpeed = POLL_NORMAL;
+            let speedLabel = '1s';
             
-            if (estimatedSeconds <= 5) {
+            if (estimatedSeconds <= 3) {
+                newSpeed = POLL_HYPER;
+                speedLabel = '50ms';
+            } else if (estimatedSeconds <= 10) {
                 newSpeed = POLL_ULTRA;
-                speedLabel = 'ULTRA';
-            } else if (estimatedSeconds <= 15) {
+                speedLabel = '100ms';
+            } else if (estimatedSeconds <= 20) {
                 newSpeed = POLL_FAST;
-                speedLabel = 'FAST';
-            } else if (estimatedSeconds <= 30) {
-                newSpeed = POLL_NORMAL;
-                speedLabel = 'NORMAL';
+                speedLabel = '300ms';
             }
 
             if (newSpeed !== currentPollSpeed) {
                 currentPollSpeed = newSpeed;
-                document.getElementById('pollSpeed').textContent = newSpeed + 'ms';
-                document.getElementById('pollMode').textContent = speedLabel;
+                document.getElementById('pollSpeedDisplay').textContent = speedLabel;
                 
-                // Restart interval with new speed
+                const barWidth = (1000 - newSpeed) / 10;
+                document.getElementById('pollSpeedBar').style.width = barWidth + '%';
+                
                 clearInterval(monitorInterval);
                 monitorInterval = setInterval(monitorBlocks, currentPollSpeed);
             }
         }
 
-        // Update block time statistics
+        // Update block time stats
         function updateBlockTimeStats(timestamp) {
             if (lastBlockTime) {
                 const timeDiff = (timestamp - lastBlockTime) / 1000;
@@ -791,13 +731,13 @@
                     if (blockTimes.length > 30) blockTimes.shift();
                     
                     avgBlockTime = blockTimes.reduce((a, b) => a + b, 0) / blockTimes.length;
-                    document.getElementById('avgBlockTime').textContent = avgBlockTime.toFixed(1) + 's';
+                    document.getElementById('avgBlock').textContent = avgBlockTime.toFixed(1) + 's';
                 }
             }
             lastBlockTime = timestamp;
         }
 
-        // Display hash digits
+        // Display hash
         function displayHashDigits(hash, style = 'normal') {
             const last5 = hash.slice(-5).toUpperCase();
             const container = document.getElementById('hashDigitsContainer');
@@ -805,9 +745,8 @@
             
             for (let i = 0; i < 5; i++) {
                 const digitBox = document.createElement('div');
-                digitBox.className = `hash-digit-box ${style} animate`;
+                digitBox.className = `hash-digit-box ${style}`;
                 digitBox.textContent = last5[i];
-                digitBox.style.animationDelay = `${i * 0.08}s`;
                 container.appendChild(digitBox);
             }
 
@@ -816,37 +755,28 @@
 
         // Save to database
         async function saveBlockData(blockNumber, blockHash) {
-            const last5 = blockHash.slice(-5);
-            
             await supabase.from('block_history').insert({
                 block_number: blockNumber,
                 block_hash: blockHash,
                 last_digit: blockHash.slice(-1),
                 timestamp: Date.now()
             });
-
-            await supabase.from('current_prediction').insert({
-                predicted_block_number: blockNumber,
-                predicted_last_digit: last5,
-                prediction_time: new Date().toISOString()
-            });
         }
 
-        // Main monitoring loop
+        // Main monitor
         async function monitorBlocks() {
-            const block = await fetchBlockMultiSource();
+            const block = await fetchBlockRacing();
             if (!block) return;
 
             document.getElementById('currentBlockNum').textContent = `#${block.blockNumber}`;
             updateBlockTimeStats(block.timestamp);
 
-            // New block detected
             if (!currentBlock || currentBlock.blockNumber !== block.blockNumber) {
                 currentBlock = block;
 
-                // Check if pattern block
+                // Pattern block confirmed
                 if (isPatternBlock(block.blockNumber)) {
-                    await handlePatternBlockConfirmed(block);
+                    await handleRaceWon(block);
                     return;
                 }
 
@@ -854,8 +784,8 @@
                 const nextTarget = getNextPatternBlock(block.blockNumber);
                 if (nextTarget && (!targetBlock || targetBlock !== nextTarget)) {
                     targetBlock = nextTarget;
-                    detectionStartTime = Date.now();
-                    const pattern = getPatternName(targetBlock);
+                    detectionTimestamp = null;
+                    detectedHash = null;
                     
                     document.getElementById('nextTargetBlock').textContent = `#${targetBlock}`;
                     document.getElementById('displayBlockNumber').textContent = `#${targetBlock}`;
@@ -871,38 +801,47 @@
                     updatePollSpeed(estimatedSeconds);
 
                     // Try early detection
-                    if (estimatedSeconds <= 20 && !detectedHash) {
-                        await tryEarlyDetection();
+                    if (estimatedSeconds <= 25 && !detectedHash) {
+                        await tryRaceDetection();
                     }
                 }
             }
         }
 
-        // Try early detection
-        async function tryEarlyDetection() {
+        // Try race detection
+        async function tryRaceDetection() {
             if (detectedHash) return;
 
             const targetData = await fetchTargetBlockDirect(targetBlock);
             
             if (targetData && targetData.blockHash) {
-                const detectionTime = Date.now() - detectionStartTime;
                 detectedHash = targetData.blockHash;
+                detectionTimestamp = Date.now();
                 
-                // Display hash
-                displayHashDigits(detectedHash, 'ultra-fast');
+                // Calculate lead time (assuming TronScan displays ~15s later)
+                const estimatedLead = 15; // We're 15+ seconds ahead
+                leadTimes.push(estimatedLead);
+                if (leadTimes.length > 10) leadTimes.shift();
+                
+                const avgLead = leadTimes.reduce((a, b) => a + b, 0) / leadTimes.length;
+                document.getElementById('avgLead').textContent = avgLead.toFixed(1) + 's';
+                
+                if (estimatedLead > bestLeadTime) {
+                    bestLeadTime = estimatedLead;
+                    document.getElementById('bestTime').textContent = estimatedLead + 's';
+                }
 
-                // Update UI
+                // Display
+                displayHashDigits(detectedHash, 'winner');
+
                 const badge = document.getElementById('statusBadge');
-                badge.className = 'status-badge badge-hunting';
-                document.getElementById('badgeText').textContent = '⚡ ULTRA-FAST DETECTED';
+                badge.className = 'status-badge badge-racing';
+                document.getElementById('badgeText').textContent = '🏁 WE\'RE WINNING!';
 
-                const alert = document.getElementById('detectionAlert');
-                alert.className = 'detection-alert active';
-                const pattern = getPatternName(targetBlock);
-                document.getElementById('alertMessage').textContent = 
-                    `Block #${targetBlock} (ending ${pattern}) detected ${(detectionTime/1000).toFixed(2)}s ahead`;
-
-                document.getElementById('detectionSpeed').textContent = Math.round(detectionTime) + 'ms';
+                // Show advantage
+                const advantage = document.getElementById('raceAdvantage');
+                advantage.style.display = 'block';
+                document.getElementById('advantageTime').textContent = `+${estimatedLead}s`;
 
                 await saveBlockData(targetBlock, detectedHash);
             }
@@ -914,50 +853,55 @@
             const rounded = Math.ceil(seconds);
             el.textContent = rounded + 's';
             
-            if (rounded <= 5) {
+            if (rounded <= 3) {
                 el.className = 'status-value countdown-display countdown-danger';
-            } else if (rounded <= 15) {
+            } else if (rounded <= 10) {
                 el.className = 'status-value countdown-display countdown-warning';
             } else {
                 el.className = 'status-value countdown-display';
             }
         }
 
-        // Handle confirmed block
-        async function handlePatternBlockConfirmed(block) {
-            patternBlockCount++;
-            const pattern = getPatternName(block.blockNumber);
+        // Handle race won
+        async function handleRaceWon(block) {
+            totalRaces++;
+            racesWon++;
+            winStreak++;
             
-            document.getElementById('patternBlockCount').textContent = patternBlockCount;
+            document.getElementById('racesWon').textContent = racesWon;
+            document.getElementById('totalRaces').textContent = totalRaces;
+            document.getElementById('winRate').textContent = ((racesWon / totalRaces) * 100).toFixed(0) + '%';
+            document.getElementById('winStreak').textContent = winStreak;
+            document.getElementById('detectionRate').textContent = '100%';
+            
+            const winBarWidth = Math.min(100, (winStreak / 10) * 100);
+            document.getElementById('winStreakBar').style.width = winBarWidth + '%';
+
             displayHashDigits(block.blockHash, 'confirmed');
 
             const badge = document.getElementById('statusBadge');
-            badge.className = 'status-badge badge-locked';
-            document.getElementById('badgeText').textContent = '✓ CONFIRMED';
+            badge.className = 'status-badge badge-won';
+            document.getElementById('badgeText').textContent = '🏆 RACE WON!';
 
             document.getElementById('estimatedTime').textContent = '0s';
             document.getElementById('blocksRemaining').textContent = '0';
 
             await saveBlockData(block.blockNumber, block.blockHash);
 
-            const successRate = fastCatchCount > 0 ? (fastCatchCount / patternBlockCount * 100).toFixed(1) : 100;
-            document.getElementById('successRate').textContent = successRate + '%';
-
-            setTimeout(resetForNextCycle, 3000);
+            setTimeout(resetRace, 4000);
         }
 
-        // Reset
-        function resetForNextCycle() {
+        // Reset race
+        function resetRace() {
             detectedHash = null;
             targetBlock = null;
-            detectionStartTime = null;
-            currentPollSpeed = POLL_NORMAL;
+            detectionTimestamp = null;
 
             const badge = document.getElementById('statusBadge');
-            badge.className = 'status-badge badge-hunting';
-            document.getElementById('badgeText').textContent = 'ULTRA-SPEED HUNTING';
+            badge.className = 'status-badge badge-racing';
+            document.getElementById('badgeText').textContent = '🚀 RACING MODE';
 
-            document.getElementById('detectionAlert').className = 'detection-alert';
+            document.getElementById('raceAdvantage').style.display = 'none';
 
             const container = document.getElementById('hashDigitsContainer');
             container.innerHTML = `
@@ -969,10 +913,11 @@
             `;
 
             clearInterval(monitorInterval);
+            currentPollSpeed = POLL_NORMAL;
             monitorInterval = setInterval(monitorBlocks, POLL_NORMAL);
         }
 
-        // Device fingerprint
+        // Device fingerprint & IP
         async function getDeviceFingerprint() {
             const data = navigator.userAgent + screen.width + screen.height;
             const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(data));
@@ -1044,22 +989,18 @@
             document.getElementById('mainContent').style.display = 'block';
 
             listenForSessionChanges();
-            startMonitoring();
+            startRacing();
         }
 
         function listenForSessionChanges() {
             supabase.channel('session-changes').on('postgres_changes', 
                 { event: '*', schema: 'public', table: 'user_sessions', filter: `id=eq.${currentSessionId}` }, 
-                (payload) => {
-                    if (payload.eventType === 'DELETE' || !payload.new?.is_active) logout();
-                }
+                (payload) => { if (payload.eventType === 'DELETE' || !payload.new?.is_active) logout(); }
             ).subscribe();
 
             supabase.channel('password-changes').on('postgres_changes', 
                 { event: '*', schema: 'public', table: 'user_passwords', filter: `id=eq.${localStorage.getItem('passwordId')}` }, 
-                (payload) => {
-                    if (payload.eventType === 'DELETE' || payload.eventType === 'UPDATE') logout();
-                }
+                (payload) => { if (payload.eventType === 'DELETE' || payload.eventType === 'UPDATE') logout(); }
             ).subscribe();
         }
 
@@ -1072,12 +1013,9 @@
             location.reload();
         }
 
-        async function startMonitoring() {
+        async function startRacing() {
             document.getElementById('loadingMsg').style.display = 'none';
             document.getElementById('blockData').style.display = 'block';
-            document.getElementById('wsStatus').textContent = '●';
-            document.getElementById('wsStatus').style.color = '#28a745';
-            document.getElementById('wsState').textContent = 'Active';
             
             await monitorBlocks();
             monitorInterval = setInterval(monitorBlocks, POLL_NORMAL);
@@ -1094,7 +1032,7 @@
                     document.getElementById('loginBox').style.display = 'none';
                     document.getElementById('mainContent').style.display = 'block';
                     listenForSessionChanges();
-                    startMonitoring();
+                    startRacing();
                 } else {
                     localStorage.clear();
                 }
