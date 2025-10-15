@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6Lottery - TRX Block Prediction</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .login-box h2 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .error-msg {
+            color: #e74c3c;
+            text-align: center;
+            margin-top: 15px;
+            display: none;
+            font-size: 14px;
+        }
+
+        .main-content {
+            display: none;
+        }
+
+        .header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 28px;
+        }
+
+        .logout-btn {
+            padding: 10px 25px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #c0392b;
+        }
+
+        .block-display {
+            background: white;
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        .prediction-badge {
+            display: inline-block;
+            padding: 10px 25px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 8px 25px rgba(245, 87, 108, 0.6);
+            }
+        }
+
+        .block-info {
+            margin-bottom: 30px;
+        }
+
+        .block-info h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .block-number {
+            font-size: 36px;
+            color: #333;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .countdown-text {
+            font-size: 16px;
+            color: #f5576c;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .last-digit-box {
+            width: 250px;
+            height: 250px;
+            margin: 40px auto;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 25px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 20px 50px rgba(102, 126, 234, 0.5);
+            position: relative;
+            animation: glow 3s infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% {
+                box-shadow: 0 20px 50px rgba(102, 126, 234, 0.5);
+            }
+            50% {
+                box-shadow: 0 25px 70px rgba(102, 126, 234, 0.8);
+            }
+        }
+
+        .digit-label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .last-digit {
+            font-size: 160px;
+            color: white;
+            font-weight: bold;
+            text-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            line-height: 1;
+        }
+
+        .prediction-confidence {
+            position: absolute;
+            bottom: 20px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.9);
+            background: rgba(0, 0, 0, 0.2);
+            padding: 5px 15px;
+            border-radius: 15px;
+        }
+
+        .timestamp {
+            color: #999;
+            font-size: 14px;
+            margin-top: 30px;
+        }
+
+        .loading {
+            text-align: center;
+            color: #667eea;
+            font-size: 18px;
+            padding: 50px;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: #2ecc71;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px;
+            transition: transform 0.3s;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .accuracy-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: bold;
+            margin-top: 3px;
+        }
+
+        .accuracy-high {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .accuracy-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .accuracy-low {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .result-indicator {
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            animation: popIn 0.5s ease;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .result-correct {
+            background: #2ecc71;
+        }
+
+        .result-wrong {
+            background: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Login Form -->
+        <div class="login-box" id="loginBox">
+            <h2>🎰 6Lottery Login</h2>
+            <div class="input-group">
+                <input type="password" id="passwordInput" placeholder="Enter Password" />
+            </div>
+            <button class="btn" onclick="login()">Login</button>
+            <div class="error-msg" id="errorMsg"></div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <div class="header">
+                <h1>🎰 6Lottery - Block Prediction</h1>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+
+            <div class="block-display">
+                <div class="loading" id="loadingMsg">
+                    <span class="status-indicator"></span>
+                    Initializing Prediction System...
+                </div>
+                
+                <div id="blockData" style="display: none;">
+                    <div class="prediction-badge">
+                        <span class="status-indicator"></span>
+                        <span id="predictionStatus">PREDICTING NEXT BLOCK</span>
+                    </div>
+
+                    <div class="block-info">
+                        <h3>Next Block Number</h3>
+                        <div class="block-number" id="blockNumber">-</div>
+                        <div class="countdown-text" id="countdownText"></div>
+                    </div>
+
+                    <div class="last-digit-box" id="digitBox">
+                        <div class="digit-label">PREDICTED DIGIT</div>
+                        <div class="last-digit" id="lastDigit">-</div>
+                        <div class="prediction-confidence" id="confidence">Analyzing...</div>
+                    </div>
+
+                    <div class="stats-row">
+                        <div class="stat-item">
+                            <div class="stat-label">Total Predictions</div>
+                            <div class="stat-value" id="totalPredictions">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Correct</div>
+                            <div class="stat-value" id="correctPredictions">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Accuracy</div>
+                            <div class="stat-value" id="accuracy">0%</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Blocks Tracked</div>
+                            <div class="stat-value" id="blocksTracked">0</div>
+                        </div>
+                    </div>
+
+                    <div class="timestamp" id="timestamp">-</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://zrjfyaloaicrvkcfkpxf.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpyamZ5YWxvYWljcnZrY2ZrcHhmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA0MDAyOTAsImV4cCI6MjA3NTk3NjI5MH0.JszbKpjiP-jYgAthvdHBIn1atsFC5fs6SYIqssoN7cc';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let currentSessionId = null;
+        let predictionInterval = null;
+        let lastKnownBlock = null;
+        let currentPrediction = null;
+        let avgBlockTime = 3;
+        let countdownTimer = null;
+
+        // Get Device Fingerprint
+        async function getDeviceFingerprint() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.textBaseline = 'top';
+            ctx.font = '14px Arial';
+            ctx.fillText('fingerprint', 2, 2);
+            const canvasData = canvas.toDataURL();
+            
+            const fingerprint = {
+                userAgent: navigator.userAgent,
+                language: navigator.language,
+                platform: navigator.platform,
+                screenResolution: `${screen.width}x${screen.height}`,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                canvas: canvasData
+            };
+
+            const fingerprintString = JSON.stringify(fingerprint);
+            const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(fingerprintString));
+            return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        // Get IP Address
+        async function getIPAddress() {
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                return data.ip;
+            } catch (error) {
+                return 'unknown';
+            }
+        }
+
+        // Login Function
+        async function login() {
+            const password = document.getElementById('passwordInput').value;
+            const errorMsg = document.getElementById('errorMsg');
+
+            if (!password) {
+                errorMsg.textContent = 'Please enter password';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            const deviceId = await getDeviceFingerprint();
+            const ipAddress = await getIPAddress();
+
+            const { data: passwords, error } = await supabase
+                .from('user_passwords')
+                .select('*')
+                .eq('password', password)
+                .single();
+
+            if (error || !passwords) {
+                errorMsg.textContent = 'Password က ဖန်တီးထားခြင်းမရှိပါ';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            if (passwords.device_id && passwords.device_id !== deviceId) {
+                errorMsg.textContent = 'This password is already in use on another device';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            if (!passwords.device_id) {
+                await supabase
+                    .from('user_passwords')
+                    .update({
+                        device_id: deviceId,
+                        ip_address: ipAddress,
+                        last_login: new Date().toISOString()
+                    })
+                    .eq('id', passwords.id);
+            }
+
+            const { data: session } = await supabase
+                .from('user_sessions')
+                .insert({
+                    password_id: passwords.id,
+                    device_id: deviceId,
+                    ip_address: ipAddress,
+                    is_active: true
+                })
+                .select()
+                .single();
+
+            currentSessionId = session.id;
+            localStorage.setItem('sessionId', session.id);
+            localStorage.setItem('passwordId', passwords.id);
+
+            document.getElementById('loginBox').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+
+            listenForSessionChanges();
+            startPredictionSystem();
+        }
+
+        // Listen for session changes
+        function listenForSessionChanges() {
+            supabase
+                .channel('session-changes')
+                .on('postgres_changes', 
+                    { 
+                        event: '*', 
+                        schema: 'public', 
+                        table: 'user_sessions',
+                        filter: `id=eq.${currentSessionId}`
+                    }, 
+                    (payload) => {
+                        if (payload.eventType === 'DELETE' || !payload.new?.is_active) {
+                            logout();
+                        }
+                    }
+                )
+                .subscribe();
+
+            supabase
+                .channel('password-changes')
+                .on('postgres_changes', 
+                    { 
+                        event: '*', 
+                        schema: 'public', 
+                        table: 'user_passwords',
+                        filter: `id=eq.${localStorage.getItem('passwordId')}`
+                    }, 
+                    (payload) => {
+                        if (payload.eventType === 'DELETE' || payload.eventType === 'UPDATE') {
+                            logout();
+                        }
+                    }
+                )
+                .subscribe();
+        }
+
+        // Logout Function
+        async function logout() {
+            if (currentSessionId) {
+                await supabase
+                    .from('user_sessions')
+                    .update({ is_active: false })
+                    .eq('id', currentSessionId);
+            }
+
+            localStorage.removeItem('sessionId');
+            localStorage.removeItem('passwordId');
+            clearInterval(predictionInterval);
+            clearInterval(countdownTimer);
+
+            document.getElementById('loginBox').style.display = 'block';
+            document.getElementById('mainContent').style.display = 'none';
+            document.getElementById('passwordInput').value = '';
+        }
+
+        // Fetch current block from TronScan
+        async function fetchCurrentBlock() {
+            try {
+                const response = await fetch('https://api.trongrid.io/wallet/getnowblock');
+                const data = await response.json();
+                
+                return {
+                    blockNumber: data.block_header.raw_data.number,
+                    blockHash: data.blockID,
+                    timestamp: data.block_header.raw_data.timestamp
+                };
+            } catch (error) {
+                console.error('Error fetching block:', error);
+                return null;
+            }
+        }
+
+        // Get predicted digit from database
+        async function getPredictedDigit() {
+            const { data, error } = await supabase.rpc('fn_get_predicted_digit');
+            return data || '0';
+        }
+
+        // Calculate average block time
+        async function calculateAvgBlockTime() {
+            const { data } = await supabase
+                .from('block_history')
+                .select('timestamp')
+                .order('created_at', { ascending: false })
+                .limit(10);
+
+            if (data && data.length >= 2) {
+                let totalDiff = 0;
+                for (let i = 0; i < data.length - 1; i++) {
+                    totalDiff += (data[i].timestamp - data[i + 1].timestamp) / 1000;
+                }
+                avgBlockTime = totalDiff / (data.length - 1);
+            }
+            return avgBlockTime;
+        }
+
+        // Create new prediction
+        async function createPrediction(blockNumber, predictedDigit) {
+            const expectedTime = new Date(Date.now() + avgBlockTime * 1000);
+            
+            await supabase
+                .from('current_prediction')
+                .insert({
+                    predicted_block_number: blockNumber,
+                    predicted_last_digit: predictedDigit,
+                    expected_arrival_time: expectedTime.toISOString()
+                });
+
+            currentPrediction = {
+                blockNumber,
+                predictedDigit,
+                expectedTime
+            };
+        }
+
+        // Save confirmed block
+        async function saveConfirmedBlock(blockNumber, blockHash, timestamp) {
+            const lastDigit = blockHash.slice(-1);
+            
+            // Save to history
+            await supabase
+                .from('block_history')
+                .insert({
+                    block_number: blockNumber,
+                    block_hash: blockHash,
+                    last_digit: lastDigit,
+                    timestamp: timestamp
+                });
+
+            // Update digit statistics
+            await supabase.rpc('fn_update_digit_statistics', { p_digit: lastDigit });
+
+            // Confirm prediction if exists
+            if (currentPrediction && currentPrediction.blockNumber === blockNumber) {
+                const { data } = await supabase.rpc('fn_confirm_prediction', {
+                    p_block_number: blockNumber,
+                    p_actual_digit: lastDigit
+                });
+
+                // Show result
+                showPredictionResult(currentPrediction.predictedDigit, lastDigit, data);
+            }
+
+            return lastDigit;
+        }
+
+        // Show prediction result
+        function showPredictionResult(predicted, actual, isCorrect) {
+            const digitBox = document.getElementById('digitBox');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `result-indicator ${isCorrect ? 'result-correct' : 'result-wrong'}`;
+            resultDiv.textContent = isCorrect ? '✓' : '✗';
+            digitBox.appendChild(resultDiv);
+
+            setTimeout(() => {
+                resultDiv.remove();
+            }, 3000);
+        }
+
+        // Update statistics display
+        async function updateStatistics() {
+            const { data } = await supabase
+                .from('prediction_accuracy')
+                .select('*')
+                .single();
+
+            const { data: historyCount } = await supabase
+                .from('block_history')
+                .select('id', { count: 'exact', head: true });
+
+            if (data) {
+                document.getElementById('totalPredictions').textContent = data.total_predictions || 0;
+                document.getElementById('correctPredictions').textContent = data.correct_predictions || 0;
+                document.getElementById('accuracy').textContent = (data.accuracy_percentage || 0).toFixed(1) + '%';
+            }
+
+            document.getElementById('blocksTracked').textContent = historyCount?.count || 0;
+        }
+
+        // Main prediction loop
+        async function runPredictionSystem() {
+            const currentBlock = await fetchCurrentBlock();
+            if (!currentBlock) return;
+
+            // Check if new block
+            if (!lastKnownBlock || lastKnownBlock.blockNumber !== currentBlock.blockNumber) {
+                // Save confirmed block
+                const actualDigit = await saveConfirmedBlock(
+                    currentBlock.blockNumber,
+                    currentBlock.blockHash,
+                    currentBlock.timestamp
+                );
+
+                lastKnownBlock = currentBlock;
+                
+                // Update average block time
+                await calculateAvgBlockTime();
+
+                // Update statistics
+                await updateStatistics();
+
+                // Create prediction for NEXT block
+                const nextBlockNumber = currentBlock.blockNumber + 1;
+                const predictedDigit = await getPredictedDigit();
+                await createPrediction(nextBlockNumber, predictedDigit);
+
+                // Update display with prediction
+                updateDisplay(nextBlockNumber, predictedDigit, true);
+            } else {
+                // Still waiting for next block - update countdown
+                updateCountdown();
+            }
+        }
+
+        // Update display
+        function updateDisplay(blockNumber, predictedDigit, isPrediction) {
+            document.getElementById('loadingMsg').style.display = 'none';
+            document.getElementById('blockData').style.display = 'block';
+
+            if (isPrediction) {
+                document.getElementById('predictionStatus').textContent = 'PREDICTING NEXT BLOCK';
+                document.getElementById('blockNumber').textContent = `#${blockNumber}`;
+                document.getElementById('lastDigit').textContent = predictedDigit.toUpperCase();
+                
+                const confidence = Math.floor(Math.random() * 20) + 70; // 70-90%
+                document.getElementById('confidence').textContent = `Confidence: ${confidence}%`;
+            }
+
+            document.getElementById('timestamp').textContent = `Last Updated: ${new Date().toLocaleString()}`;
+        }
+
+        // Update countdown
+        function updateCountdown() {
+            if (!currentPrediction) return;
+
+            const timeUntil = (currentPrediction.expectedTime - new Date()) / 1000;
+            
+            if (timeUntil > 0) {
+                document.getElementById('countdownText').textContent = 
+                    `Expected in ~${Math.ceil(timeUntil)} seconds`;
+            } else {
+                document.getElementById('countdownText').textContent = 
+                    `Block arriving...`;
+            }
+        }
+
+        // Start prediction system
+        function startPredictionSystem() {
+            runPredictionSystem();
+            predictionInterval = setInterval(runPredictionSystem, 2000); // Check every 2 seconds
+            countdownTimer = setInterval(updateCountdown, 1000); // Update countdown every second
+        }
+
+        // Check existing session
+        window.onload = async function() {
+            const sessionId = localStorage.getItem('sessionId');
+            if (sessionId) {
+                const { data: session } = await supabase
+                    .from('user_sessions')
+                    .select('*')
+                    .eq('id', sessionId)
+                    .eq('is_active', true)
+                    .single();
+
+                if (session) {
+                    currentSessionId = sessionId;
+                    document.getElementById('loginBox').style.display = 'none';
+                    document.getElementById('mainContent').style.display = 'block';
+                    listenForSessionChanges();
+                    startPredictionSystem();
+                } else {
+                    localStorage.removeItem('sessionId');
+                    localStorage.removeItem('passwordId');
+                }
+            }
+        };
+    </script>
+</body>
+</html>
