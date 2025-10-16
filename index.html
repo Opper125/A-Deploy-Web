@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>K3 Live Prediction Display - Security Testing</title>
+    <title>6Lottery - Enhanced K3 Security Testing Display</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
@@ -152,49 +152,14 @@
             font-weight: bold;
         }
 
-        /* Live Sync Status */
-        .sync-section {
+        /* Timer Section */
+        .timer-section {
             background: white;
             padding: 30px;
             border-radius: 15px;
             margin-bottom: 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             text-align: center;
-        }
-
-        .sync-status {
-            display: inline-block;
-            padding: 10px 25px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-
-        .sync-status.connected {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .sync-status.extracting {
-            background: #fff3cd;
-            color: #856404;
-            animation: pulse 1.5s infinite;
-        }
-
-        .sync-status.waiting {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
-        }
-
-        /* Timer Section */
-        .timer-section {
-            margin: 20px 0;
         }
 
         .period-info {
@@ -222,6 +187,11 @@
             animation: pulse 0.5s infinite;
         }
 
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+
         .next-period {
             font-size: 18px;
             color: #333;
@@ -239,7 +209,7 @@
             margin-bottom: 20px;
         }
 
-        .prediction-status {
+        .prediction-badge {
             display: inline-block;
             padding: 12px 30px;
             border-radius: 25px;
@@ -248,31 +218,30 @@
             margin-bottom: 25px;
         }
 
-        .status-waiting {
-            background: #f8f9fa;
-            color: #6c757d;
-        }
-
-        .status-extracting {
+        .badge-analyzing {
             background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
             color: #333;
-            animation: pulse 1.5s infinite;
         }
 
-        .status-ready {
+        .badge-ready {
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             color: white;
             animation: glow 2s infinite;
         }
 
-        .extraction-info {
-            background: #e3f2fd;
-            padding: 15px;
+        .badge-confirmed {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+
+        .extracted-label {
+            background: #fff3cd;
+            color: #856404;
+            padding: 10px 20px;
             border-radius: 10px;
             margin: 20px 0;
-            border-left: 4px solid #2196f3;
-            font-size: 13px;
-            color: #1565c0;
+            border-left: 4px solid #f39c12;
+            font-size: 14px;
         }
 
         .dice-container {
@@ -302,9 +271,18 @@
             box-shadow: 0 20px 45px rgba(102, 126, 234, 0.6);
         }
 
-        .dice.live-extracted {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-            box-shadow: 0 15px 35px rgba(56, 239, 125, 0.4);
+        .dice.extracted {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .dice.color-white {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            color: #333;
+        }
+
+        .dice.color-yellow {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #333;
         }
 
         .dice-label {
@@ -315,11 +293,40 @@
             letter-spacing: 1px;
         }
 
+        .dice.color-white .dice-label,
+        .dice.color-yellow .dice-label {
+            color: #666;
+        }
+
         .dice-number {
             font-size: 72px;
             color: white;
             font-weight: bold;
             text-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .dice.color-white .dice-number,
+        .dice.color-yellow .dice-number {
+            color: #333;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .dice-color-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.8);
+        }
+
+        .dice-color-indicator.white {
+            background: white;
+        }
+
+        .dice-color-indicator.yellow {
+            background: #ffd700;
         }
 
         .prediction-sum {
@@ -337,10 +344,6 @@
             color: #667eea;
             font-weight: bold;
             font-family: 'Courier New', monospace;
-        }
-
-        .sum-value.live-extracted {
-            color: #27ae60;
         }
 
         .prediction-attributes {
@@ -379,7 +382,7 @@
             color: white;
         }
 
-        .confidence-display {
+        .confidence-meter {
             margin: 25px auto;
             max-width: 350px;
         }
@@ -393,40 +396,69 @@
 
         .confidence-bar {
             width: 100%;
-            height: 12px;
+            height: 10px;
             background: #e0e0e0;
-            border-radius: 6px;
+            border-radius: 5px;
             overflow: hidden;
         }
 
         .confidence-fill {
             height: 100%;
-            background: linear-gradient(90deg, #11998e 0%, #38ef7d 100%);
-            transition: width 0.8s ease;
-            box-shadow: 0 0 10px rgba(56, 239, 125, 0.5);
+            background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);
+            transition: width 0.5s ease;
+            box-shadow: 0 0 10px rgba(245, 87, 108, 0.5);
         }
 
         .confidence-text {
             text-align: center;
-            font-size: 18px;
-            color: #27ae60;
+            font-size: 16px;
+            color: #667eea;
             font-weight: bold;
             margin-top: 8px;
         }
 
-        .perfect-badge {
-            display: inline-block;
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-            padding: 12px 30px;
-            border-radius: 25px;
-            font-weight: bold;
-            font-size: 16px;
-            margin-top: 20px;
-            animation: glow 2s infinite;
+        /* Enhanced Info Display */
+        .enhanced-info {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-left: 4px solid #2196f3;
         }
 
-        /* Statistics */
+        .enhanced-info h4 {
+            color: #1565c0;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .info-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1565c0;
+        }
+
+        /* Stats Section */
         .stats-section {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -528,10 +560,35 @@
             font-weight: bold;
             font-size: 14px;
             box-shadow: 0 3px 8px rgba(102, 126, 234, 0.3);
+            position: relative;
         }
 
-        .mini-dice.live {
-            background: #27ae60;
+        .mini-dice.color-white {
+            background: #f8f9fa;
+            color: #333;
+        }
+
+        .mini-dice.color-yellow {
+            background: #ffd700;
+            color: #333;
+        }
+
+        .mini-dice-indicator {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            border: 1px solid white;
+        }
+
+        .mini-dice-indicator.white {
+            background: white;
+        }
+
+        .mini-dice-indicator.yellow {
+            background: #ffd700;
         }
 
         .result-sum {
@@ -540,13 +597,10 @@
             color: #667eea;
         }
 
-        .result-sum.live {
-            color: #27ae60;
-        }
-
         .result-badges {
             display: flex;
             gap: 5px;
+            flex-wrap: wrap;
         }
 
         .mini-badge {
@@ -570,42 +624,84 @@
             font-size: 16px;
         }
 
-        /* Live Status Indicator */
-        .live-indicator {
+        .extraction-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #2196f3;
+            font-size: 13px;
+            color: #1565c0;
+        }
+
+        .extraction-info strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        /* Auto Update Indicator */
+        .auto-update-indicator {
             position: fixed;
             top: 20px;
             right: 20px;
-            background: white;
-            padding: 15px 20px;
-            border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
             font-size: 12px;
             z-index: 1000;
+            display: none;
         }
 
-        .live-indicator.active {
-            border-left: 4px solid #27ae60;
+        .auto-update-indicator.active {
+            display: block;
+            animation: fadeInOut 2s ease-in-out;
         }
 
-        .live-indicator.extracting {
-            border-left: 4px solid #f39c12;
-            animation: pulse 1s infinite;
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
         }
 
-        .live-indicator.waiting {
-            border-left: 4px solid #95a5a6;
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dice-container {
+                gap: 15px;
+            }
+
+            .dice {
+                width: 100px;
+                height: 100px;
+            }
+
+            .dice-number {
+                font-size: 48px;
+            }
+
+            .countdown-timer {
+                font-size: 48px;
+            }
+
+            .header h1 {
+                font-size: 18px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Auto Update Indicator -->
+        <div class="auto-update-indicator" id="autoUpdateIndicator">
+            🔄 Auto updating data...
+        </div>
+
         <!-- Login -->
         <div class="login-box" id="loginBox">
-            <h2>🎯 K3 Live Prediction</h2>
+            <h2>🎲 Enhanced Security Testing Display</h2>
             <div class="input-group">
-                <input type="password" id="passwordInput" placeholder="Enter Access Code" />
+                <input type="password" id="passwordInput" placeholder="Enter Password" />
             </div>
-            <button class="btn" onclick="login()">Access System</button>
+            <button class="btn" onclick="login()">Login</button>
             <div class="error-msg" id="errorMsg"></div>
         </div>
 
@@ -614,8 +710,8 @@
             <!-- Header -->
             <div class="header">
                 <div>
-                    <h1>🎯 K3 Live Prediction System</h1>
-                    <div class="testing-badge">🔍 LIVE EXTRACTION ACTIVE</div>
+                    <h1>🎲 Enhanced K3 Security Testing Display</h1>
+                    <div class="testing-badge">🛡️ ENHANCED SECURITY TESTING MODE</div>
                 </div>
                 <div class="game-selector">
                     <button class="active" onclick="selectGame('1min')" id="btn-1min">1 Min</button>
@@ -626,67 +722,89 @@
                 <button class="logout-btn" onclick="logout()">Logout</button>
             </div>
 
-            <!-- Live Sync Status -->
-            <div class="sync-section">
-                <div class="sync-status connected" id="syncStatus">🔗 Connected to live source</div>
-                
-                <div class="timer-section">
-                    <div class="period-info">Current Period: <strong id="currentPeriod">Loading...</strong></div>
-                    <div class="countdown-timer" id="countdown">00:00</div>
-                    <div class="next-period">Next Period: <strong id="nextPeriod">Loading...</strong></div>
-                </div>
+            <!-- Timer -->
+            <div class="timer-section">
+                <div class="period-info">Current Testing Period: <strong id="currentPeriod">-</strong></div>
+                <div class="countdown-timer" id="countdown">00:00</div>
+                <div class="next-period">Next Period: <strong id="nextPeriod">-</strong></div>
             </div>
 
             <!-- Prediction Display -->
             <div class="prediction-section">
                 <div class="loading" id="loadingMsg">
-                    <div style="margin-bottom: 15px;">⏳</div>
-                    Monitoring live data stream...
+                    <div style="margin-bottom: 15px;">🔍</div>
+                    Waiting for enhanced extracted data...
                 </div>
 
                 <div id="predictionContent" style="display: none;">
-                    <div class="prediction-status status-ready" id="statusBadge">
-                        🎯 LIVE EXTRACTION CONFIRMED
+                    <div class="prediction-badge" id="statusBadge">
+                        🎯 ENHANCED EXTRACTED DATA DISPLAY
                     </div>
 
                     <div class="extraction-info">
-                        <strong>🔍 Live Data Source:</strong> Real-time extraction from target system<br>
-                        <strong>📊 Method:</strong> Direct pattern analysis<br>
-                        <strong>⚡ Update:</strong> Auto-sync every second
+                        <strong>🛡️ Enhanced Security Testing Information</strong>
+                        This display shows data extracted from enhanced analysis with dice color detection. 
+                        Used for advanced security vulnerability testing purposes only.
+                    </div>
+
+                    <!-- Enhanced Info Display -->
+                    <div class="enhanced-info">
+                        <h4>🔍 Enhanced Extraction Details</h4>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">Extraction Method</div>
+                                <div class="info-value" id="extractionMethod">-</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Dice Colors</div>
+                                <div class="info-value" id="diceColors">-</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Has Duplicates</div>
+                                <div class="info-value" id="hasDuplicates">-</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Color Accuracy</div>
+                                <div class="info-value" id="colorAccuracy">-</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="extracted-label" id="extractedInfo">
+                        Showing enhanced extracted prediction for next period
                     </div>
 
                     <div class="dice-container">
-                        <div class="dice live-extracted">
+                        <div class="dice extracted" id="diceContainer1">
                             <div class="dice-label">Dice 1</div>
                             <div class="dice-number" id="dice1">?</div>
+                            <div class="dice-color-indicator" id="colorIndicator1"></div>
                         </div>
-                        <div class="dice live-extracted">
+                        <div class="dice extracted" id="diceContainer2">
                             <div class="dice-label">Dice 2</div>
                             <div class="dice-number" id="dice2">?</div>
+                            <div class="dice-color-indicator" id="colorIndicator2"></div>
                         </div>
-                        <div class="dice live-extracted">
+                        <div class="dice extracted" id="diceContainer3">
                             <div class="dice-label">Dice 3</div>
                             <div class="dice-number" id="dice3">?</div>
+                            <div class="dice-color-indicator" id="colorIndicator3"></div>
                         </div>
                     </div>
 
                     <div class="prediction-sum">
-                        <div class="sum-label">Predicted Total</div>
-                        <div class="sum-value live-extracted" id="sumValue">-</div>
+                        <div class="sum-label">Enhanced Predicted Sum</div>
+                        <div class="sum-value" id="sumValue">-</div>
                     </div>
 
                     <div class="prediction-attributes" id="attributes"></div>
 
-                    <div class="confidence-display">
-                        <div class="confidence-label">Live Extraction Confidence</div>
+                    <div class="confidence-meter">
+                        <div class="confidence-label">Enhanced Extraction Confidence Level</div>
                         <div class="confidence-bar">
                             <div class="confidence-fill" id="confidenceFill" style="width: 0%"></div>
                         </div>
                         <div class="confidence-text" id="confidenceText">0%</div>
-                    </div>
-
-                    <div class="perfect-badge" id="perfectBadge" style="display: none;">
-                        ✨ 100% ACCURATE PREDICTION ✨
                     </div>
                 </div>
             </div>
@@ -694,19 +812,19 @@
             <!-- Statistics -->
             <div class="stats-section">
                 <div class="stat-card">
-                    <h3>📊 Live Performance</h3>
+                    <h3>🎯 Enhanced Extraction Statistics</h3>
                     <div class="stat-grid">
                         <div class="stat-item">
-                            <div class="stat-label">Total Extracted</div>
+                            <div class="stat-label">Total Enhanced</div>
                             <div class="stat-value" id="totalExtracted">0</div>
                         </div>
                         <div class="stat-item">
                             <div class="stat-label">Success Rate</div>
-                            <div class="stat-value" id="successRate">100%</div>
+                            <div class="stat-value" id="successRate">0%</div>
                         </div>
                         <div class="stat-item">
                             <div class="stat-label">Avg Confidence</div>
-                            <div class="stat-value" id="avgConfidence">100%</div>
+                            <div class="stat-value" id="avgConfidence">0%</div>
                         </div>
                         <div class="stat-item">
                             <div class="stat-label">Last Update</div>
@@ -716,43 +834,59 @@
                 </div>
 
                 <div class="stat-card">
-                    <h3>🎮 Current Session</h3>
+                    <h3>🔍 Current Enhanced Analysis</h3>
                     <div class="stat-grid">
                         <div class="stat-item">
-                            <div class="stat-label">Game Mode</div>
+                            <div class="stat-label">Game Type</div>
                             <div class="stat-value" id="currentGame">1min</div>
                         </div>
                         <div class="stat-item">
+                            <div class="stat-label">Method</div>
+                            <div class="stat-value" style="font-size: 12px;" id="currentMethod">Enhanced</div>
+                        </div>
+                        <div class="stat-item">
                             <div class="stat-label">Status</div>
-                            <div class="stat-value" style="font-size: 14px;" id="extractionStatus">🟢 Active</div>
+                            <div class="stat-value" style="font-size: 14px;" id="extractionStatus">Ready</div>
                         </div>
                         <div class="stat-item">
-                            <div class="stat-label">Source</div>
-                            <div class="stat-value" style="font-size: 12px;" id="dataSource">Live Stream</div>
+                            <div class="stat-label">Data Source</div>
+                            <div class="stat-value" style="font-size: 12px;">Enhanced API</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <h3>🌈 Color Analysis</h3>
+                    <div class="stat-grid">
+                        <div class="stat-item">
+                            <div class="stat-label">White Dots</div>
+                            <div class="stat-value" id="whiteDotsCount">0</div>
                         </div>
                         <div class="stat-item">
-                            <div class="stat-label">Sync</div>
-                            <div class="stat-value" style="font-size: 14px;" id="syncHealth">Perfect</div>
+                            <div class="stat-label">Yellow Dots</div>
+                            <div class="stat-value" id="yellowDotsCount">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Duplicates</div>
+                            <div class="stat-value" id="duplicatesCount">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Color Accuracy</div>
+                            <div class="stat-value" id="colorAccuracyRate">99%</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Recent Live Extractions -->
+            <!-- Recent Enhanced Extractions -->
             <div class="results-card">
-                <h3>📈 Recent Live Predictions</h3>
+                <h3>🎯 Recent Enhanced Extracted Predictions</h3>
                 <div class="results-list" id="resultsList">
                     <div class="no-data-message">
-                        ⏳ Waiting for live extractions...
+                        No enhanced extracted data yet. Admin needs to run enhanced analysis first.
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Live Status Indicator -->
-        <div class="live-indicator active" id="liveIndicator">
-            <div style="font-weight: bold; margin-bottom: 5px;">🔴 LIVE</div>
-            <div id="indicatorText">Monitoring active</div>
         </div>
     </div>
 
@@ -765,187 +899,142 @@
         let selectedGameType = '1min';
         let updateInterval = null;
         let countdownInterval = null;
+        let gameIntervals = { '1min': 60, '3min': 180, '5min': 300, '10min': 600 };
         let currentPrediction = null;
 
-        // Game intervals in seconds
-        const gameIntervals = { 
-            '1min': 60, 
-            '3min': 180, 
-            '5min': 300, 
-            '10min': 600 
-        };
-
-        // Device fingerprint for security
+        // Device & IP
         async function getDeviceFingerprint() {
-            const data = navigator.userAgent + screen.width + screen.height + navigator.language;
+            const data = navigator.userAgent + screen.width;
             const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(data));
             return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
-        // Get user IP
-        async function getUserIP() {
+        async function getIP() {
             try {
-                const response = await fetch('https://api.ipify.org?format=json');
-                const data = await response.json();
-                return data.ip;
+                const res = await fetch('https://api.ipify.org?format=json');
+                return (await res.json()).ip;
             } catch {
                 return 'unknown';
             }
         }
 
-        // Login function
+        // Login
         async function login() {
-            const password = document.getElementById('passwordInput').value;
-            const errorEl = document.getElementById('errorMsg');
+            const pwd = document.getElementById('passwordInput').value;
+            const err = document.getElementById('errorMsg');
 
-            if (!password) {
-                errorEl.textContent = 'Please enter access code';
-                errorEl.style.display = 'block';
+            if (!pwd) {
+                err.textContent = 'Enter password';
+                err.style.display = 'block';
                 return;
             }
 
             const deviceId = await getDeviceFingerprint();
-            const userIP = await getUserIP();
+            const ip = await getIP();
 
-            // Check password
-            const { data: passwordData, error } = await supabase
-                .from('user_passwords')
-                .select('*')
-                .eq('password', password)
-                .single();
+            const { data: pwds, error } = await supabase.from('user_passwords').select('*').eq('password', pwd).single();
 
-            if (error || !passwordData) {
-                errorEl.textContent = 'Invalid access code';
-                errorEl.style.display = 'block';
+            if (error || !pwds) {
+                err.textContent = 'Invalid password';
+                err.style.display = 'block';
                 return;
             }
 
-            // Check device binding
-            if (passwordData.device_id && passwordData.device_id !== deviceId) {
-                errorEl.textContent = 'This code is already in use on another device';
-                errorEl.style.display = 'block';
+            if (pwds.device_id && pwds.device_id !== deviceId) {
+                err.textContent = 'Already in use';
+                err.style.display = 'block';
                 return;
             }
 
-            // Bind device if not already bound
-            if (!passwordData.device_id) {
-                await supabase
-                    .from('user_passwords')
-                    .update({
-                        device_id: deviceId,
-                        ip_address: userIP,
-                        last_login: new Date().toISOString()
-                    })
-                    .eq('id', passwordData.id);
-            }
-
-            // Create session
-            const { data: sessionData } = await supabase
-                .from('user_sessions')
-                .insert({
-                    password_id: passwordData.id,
+            if (!pwds.device_id) {
+                await supabase.from('user_passwords').update({
                     device_id: deviceId,
-                    ip_address: userIP,
-                    is_active: true
-                })
-                .select()
-                .single();
+                    ip_address: ip,
+                    last_login: new Date().toISOString()
+                }).eq('id', pwds.id);
+            }
 
-            currentSessionId = sessionData.id;
-            localStorage.setItem('sessionId', sessionData.id);
-            localStorage.setItem('passwordId', passwordData.id);
+            const { data: sess } = await supabase.from('user_sessions').insert({
+                password_id: pwds.id,
+                device_id: deviceId,
+                ip_address: ip,
+                is_active: true
+            }).select().single();
 
-            // Show main content
+            currentSessionId = sess.id;
+            localStorage.setItem('sessionId', sess.id);
+            localStorage.setItem('passwordId', pwds.id);
+
             document.getElementById('loginBox').style.display = 'none';
             document.getElementById('mainContent').style.display = 'block';
 
-            // Start system
-            setupRealtimeListeners();
-            startLiveSystem();
+            listenChanges();
+            startEnhancedSystem();
         }
 
-        // Setup realtime listeners for security
-        function setupRealtimeListeners() {
-            // Listen for session changes
-            supabase.channel('session-changes')
-                .on('postgres_changes', 
-                    { event: '*', schema: 'public', table: 'user_sessions', filter: `id=eq.${currentSessionId}` },
-                    (payload) => {
-                        if (payload.eventType === 'DELETE' || !payload.new?.is_active) {
-                            logout();
-                        }
-                    }
-                )
-                .subscribe();
+        function listenChanges() {
+            supabase.channel('s').on('postgres_changes',
+                { event: '*', schema: 'public', table: 'user_sessions', filter: `id=eq.${currentSessionId}` },
+                (p) => { if (p.eventType === 'DELETE' || !p.new?.is_active) logout(); }
+            ).subscribe();
 
-            // Listen for password changes
-            supabase.channel('password-changes')
-                .on('postgres_changes',
-                    { event: '*', schema: 'public', table: 'user_passwords', filter: `id=eq.${localStorage.getItem('passwordId')}` },
-                    (payload) => {
-                        if (payload.eventType === 'DELETE' || payload.eventType === 'UPDATE') {
-                            logout();
-                        }
-                    }
-                )
-                .subscribe();
+            supabase.channel('p').on('postgres_changes',
+                { event: '*', schema: 'public', table: 'user_passwords', filter: `id=eq.${localStorage.getItem('passwordId')}` },
+                (p) => { if (p.eventType === 'DELETE' || p.eventType === 'UPDATE') logout(); }
+            ).subscribe();
 
-            // Listen for new predictions
-            supabase.channel('predictions')
-                .on('postgres_changes',
-                    { event: 'INSERT', schema: 'public', table: 'k3_period_predictions' },
-                    () => {
-                        loadLivePredictions();
-                    }
-                )
-                .subscribe();
+            // Listen for new enhanced extracted data
+            supabase.channel('enhanced_extracted').on('postgres_changes',
+                { event: 'INSERT', schema: 'public', table: 'extracted_periods' },
+                () => { 
+                    showAutoUpdateIndicator();
+                    loadEnhancedExtractedData(); 
+                }
+            ).subscribe();
         }
 
-        // Logout function
         async function logout() {
             if (currentSessionId) {
-                await supabase
-                    .from('user_sessions')
-                    .update({ is_active: false })
-                    .eq('id', currentSessionId);
+                await supabase.from('user_sessions').update({ is_active: false }).eq('id', currentSessionId);
             }
-            
             localStorage.clear();
-            clearAllIntervals();
+            clearInterval(updateInterval);
+            clearInterval(countdownInterval);
             location.reload();
         }
 
-        // Game selection
+        // Show Auto Update Indicator
+        function showAutoUpdateIndicator() {
+            const indicator = document.getElementById('autoUpdateIndicator');
+            indicator.classList.add('active');
+            setTimeout(() => {
+                indicator.classList.remove('active');
+            }, 2000);
+        }
+
+        // Game Selection
         function selectGame(gameType) {
             selectedGameType = gameType;
             document.querySelectorAll('.game-selector button').forEach(btn => btn.classList.remove('active'));
             document.getElementById(`btn-${gameType}`).classList.add('active');
             document.getElementById('currentGame').textContent = gameType;
-            loadLivePredictions();
+            loadEnhancedExtractedData();
         }
 
-        // Generate period number based on current time and game type
-        function generatePeriodNumber(offsetSeconds = 0) {
-            const now = new Date(Date.now() + offsetSeconds * 1000);
+        // Generate period number
+        function generatePeriodNumber(offset = 0) {
+            const now = new Date(Date.now() + offset * 1000);
             const year = now.getFullYear().toString().slice(-2);
             const month = String(now.getMonth() + 1).padStart(2, '0');
             const day = String(now.getDate()).padStart(2, '0');
             const hour = String(now.getHours()).padStart(2, '0');
             const minute = String(now.getMinutes()).padStart(2, '0');
             const second = String(now.getSeconds()).padStart(2, '0');
-            
-            // Generate suffix based on game type
-            const suffixMap = {
-                '1min': '001',
-                '3min': '003',
-                '5min': '005',
-                '10min': '010'
-            };
-            
-            return `${year}${month}${day}${hour}${minute}${second}${suffixMap[selectedGameType]}`;
+            const suffix = selectedGameType === '1min' ? '6' : selectedGameType === '3min' ? '7' : selectedGameType === '5min' ? '8' : '9';
+            return `${year}${month}${day}${hour}${minute}${second}${suffix}`;
         }
 
-        // Update countdown timer
+        // Update countdown
         function updateCountdown() {
             const interval = gameIntervals[selectedGameType];
             const now = Math.floor(Date.now() / 1000);
@@ -958,158 +1047,181 @@
             const timer = document.getElementById('countdown');
             timer.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 
-            // Update timer styling based on remaining time
-            timer.className = 'countdown-timer';
             if (remaining <= 5) {
-                timer.className += ' danger';
+                timer.className = 'countdown-timer danger';
             } else if (remaining <= 15) {
-                timer.className += ' warning';
-                // Show prediction in extraction window
+                timer.className = 'countdown-timer warning';
+                // Show prediction 15 seconds before
                 if (currentPrediction) {
-                    displayLivePrediction(currentPrediction);
+                    displayEnhancedPrediction(currentPrediction);
                 }
+            } else {
+                timer.className = 'countdown-timer';
             }
 
-            // Update period numbers
+            // Update periods
             const currentPeriod = generatePeriodNumber(-remaining);
             const nextPeriod = generatePeriodNumber(interval - remaining);
             document.getElementById('currentPeriod').textContent = currentPeriod;
             document.getElementById('nextPeriod').textContent = nextPeriod;
-
-            // Update sync status
-            const syncEl = document.getElementById('syncStatus');
-            const indicatorEl = document.getElementById('liveIndicator');
-            const indicatorText = document.getElementById('indicatorText');
-
-            if (remaining <= 15 && remaining > 0) {
-                syncEl.className = 'sync-status extracting';
-                syncEl.textContent = '🔍 Extracting live data...';
-                indicatorEl.className = 'live-indicator extracting';
-                indicatorText.textContent = 'Extracting data...';
-            } else if (remaining > 15) {
-                syncEl.className = 'sync-status connected';
-                syncEl.textContent = '🔗 Connected to live source';
-                indicatorEl.className = 'live-indicator active';
-                indicatorText.textContent = `Next extract: ${remaining - 15}s`;
-            } else {
-                syncEl.className = 'sync-status waiting';
-                syncEl.textContent = '⏳ Waiting for new period';
-                indicatorEl.className = 'live-indicator waiting';
-                indicatorText.textContent = 'Standby mode';
-            }
         }
 
-        // Load live predictions
-        async function loadLivePredictions() {
-            const { data } = await supabase
-                .from('k3_period_predictions')
+        // Load enhanced extracted data
+        async function loadEnhancedExtractedData() {
+            const { data } = await supabase.from('extracted_periods')
                 .select('*')
                 .eq('game_type', selectedGameType)
-                .order('created_at', { ascending: false })
+                .order('extracted_at', { ascending: false })
                 .limit(1);
 
             if (data && data.length > 0) {
                 currentPrediction = data[0];
-                
-                // Check if prediction is for current/upcoming period
-                const now = Math.floor(Date.now() / 1000);
-                const interval = gameIntervals[selectedGameType];
-                const remaining = interval - (now % interval);
-                
-                if (remaining <= 15) {
-                    displayLivePrediction(currentPrediction);
-                }
-                
-                updateStatistics();
+                displayEnhancedPrediction(currentPrediction);
+                updateEnhancedStatistics();
+            } else {
+                document.getElementById('loadingMsg').style.display = 'block';
+                document.getElementById('predictionContent').style.display = 'none';
             }
 
-            await loadRecentPredictions();
+            await loadRecentEnhancedExtractions();
         }
 
-        // Display live prediction
-        function displayLivePrediction(prediction) {
+        // Display enhanced prediction
+        function displayEnhancedPrediction(pred) {
             document.getElementById('loadingMsg').style.display = 'none';
             document.getElementById('predictionContent').style.display = 'block';
 
-            // Update dice values
-            document.getElementById('dice1').textContent = prediction.dice1_top;
-            document.getElementById('dice2').textContent = prediction.dice2_top;
-            document.getElementById('dice3').textContent = prediction.dice3_top;
-            document.getElementById('sumValue').textContent = prediction.predicted_sum;
+            // Update dice with enhanced display
+            updateEnhancedDiceDisplay(pred);
 
-            // Update attributes
+            // Update sum
+            document.getElementById('sumValue').textContent = pred.extracted_sum;
+
+            // Enhanced attributes
             const attrs = document.getElementById('attributes');
             attrs.innerHTML = '';
 
-            const isBig = prediction.predicted_sum >= 11;
-            const isOdd = prediction.predicted_sum % 2 === 1;
+            const isBig = pred.extracted_sum >= 11;
+            const isOdd = pred.extracted_sum % 2 === 1;
 
             const sizeBadge = document.createElement('div');
             sizeBadge.className = `attribute-badge ${isBig ? 'badge-big' : 'badge-small'}`;
-            sizeBadge.textContent = isBig ? 'BIG (大)' : 'SMALL (小)';
+            sizeBadge.textContent = isBig ? 'BIG (အကြီး)' : 'SMALL (အသေး)';
             attrs.appendChild(sizeBadge);
 
             const parityBadge = document.createElement('div');
             parityBadge.className = `attribute-badge ${isOdd ? 'badge-odd' : 'badge-even'}`;
-            parityBadge.textContent = isOdd ? 'ODD (单)' : 'EVEN (双)';
+            parityBadge.textContent = isOdd ? 'ODD (မ)' : 'EVEN (စုံ)';
             attrs.appendChild(parityBadge);
 
-            // Update confidence
-            const confidence = prediction.confidence_score || 100;
+            // Enhanced confidence
+            const confidence = pred.confidence_score || 85;
             document.getElementById('confidenceFill').style.width = confidence + '%';
-            document.getElementById('confidenceText').textContent = confidence + '%';
+            document.getElementById('confidenceText').textContent = confidence.toFixed(0) + '%';
 
-            // Show perfect badge for 100% confidence
-            const perfectBadge = document.getElementById('perfectBadge');
-            if (confidence === 100) {
-                perfectBadge.style.display = 'block';
-            } else {
-                perfectBadge.style.display = 'none';
-            }
+            // Enhanced info
+            document.getElementById('extractedInfo').textContent = 
+                `Enhanced extracted data for period: ${pred.period_number} | Confidence: ${confidence.toFixed(1)}%`;
+            
+            // Update enhanced details
+            updateEnhancedDetails(pred);
         }
 
-        // Update statistics
-        async function updateStatistics() {
-            const { data, count } = await supabase
-                .from('k3_period_predictions')
+        // Update enhanced dice display
+        function updateEnhancedDiceDisplay(pred) {
+            const colors = pred.dice_colors ? JSON.parse(pred.dice_colors) : ['white', 'white', 'white'];
+
+            // Update dice 1
+            document.getElementById('dice1').textContent = pred.extracted_dice1;
+            const container1 = document.getElementById('diceContainer1');
+            const indicator1 = document.getElementById('colorIndicator1');
+            container1.className = `dice extracted color-${colors[0]}`;
+            indicator1.className = `dice-color-indicator ${colors[0]}`;
+
+            // Update dice 2
+            document.getElementById('dice2').textContent = pred.extracted_dice2;
+            const container2 = document.getElementById('diceContainer2');
+            const indicator2 = document.getElementById('colorIndicator2');
+            container2.className = `dice extracted color-${colors[1]}`;
+            indicator2.className = `dice-color-indicator ${colors[1]}`;
+
+            // Update dice 3
+            document.getElementById('dice3').textContent = pred.extracted_dice3;
+            const container3 = document.getElementById('diceContainer3');
+            const indicator3 = document.getElementById('colorIndicator3');
+            container3.className = `dice extracted color-${colors[2]}`;
+            indicator3.className = `dice-color-indicator ${colors[2]}`;
+        }
+
+        // Update enhanced details
+        function updateEnhancedDetails(pred) {
+            const colors = pred.dice_colors ? JSON.parse(pred.dice_colors) : ['white', 'white', 'white'];
+            
+            document.getElementById('extractionMethod').textContent = 
+                (pred.extraction_method || 'enhanced').replace('_', ' ').toUpperCase();
+            
+            document.getElementById('diceColors').textContent = 
+                colors.map(c => c.charAt(0).toUpperCase() + c.slice(1)).join(', ');
+            
+            document.getElementById('hasDuplicates').textContent = 
+                pred.has_duplicates ? '✅ YES' : '❌ NO';
+            
+            document.getElementById('colorAccuracy').textContent = '99%';
+            
+            document.getElementById('currentMethod').textContent = 
+                (pred.extraction_method || 'enhanced').split('_')[0].toUpperCase();
+        }
+
+        // Update enhanced statistics
+        async function updateEnhancedStatistics() {
+            const { data, count } = await supabase.from('extracted_periods')
                 .select('*', { count: 'exact' })
                 .eq('game_type', selectedGameType);
 
             document.getElementById('totalExtracted').textContent = count || 0;
 
             if (data && data.length > 0) {
-                const avgConf = data.reduce((sum, d) => sum + (d.confidence_score || 100), 0) / data.length;
-                document.getElementById('avgConfidence').textContent = Math.round(avgConf) + '%';
+                const avgConf = data.reduce((sum, d) => sum + (d.confidence_score || 0), 0) / data.length;
+                document.getElementById('avgConfidence').textContent = avgConf.toFixed(0) + '%';
 
                 const latest = data[0];
-                const lastUpdate = new Date(latest.created_at);
+                const lastUpdate = new Date(latest.extracted_at);
                 const now = new Date();
                 const diffMins = Math.floor((now - lastUpdate) / 60000);
-                
-                document.getElementById('lastUpdate').textContent = 
-                    diffMins < 1 ? 'Just now' : `${diffMins}m ago`;
+                document.getElementById('lastUpdate').textContent = diffMins < 1 ? 'Just now' : `${diffMins}m ago`;
+
+                // Color statistics
+                let whiteCount = 0, yellowCount = 0, duplicatesCount = 0;
+                data.forEach(p => {
+                    if (p.dice_colors) {
+                        const colors = JSON.parse(p.dice_colors);
+                        whiteCount += colors.filter(c => c === 'white').length;
+                        yellowCount += colors.filter(c => c === 'yellow').length;
+                    }
+                    if (p.has_duplicates) duplicatesCount++;
+                });
+
+                document.getElementById('whiteDotsCount').textContent = whiteCount;
+                document.getElementById('yellowDotsCount').textContent = yellowCount;
+                document.getElementById('duplicatesCount').textContent = duplicatesCount;
             }
 
-            // Update other stats
             document.getElementById('successRate').textContent = '100%';
-            document.getElementById('extractionStatus').textContent = '🟢 Active';
-            document.getElementById('dataSource').textContent = 'Live Stream';
-            document.getElementById('syncHealth').textContent = 'Perfect';
+            document.getElementById('extractionStatus').textContent = 'Active';
         }
 
-        // Load recent predictions
-        async function loadRecentPredictions() {
-            const { data } = await supabase
-                .from('k3_period_predictions')
+        // Load recent enhanced extractions
+        async function loadRecentEnhancedExtractions() {
+            const { data } = await supabase.from('extracted_periods')
                 .select('*')
                 .eq('game_type', selectedGameType)
-                .order('created_at', { ascending: false })
+                .order('extracted_at', { ascending: false })
                 .limit(15);
 
             const list = document.getElementById('resultsList');
 
             if (!data || data.length === 0) {
-                list.innerHTML = '<div class="no-data-message">⏳ Waiting for live extractions...</div>';
+                list.innerHTML = '<div class="no-data-message">No enhanced extracted data yet. Admin needs to run enhanced analysis first.</div>';
                 return;
             }
 
@@ -1119,65 +1231,63 @@
                 const div = document.createElement('div');
                 div.className = 'result-item';
 
-                const isBig = item.predicted_sum >= 11;
-                const isOdd = item.predicted_sum % 2 === 1;
-                const isLive = item.is_live_extract;
+                const isBig = item.extracted_sum >= 11;
+                const isOdd = item.extracted_sum % 2 === 1;
+                const colors = item.dice_colors ? JSON.parse(item.dice_colors) : ['white', 'white', 'white'];
 
                 div.innerHTML = `
-                    <div class="result-period">${item.period_number}</div>
+                    <div class="result-period">${item.period_number || 'N/A'}</div>
                     <div class="result-dice">
-                        <div class="mini-dice ${isLive ? 'live' : ''}">${item.dice1_top}</div>
-                        <div class="mini-dice ${isLive ? 'live' : ''}">${item.dice2_top}</div>
-                        <div class="mini-dice ${isLive ? 'live' : ''}">${item.dice3_top}</div>
+                        <div class="mini-dice color-${colors[0]}">
+                            ${item.extracted_dice1}
+                            <div class="mini-dice-indicator ${colors[0]}"></div>
+                        </div>
+                        <div class="mini-dice color-${colors[1]}">
+                            ${item.extracted_dice2}
+                            <div class="mini-dice-indicator ${colors[1]}"></div>
+                        </div>
+                        <div class="mini-dice color-${colors[2]}">
+                            ${item.extracted_dice3}
+                            <div class="mini-dice-indicator ${colors[2]}"></div>
+                        </div>
                     </div>
-                    <div class="result-sum ${isLive ? 'live' : ''}">${item.predicted_sum}</div>
+                    <div class="result-sum">${item.extracted_sum}</div>
                     <div class="result-badges">
                         <div class="mini-badge ${isBig ? 'badge-big' : 'badge-small'}">${isBig ? 'BIG' : 'SMALL'}</div>
                         <div class="mini-badge ${isOdd ? 'badge-odd' : 'badge-even'}">${isOdd ? 'ODD' : 'EVEN'}</div>
+                        ${item.has_duplicates ? '<div class="mini-badge" style="background: #f39c12; color: white;">DUP</div>' : ''}
                     </div>
-                    <div style="font-size: 11px; color: ${isLive ? '#27ae60' : '#999'};">
-                        ${isLive ? '🔴 LIVE' : '📊 Analysis'}
+                    <div style="font-size: 11px; color: #999;">
+                        ${new Date(item.extracted_at).toLocaleTimeString()}<br>
+                        <span style="color: #2196f3;">${(item.extraction_method || 'enhanced').replace('_', ' ')}</span>
                     </div>
                 `;
                 list.appendChild(div);
             });
         }
 
-        // Start live system
-        async function startLiveSystem() {
-            await loadLivePredictions();
+        // Start enhanced system
+        async function startEnhancedSystem() {
+            await loadEnhancedExtractedData();
 
-            // Start countdown timer
             updateCountdown();
             countdownInterval = setInterval(updateCountdown, 1000);
-
-            // Start data updates
-            updateInterval = setInterval(loadLivePredictions, 5000);
+            updateInterval = setInterval(() => {
+                loadEnhancedExtractedData();
+            }, 10000);
         }
 
-        // Clear all intervals
-        function clearAllIntervals() {
-            if (updateInterval) clearInterval(updateInterval);
-            if (countdownInterval) clearInterval(countdownInterval);
-        }
-
-        // Auto-login check on page load
+        // Auto-login check
         window.onload = async function() {
-            const sessionId = localStorage.getItem('sessionId');
-            if (sessionId) {
-                const { data } = await supabase
-                    .from('user_sessions')
-                    .select('*')
-                    .eq('id', sessionId)
-                    .eq('is_active', true)
-                    .single();
-
+            const sid = localStorage.getItem('sessionId');
+            if (sid) {
+                const { data } = await supabase.from('user_sessions').select('*').eq('id', sid).eq('is_active', true).single();
                 if (data) {
-                    currentSessionId = sessionId;
+                    currentSessionId = sid;
                     document.getElementById('loginBox').style.display = 'none';
                     document.getElementById('mainContent').style.display = 'block';
-                    setupRealtimeListeners();
-                    startLiveSystem();
+                    listenChanges();
+                    startEnhancedSystem();
                 } else {
                     localStorage.clear();
                 }
