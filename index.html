@@ -507,7 +507,7 @@
                     <div class="stats-grid">
                         <div class="stat-box">
                             <div class="stat-box-label">Total Blocks #6</div>
-                            <div class="stat-box-value" id="totalBlock6">0</div>
+                            <div class="stat-box-value" id="totalBlock4">0</div>
                         </div>
                         <div class="stat-box">
                             <div class="stat-box-label">Avg Block Time</div>
@@ -652,14 +652,14 @@
         }
 
         // Calculate next block ending with 6
-        function getNextBlock6(currentBlockNum) {
+        function getNextBlock4(currentBlockNum) {
             const lastDigit = currentBlockNum % 10;
             let blocksToAdd;
             
-            if (lastDigit < 6) {
-                blocksToAdd = 6 - lastDigit;
+            if (lastDigit < 4) {
+                blocksToAdd = 4 - lastDigit;
             } else {
-                blocksToAdd = 10 - lastDigit + 6;
+                blocksToAdd = 10 - lastDigit + 4;
             }
             
             return currentBlockNum + blocksToAdd;
@@ -730,7 +730,7 @@
                 updateBlockTimeStats(block.timestamp);
 
                 // Check if current block ends with 6
-                if (block.blockNumber % 10 === 6) {
+                if (block.blockNumber % 10 === 4) {
                     await handleConfirmedBlock6(block);
                     return;
                 }
@@ -810,8 +810,8 @@
 
         // Handle confirmed block ending with 6
         async function handleConfirmedBlock6(block) {
-            totalBlock6Count++;
-            document.getElementById('totalBlock6').textContent = totalBlock6Count;
+            totalBlock4Count++;
+            document.getElementById('totalBlock4').textContent = totalBlock4Count;
 
             // Display confirmed hash
             displayHashDigits(block.blockHash, true);
@@ -843,7 +843,7 @@
             // Reset UI
             const badge = document.getElementById('statusBadge');
             badge.className = 'status-badge badge-waiting';
-            document.getElementById('badgeText').textContent = 'WAITING FOR NEXT BLOCK #6';
+            document.getElementById('badgeText').textContent = 'WAITING FOR NEXT BLOCK #4';
 
             const container = document.getElementById('hashDigitsContainer');
             container.innerHTML = `
