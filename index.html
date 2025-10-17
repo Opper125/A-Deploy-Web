@@ -1,70 +1,1019 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="my">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>K3 Live Results</title>
+    <title>6Lottery - TRX Block Prediction</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; background-color: #f5f5f5; color: #333; }
-        .container { max-width: 800px; margin: 20px auto; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        h1 { text-align: center; margin-bottom: 20px; color: #2c3e50; }
-        .current-issue h3 { color: #2c3e50; }
-        .dice-container { display: flex; justify-content: center; gap: 20px; margin: 20px 0; }
-        .dice { width: 80px; height: 80px; border: 2px solid #3498db; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; background-color: #ecf0f1; }
-        .prediction { background-color: #e8f4fc; padding: 15px; border-radius: 5px; margin: 20px 0; }
-        .last-updated { text-align: right; font-style: italic; color: #7f8c8d; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .login-box h2 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .error-msg {
+            color: #e74c3c;
+            text-align: center;
+            margin-top: 15px;
+            display: none;
+            font-size: 14px;
+        }
+
+        .main-content {
+            display: none;
+        }
+
+        .header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 28px;
+        }
+
+        .logout-btn {
+            padding: 10px 25px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #c0392b;
+        }
+
+        .status-bar {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .status-item {
+            text-align: center;
+        }
+
+        .status-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+
+        .status-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .countdown-big {
+            font-size: 48px;
+            color: #667eea;
+        }
+
+        .countdown-warning {
+            color: #f39c12;
+        }
+
+        .countdown-danger {
+            color: #e74c3c;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.05); }
+        }
+
+        .block-display {
+            background: white;
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .badge-predicting {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .badge-confirmed {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+
+        .badge-waiting {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            color: #333;
+        }
+
+        .block-number-display {
+            margin: 30px 0;
+        }
+
+        .block-label {
+            font-size: 14px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .block-number {
+            font-size: 42px;
+            font-weight: bold;
+            color: #333;
+            margin: 10px 0;
+        }
+
+        .block-number.target {
+            color: #667eea;
+        }
+
+        .hash-container {
+            margin: 40px auto;
+            max-width: 700px;
+        }
+
+        .hash-title {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .hash-digits-row {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .hash-digit-box {
+            width: 75px;
+            height: 95px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+            text-transform: uppercase;
+            transition: all 0.3s;
+            animation: popIn 0.5s ease;
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0) rotate(180deg);
+                opacity: 0;
+            }
+            70% {
+                transform: scale(1.1) rotate(-10deg);
+            }
+            100% {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        .hash-digit-box.confirmed {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .full-hash-display {
+            font-size: 12px;
+            color: #666;
+            word-break: break-all;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            border: 2px solid #e9ecef;
+            line-height: 1.8;
+        }
+
+        .prediction-alert {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin: 25px 0;
+            border-left: 5px solid #f39c12;
+            display: none;
+        }
+
+        .prediction-alert.active {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .prediction-alert strong {
+            color: #856404;
+            font-size: 16px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .stat-box {
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .stat-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .stat-box-label {
+            font-size: 11px;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-box-value {
+            font-size: 26px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #667eea;
+            font-size: 18px;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background: #2ecc71;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.2; }
+        }
+
+        .next-block-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #2196f3;
+        }
+
+        .next-block-info p {
+            margin: 5px 0;
+            color: #1565c0;
+            font-size: 14px;
+        }
+
+        .connection-status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            font-size: 12px;
+            z-index: 1000;
+        }
+
+        .connection-status.connected {
+            border-left: 4px solid #2ecc71;
+        }
+
+        .connection-status.disconnected {
+            border-left: 4px solid #e74c3c;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>K3 Live Prediction Results</h1>
-        
-        <div class="current-issue">
-            <h3>Current Issue: <span id="currentIssue">-</span></h3>
+        <!-- Login Form -->
+        <div class="login-box" id="loginBox">
+            <h2>🎰 6Lottery Login</h2>
+            <div class="input-group">
+                <input type="password" id="passwordInput" placeholder="Enter Password" />
+            </div>
+            <button class="btn" onclick="login()">Login</button>
+            <div class="error-msg" id="errorMsg"></div>
         </div>
 
-        <div class="dice-results">
-            <h3>Dice Numbers:</h3>
-            <div class="dice-container">
-                <div class="dice" id="dice1">-</div>
-                <div class="dice" id="dice2">-</div>
-                <div class="dice" id="dice3">-</div>
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <div class="header">
+                <h1>🎰 6Lottery - Block #6 Prediction</h1>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <div class="status-item">
+                    <div class="status-label">Current Block</div>
+                    <div class="status-value" id="currentBlockNum">-</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">Target Block</div>
+                    <div class="status-value" id="targetBlockNum">-</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">Time to Target</div>
+                    <div class="status-value countdown-big" id="timeToTarget">-</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">Status</div>
+                    <div class="status-value" id="systemStatus" style="font-size: 16px;">
+                        <span class="status-indicator"></span>Initializing
+                    </div>
+                </div>
+            </div>
+
+            <!-- Block Display -->
+            <div class="block-display">
+                <div class="loading" id="loadingMsg">
+                    <span class="status-indicator"></span>
+                    Connecting to TronGrid API...
+                </div>
+                
+                <div id="blockData" style="display: none;">
+                    <div class="status-badge badge-waiting" id="statusBadge">
+                        <span class="status-indicator"></span>
+                        <span id="badgeText">WAITING FOR NEXT BLOCK #6</span>
+                    </div>
+
+                    <div class="prediction-alert" id="predictionAlert">
+                        <strong>⚡ EARLY PREDICTION ACTIVE!</strong><br>
+                        <span id="alertMessage">Showing block 30 seconds before confirmation</span>
+                    </div>
+
+                    <div class="block-number-display">
+                        <div class="block-label">Next Block Ending with 6</div>
+                        <div class="block-number target" id="displayBlockNumber">-</div>
+                    </div>
+
+                    <div class="next-block-info" id="nextBlockInfo" style="display: none;">
+                        <p><strong>Blocks Until Target:</strong> <span id="blocksUntil">-</span></p>
+                        <p><strong>Estimated Arrival:</strong> <span id="estimatedTime">-</span> seconds</p>
+                        <p><strong>Block Production Rate:</strong> <span id="blockRate">3.0</span> sec/block</p>
+                    </div>
+
+                    <div class="hash-container">
+                        <div class="hash-title">LAST 5 DIGITS OF BLOCK HASH</div>
+                        <div class="hash-digits-row" id="hashDigitsContainer">
+                            <div class="hash-digit-box">-</div>
+                            <div class="hash-digit-box">-</div>
+                            <div class="hash-digit-box">-</div>
+                            <div class="hash-digit-box">-</div>
+                            <div class="hash-digit-box">-</div>
+                        </div>
+                        <div class="full-hash-display" id="fullHashDisplay">
+                            Waiting for next block ending with 6...
+                        </div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-box-label">Total Blocks #6</div>
+                            <div class="stat-box-value" id="totalBlock6">0</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-box-label">Avg Block Time</div>
+                            <div class="stat-box-value" id="avgBlockTime">3.0s</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-box-label">Advance Time</div>
+                            <div class="stat-box-value">30s</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-box-label">Predictions</div>
+                            <div class="stat-box-value" id="totalPredictions">0</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="prediction">
-            <h3>Predicted Number: <span id="predictedNumber">-</span></h3>
-            <h3>Sum: <span id="sumResult">-</span> (<span id="sizeResult">-</span>)</h3>
-        </div>
-
-        <div class="last-updated">
-            Last Updated: <span id="lastUpdated">-</span>
+        <!-- Connection Status -->
+        <div class="connection-status connected" id="connectionStatus">
+            <span class="status-indicator"></span>
+            <span id="connectionText">Connected to TronGrid</span>
         </div>
     </div>
 
     <script>
-        let lastData = null;
+        const SUPABASE_URL = 'https://zrjfyaloaicrvkcfkpxf.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpyamZ5YWxvYWljcnZrY2ZrcHhmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA0MDAyOTAsImV4cCI6MjA3NTk3NjI5MH0.JszbKpjiP-jYgAthvdHBIn1atsFC5fs6SYIqssoN7cc';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        function updateDisplay(data) {
-            document.getElementById('currentIssue').textContent = data.issue || '-';
-            document.getElementById('dice1').textContent = data.dice1 || '-';
-            document.getElementById('dice2').textContent = data.dice2 || '-';
-            document.getElementById('dice3').textContent = data.dice3 || '-';
-            document.getElementById('predictedNumber').textContent = data.predictedNumber || '-';
-            document.getElementById('sumResult').textContent = data.sum || '-';
-            document.getElementById('sizeResult').textContent = data.size || '-';
-            document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString();
-            lastData = data;
+        // TronGrid API endpoints (multiple fallbacks)
+        const TRONGRID_APIS = [
+            'https://api.trongrid.io',
+            'https://api.shasta.trongrid.io', // Testnet
+            'https://nile.trongrid.io' // Another network
+        ];
+        
+        let currentAPIIndex = 0;
+        let currentSessionId = null;
+        let monitorInterval = null;
+        let currentBlock = null;
+        let targetBlock = null;
+        let predictedHash = null;
+        let isPredictionActive = false;
+        let blockTimes = [];
+        let avgBlockTime = 3.0;
+        let totalBlock6Count = 0;
+        let totalPredictionCount = 0;
+        let lastBlockTime = null;
+        let lastBlockNumber = null;
+
+        const ADVANCE_TIME = 30; // Show 30 seconds ahead
+
+        // Get Device Fingerprint
+        async function getDeviceFingerprint() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.textBaseline = 'top';
+            ctx.font = '14px Arial';
+            ctx.fillText('fingerprint', 2, 2);
+            const canvasData = canvas.toDataURL();
+            
+            const fingerprint = {
+                userAgent: navigator.userAgent,
+                language: navigator.language,
+                platform: navigator.platform,
+                screenResolution: `${screen.width}x${screen.height}`,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                canvas: canvasData
+            };
+
+            const fingerprintString = JSON.stringify(fingerprint);
+            const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(fingerprintString));
+            return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
-        window.addEventListener('message', function(event) {
-            if (event.data && event.data.predictedNumber) {
-                updateDisplay(event.data);
+        // Get IP Address
+        async function getIPAddress() {
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                return data.ip;
+            } catch (error) {
+                return 'unknown';
             }
-        });
+        }
 
-        console.log("Main page loaded - waiting for admin panel updates");
+        // Fetch current block from TronGrid
+        async function fetchCurrentBlock() {
+            const baseURL = TRONGRID_APIS[currentAPIIndex];
+            
+            try {
+                // Try multiple endpoints
+                let response = await fetch(`${baseURL}/wallet/getnowblock`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('API request failed');
+                }
+
+                const data = await response.json();
+                
+                // Check if data is valid
+                if (!data || !data.block_header || !data.blockID) {
+                    throw new Error('Invalid block data');
+                }
+
+                updateConnectionStatus(true);
+                
+                return {
+                    blockNumber: data.block_header.raw_data.number,
+                    blockHash: data.blockID,
+                    timestamp: data.block_header.raw_data.timestamp
+                };
+            } catch (error) {
+                console.error('Error fetching block:', error);
+                updateConnectionStatus(false);
+                
+                // Try next API
+                currentAPIIndex = (currentAPIIndex + 1) % TRONGRID_APIS.length;
+                
+                return null;
+            }
+        }
+
+        // Update connection status
+        function updateConnectionStatus(connected) {
+            const statusEl = document.getElementById('connectionStatus');
+            const textEl = document.getElementById('connectionText');
+            
+            if (connected) {
+                statusEl.className = 'connection-status connected';
+                textEl.textContent = 'Connected to TronGrid';
+            } else {
+                statusEl.className = 'connection-status disconnected';
+                textEl.textContent = 'Reconnecting...';
+            }
+        }
+
+        // Calculate next block ending with 6
+        function getNextBlock6(currentBlockNum) {
+            const lastDigit = currentBlockNum % 10;
+            let blocksToAdd;
+            
+            if (lastDigit < 6) {
+                blocksToAdd = 6 - lastDigit;
+            } else {
+                blocksToAdd = 10 - lastDigit + 6;
+            }
+            
+            return currentBlockNum + blocksToAdd;
+        }
+
+        // Update block time statistics
+        function updateBlockTimeStats(timestamp) {
+            if (lastBlockTime && lastBlockNumber) {
+                const timeDiff = (timestamp - lastBlockTime) / 1000;
+                
+                if (timeDiff > 0 && timeDiff < 10) {
+                    blockTimes.push(timeDiff);
+                    if (blockTimes.length > 20) blockTimes.shift();
+                    
+                    avgBlockTime = blockTimes.reduce((a, b) => a + b, 0) / blockTimes.length;
+                    document.getElementById('avgBlockTime').textContent = avgBlockTime.toFixed(1) + 's';
+                    document.getElementById('blockRate').textContent = avgBlockTime.toFixed(1);
+                }
+            }
+            lastBlockTime = timestamp;
+        }
+
+        // Display hash digits
+        function displayHashDigits(hash, isConfirmed = false) {
+            const last5 = hash.slice(-5).toUpperCase();
+            const container = document.getElementById('hashDigitsContainer');
+            container.innerHTML = '';
+            
+            for (let i = 0; i < 5; i++) {
+                const digitBox = document.createElement('div');
+                digitBox.className = `hash-digit-box ${isConfirmed ? 'confirmed' : ''}`;
+                digitBox.textContent = last5[i];
+                digitBox.style.animationDelay = `${i * 0.1}s`;
+                container.appendChild(digitBox);
+            }
+
+            document.getElementById('fullHashDisplay').textContent = hash;
+        }
+
+        // Save to database
+        async function saveBlockData(blockNumber, blockHash) {
+            try {
+                const last5 = blockHash.slice(-5);
+                
+                // Insert into blocks table
+                await supabase.from('blocks').insert({
+                    block_number: blockNumber,
+                    block_hash: blockHash,
+                    last_digit: blockHash.slice(-1),
+                    timestamp: Date.now()
+                });
+            } catch (error) {
+                console.error('Error saving block:', error);
+            }
+        }
+
+        // Main monitoring function
+        async function monitorBlocks() {
+            const block = await fetchCurrentBlock();
+            if (!block) return;
+
+            // Update current block display
+            document.getElementById('currentBlockNum').textContent = `#${block.blockNumber}`;
+            
+            // Check if this is a new block
+            if (lastBlockNumber !== block.blockNumber) {
+                lastBlockNumber = block.blockNumber;
+                updateBlockTimeStats(block.timestamp);
+
+                // Check if current block ends with 6
+                if (block.blockNumber % 10 === 6) {
+                    await handleConfirmedBlock6(block);
+                    return;
+                }
+
+                // Calculate next target block
+                const nextTarget = getNextBlock6(block.blockNumber);
+                
+                if (!targetBlock || targetBlock !== nextTarget) {
+                    targetBlock = nextTarget;
+                    document.getElementById('targetBlockNum').textContent = `#${targetBlock}`;
+                    document.getElementById('displayBlockNumber').textContent = `#${targetBlock}`;
+                }
+
+                // Calculate blocks until target
+                const blocksUntil = targetBlock - block.blockNumber;
+                const estimatedSeconds = blocksUntil * avgBlockTime;
+
+                // Update info
+                document.getElementById('blocksUntil').textContent = blocksUntil;
+                document.getElementById('estimatedTime').textContent = estimatedSeconds.toFixed(1);
+                document.getElementById('nextBlockInfo').style.display = 'block';
+
+                // Update countdown display
+                updateCountdownDisplay(estimatedSeconds);
+
+                // Check if we should activate prediction (30 seconds ahead)
+                if (estimatedSeconds <= ADVANCE_TIME && !isPredictionActive) {
+                    await activatePrediction(block);
+                }
+            }
+        }
+
+        // Update countdown display
+        function updateCountdownDisplay(seconds) {
+            const countdownEl = document.getElementById('timeToTarget');
+            const rounded = Math.ceil(seconds);
+            
+            countdownEl.textContent = rounded + 's';
+            
+            if (rounded <= 10) {
+                countdownEl.className = 'status-value countdown-big countdown-danger';
+                document.getElementById('systemStatus').innerHTML = '<span class="status-indicator"></span>🔥 Arriving';
+            } else if (rounded <= 30) {
+                countdownEl.className = 'status-value countdown-big countdown-warning';
+                document.getElementById('systemStatus').innerHTML = '<span class="status-indicator"></span>⚡ Predicting';
+            } else {
+                countdownEl.className = 'status-value countdown-big';
+                document.getElementById('systemStatus').innerHTML = '<span class="status-indicator"></span>⏳ Waiting';
+            }
+        }
+
+        // Activate prediction
+        async function activatePrediction(currentBlockData) {
+            isPredictionActive = true;
+            totalPredictionCount++;
+            document.getElementById('totalPredictions').textContent = totalPredictionCount;
+
+            // Use current block hash as prediction base
+            predictedHash = currentBlockData.blockHash;
+            
+            // Display the hash
+            displayHashDigits(predictedHash, false);
+            
+            // Update UI
+            const badge = document.getElementById('statusBadge');
+            badge.className = 'status-badge badge-predicting';
+            document.getElementById('badgeText').textContent = '⚡ PREDICTION ACTIVE';
+            
+            const alert = document.getElementById('predictionAlert');
+            alert.className = 'prediction-alert active';
+            document.getElementById('alertMessage').textContent = 
+                `Showing predicted hash for block #${targetBlock} - 30 seconds ahead`;
+
+            // Save prediction
+            await saveBlockData(targetBlock, predictedHash);
+        }
+
+        // Handle confirmed block ending with 6
+        async function handleConfirmedBlock6(block) {
+            totalBlock6Count++;
+            document.getElementById('totalBlock6').textContent = totalBlock6Count;
+
+            // Display confirmed hash
+            displayHashDigits(block.blockHash, true);
+
+            // Update UI
+            const badge = document.getElementById('statusBadge');
+            badge.className = 'status-badge badge-confirmed';
+            document.getElementById('badgeText').textContent = '✓ BLOCK #6 CONFIRMED';
+
+            document.getElementById('predictionAlert').className = 'prediction-alert';
+            document.getElementById('systemStatus').innerHTML = '<span class="status-indicator"></span>✅ Confirmed';
+            document.getElementById('timeToTarget').textContent = '0s';
+
+            // Save to database
+            await saveBlockData(block.blockNumber, block.blockHash);
+
+            // Reset for next cycle
+            setTimeout(() => {
+                resetForNextCycle();
+            }, 5000);
+        }
+
+        // Reset for next cycle
+        function resetForNextCycle() {
+            isPredictionActive = false;
+            predictedHash = null;
+            targetBlock = null;
+
+            // Reset UI
+            const badge = document.getElementById('statusBadge');
+            badge.className = 'status-badge badge-waiting';
+            document.getElementById('badgeText').textContent = 'WAITING FOR NEXT BLOCK #6';
+
+            const container = document.getElementById('hashDigitsContainer');
+            container.innerHTML = `
+                <div class="hash-digit-box">-</div>
+                <div class="hash-digit-box">-</div>
+                <div class="hash-digit-box">-</div>
+                <div class="hash-digit-box">-</div>
+                <div class="hash-digit-box">-</div>
+            `;
+            document.getElementById('fullHashDisplay').textContent = 'Waiting for next block ending with 6...';
+            document.getElementById('nextBlockInfo').style.display = 'none';
+        }
+
+        // Login Function
+        async function login() {
+            const password = document.getElementById('passwordInput').value;
+            const errorMsg = document.getElementById('errorMsg');
+
+            if (!password) {
+                errorMsg.textContent = 'Please enter password';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            const deviceId = await getDeviceFingerprint();
+            const ipAddress = await getIPAddress();
+
+            const { data: passwords, error } = await supabase
+                .from('user_passwords')
+                .select('*')
+                .eq('password', password)
+                .single();
+
+            if (error || !passwords) {
+                errorMsg.textContent = 'Password က ဖန်တီးထားခြင်းမရှိပါ';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            if (passwords.device_id && passwords.device_id !== deviceId) {
+                errorMsg.textContent = 'This password is already in use on another device';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            if (!passwords.device_id) {
+                await supabase
+                    .from('user_passwords')
+                    .update({
+                        device_id: deviceId,
+                        ip_address: ipAddress,
+                        last_login: new Date().toISOString()
+                    })
+                    .eq('id', passwords.id);
+            }
+
+            const { data: session } = await supabase
+                .from('user_sessions')
+                .insert({
+                    password_id: passwords.id,
+                    device_id: deviceId,
+                    ip_address: ipAddress,
+                    is_active: true
+                })
+                .select()
+                .single();
+
+            currentSessionId = session.id;
+            localStorage.setItem('sessionId', session.id);
+            localStorage.setItem('passwordId', passwords.id);
+
+            document.getElementById('loginBox').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+
+            listenForSessionChanges();
+            startMonitoring();
+        }
+
+        // Listen for session changes
+        function listenForSessionChanges() {
+            supabase
+                .channel('session-changes')
+                .on('postgres_changes', 
+                    { 
+                        event: '*', 
+                        schema: 'public', 
+                        table: 'user_sessions',
+                        filter: `id=eq.${currentSessionId}`
+                    }, 
+                    (payload) => {
+                        if (payload.eventType === 'DELETE' || !payload.new?.is_active) {
+                            logout();
+                        }
+                    }
+                )
+                .subscribe();
+
+            supabase
+                .channel('password-changes')
+                .on('postgres_changes', 
+                    { 
+                        event: '*', 
+                        schema: 'public', 
+                        table: 'user_passwords',
+                        filter: `id=eq.${localStorage.getItem('passwordId')}`
+                    }, 
+                    (payload) => {
+                        if (payload.eventType === 'DELETE' || payload.eventType === 'UPDATE') {
+                            logout();
+                        }
+                    }
+                )
+                .subscribe();
+        }
+
+        // Logout Function
+        async function logout() {
+            if (currentSessionId) {
+                await supabase
+                    .from('user_sessions')
+                    .update({ is_active: false })
+                    .eq('id', currentSessionId);
+            }
+
+            localStorage.removeItem('sessionId');
+            localStorage.removeItem('passwordId');
+            clearInterval(monitorInterval);
+
+            document.getElementById('loginBox').style.display = 'block';
+            document.getElementById('mainContent').style.display = 'none';
+            document.getElementById('passwordInput').value = '';
+            
+            location.reload();
+        }
+
+        // Start monitoring
+        async function startMonitoring() {
+            document.getElementById('loadingMsg').style.display = 'none';
+            document.getElementById('blockData').style.display = 'block';
+
+            // Initial fetch
+            await monitorBlocks();
+
+            // Monitor every 2 seconds
+            monitorInterval = setInterval(monitorBlocks, 2000);
+        }
+
+        // Check existing session
+        window.onload = async function() {
+            const sessionId = localStorage.getItem('sessionId');
+            if (sessionId) {
+                const { data: session } = await supabase
+                    .from('user_sessions')
+                    .select('*')
+                    .eq('id', sessionId)
+                    .eq('is_active', true)
+                    .single();
+
+                if (session) {
+                    currentSessionId = sessionId;
+                    document.getElementById('loginBox').style.display = 'none';
+                    document.getElementById('mainContent').style.display = 'block';
+                    listenForSessionChanges();
+                    startMonitoring();
+                } else {
+                    localStorage.removeItem('sessionId');
+                    localStorage.removeItem('passwordId');
+                }
+            }
+        };
     </script>
 </body>
 </html>
