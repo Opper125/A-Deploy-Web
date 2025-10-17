@@ -1,1430 +1,154 @@
-
 <!DOCTYPE html>
-<html lang="my">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>K3 Enhanced Prediction Admin Dashboard</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <title>K3 Admin Panel</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1600px;
-            margin: 0 auto;
-        }
-
-        /* Login Box */
-        .login-box {
-            background: white;
-            padding: 50px;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            max-width: 450px;
-            margin: 100px auto;
-        }
-
-        .login-box h2 {
-            text-align: center;
-            color: #1e3c72;
-            margin-bottom: 30px;
-            font-size: 28px;
-        }
-
-        .login-box .logo {
-            text-align: center;
-            font-size: 60px;
-            margin-bottom: 20px;
-        }
-
-        .input-group {
-            margin-bottom: 25px;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: bold;
-            font-size: 14px;
-        }
-
-        .input-group input {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: all 0.3s;
-        }
-
-        .input-group input:focus {
-            outline: none;
-            border-color: #1e3c72;
-        }
-
-        .btn {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: transform 0.2s;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-        }
-
-        .error-msg {
-            color: #e74c3c;
-            text-align: center;
-            margin-top: 15px;
-            display: none;
-            background: #ffe6e6;
-            padding: 10px;
-            border-radius: 5px;
-        }
-
-        /* Admin Panel */
-        .admin-panel {
-            display: none;
-        }
-
-        .header {
-            background: white;
-            padding: 25px 35px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .header h1 {
-            color: #1e3c72;
-            font-size: 32px;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .status-dot {
-            width: 12px;
-            height: 12px;
-            background: #2ecc71;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-
-        .logout-btn {
-            padding: 12px 30px;
-            background: #e74c3c;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        /* Dashboard Grid */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 25px;
-            margin-bottom: 30px;
-        }
-
-        .card {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-
-        .card h3 {
-            color: #1e3c72;
-            margin-bottom: 25px;
-            font-size: 22px;
-            border-bottom: 3px solid #1e3c72;
-            padding-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        /* Period Input Section */
-        .period-inputs {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 25px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #555;
-            font-weight: bold;
-            font-size: 13px;
-        }
-
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 15px;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #1e3c72;
-        }
-
-        /* Buttons */
-        .btn-primary {
-            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
-            color: white;
-            padding: 14px 25px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 15px;
-            font-weight: bold;
-            transition: transform 0.2s;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-        }
-
-        .btn-check {
-            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-        }
-
-        .btn-preview {
-            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
-        }
-
-        .btn-analyze {
-            background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
-        }
-
-        /* Timer Display */
-        .timer-display {
-            text-align: center;
-            padding: 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 15px;
-            margin-bottom: 25px;
-        }
-
-        .timer-label {
-            color: white;
-            font-size: 14px;
-            margin-bottom: 10px;
-            opacity: 0.9;
-        }
-
-        .timer-value {
-            font-size: 48px;
-            color: white;
-            font-weight: bold;
-            font-family: 'Courier New', monospace;
-        }
-
-        .period-display {
-            color: white;
-            font-size: 16px;
-            margin-top: 10px;
-            opacity: 0.9;
-        }
-
-        /* Prediction Display */
-        .prediction-box {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            padding: 30px;
-            border-radius: 15px;
-            text-align: center;
-            margin-bottom: 25px;
-        }
-
-        .prediction-label {
-            color: white;
-            font-size: 16px;
-            margin-bottom: 15px;
-        }
-
-        .prediction-result {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-bottom: 15px;
-        }
-
-        .dice-box {
-            width: 80px;
-            height: 80px;
-            background: white;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 42px;
-            font-weight: bold;
-            color: #1e3c72;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-
-        .dice-box.color-white {
-            background: #fff;
-            color: #333;
-        }
-
-        .dice-box.color-yellow {
-            background: #ffd700;
-            color: #333;
-        }
-
-        .sum-display {
-            margin-top: 15px;
-            color: white;
-            font-size: 24px;
-            font-weight: bold;
-        }
-
-        .confidence-bar {
-            margin-top: 20px;
-        }
-
-        .confidence-label {
-            color: white;
-            font-size: 13px;
-            margin-bottom: 8px;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 25px;
-            background: rgba(255,255,255,0.3);
-            border-radius: 15px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: white;
-            transition: width 0.5s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #1e3c72;
-            font-weight: bold;
-            font-size: 12px;
-        }
-
-        /* Preview Section */
-        .preview-container {
-            margin-top: 20px;
-            border: 3px solid #e0e0e0;
-            border-radius: 10px;
-            overflow: hidden;
-            display: none;
-        }
-
-        .preview-container iframe {
-            width: 100%;
-            height: 600px;
-            border: none;
-        }
-
-        /* Analysis Display */
-        .analysis-display {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
-            font-size: 13px;
-        }
-
-        .analysis-display h4 {
-            color: #1e3c72;
-            margin-bottom: 10px;
-        }
-
-        .dice-analysis {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .dice-info {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-            border: 2px solid #e0e0e0;
-        }
-
-        .dice-info.extracted {
-            border-color: #2ecc71;
-            background: #e8f5e8;
-        }
-
-        /* Logs Table */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        table th,
-        table td {
-            padding: 14px;
-            text-align: left;
-            border-bottom: 1px solid #e0e0e0;
-            font-size: 13px;
-        }
-
-        table th {
-            background: #f8f9fa;
-            color: #1e3c72;
-            font-weight: bold;
-            position: sticky;
-            top: 0;
-        }
-
-        table tr:hover {
-            background: #f8f9fa;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 5px 12px;
-            border-radius: 15px;
-            font-size: 11px;
-            font-weight: bold;
-        }
-
-        .status-success {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .status-pending {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .status-failed {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        /* Success Message */
-        .success-msg {
-            background: #d4edda;
-            color: #155724;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 15px;
-            display: none;
-            border-left: 4px solid #28a745;
-        }
-
-        /* Pattern Analysis */
-        .pattern-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .pattern-item {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            border: 2px solid #e0e0e0;
-        }
-
-        .pattern-label {
-            font-size: 12px;
-            color: #666;
-            margin-bottom: 8px;
-        }
-
-        .pattern-value {
-            font-size: 28px;
-            font-weight: bold;
-            color: #1e3c72;
-        }
-
-        .pattern-percent {
-            font-size: 14px;
-            color: #999;
-            margin-top: 5px;
-        }
-
-        /* Full Width Card */
-        .card-full {
-            grid-column: 1 / -1;
-        }
-
-        /* Loading Spinner */
-        .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #1e3c72;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-            display: none;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Auto Run Status */
-        .auto-run-status {
-            background: #e3f2fd;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border-left: 4px solid #2196f3;
-        }
-
-        .auto-run-status.running {
-            background: #e8f5e8;
-            border-left-color: #4caf50;
-        }
-
-        .auto-run-toggle {
-            margin-top: 15px;
-        }
-
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 60px;
-            height: 34px;
-        }
-
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 34px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 26px;
-            width: 26px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-
-        input:checked + .slider {
-            background-color: #2196F3;
-        }
-
-        input:checked + .slider:before {
-            transform: translateX(26px);
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .period-inputs {
-                grid-template-columns: 1fr;
-            }
-
-            .header h1 {
-                font-size: 20px;
-            }
-
-            .timer-value {
-                font-size: 32px;
-            }
-
-            .dice-box {
-                width: 60px;
-                height: 60px;
-                font-size: 32px;
-            }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background-color: #f5f5f5; color: #333; }
+        .container { max-width: 800px; margin: 20px auto; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1 { text-align: center; margin-bottom: 20px; color: #2c3e50; }
+        .input-section { margin-bottom: 20px; }
+        .input-section label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .input-section input { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        .input-section button { padding: 10px 15px; margin-right: 10px; background-color: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .input-section button:hover { background-color: #2980b9; }
+        .dice-preview { display: flex; justify-content: center; gap: 20px; margin: 20px 0; }
+        .dice { width: 80px; height: 80px; border: 2px solid #3498db; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; background-color: #ecf0f1; }
+        .status h3 { color: #2c3e50; }
+        .results-preview { background-color: #e8f4fc; padding: 15px; border-radius: 5px; margin: 20px 0; }
+        .logs textarea { width: 100%; font-family: monospace; font-size: 12px; }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Admin Login -->
-        <div class="login-box" id="adminLoginBox">
-            <div class="logo">🎲</div>
-            <h2>K3 Enhanced Prediction Admin</h2>
-            <div class="input-group">
-                <label>Admin Password</label>
-                <input type="password" id="adminPasswordInput" placeholder="Enter admin password" />
-            </div>
-            <button class="btn" onclick="adminLogin()">Login to Dashboard</button>
-            <div class="error-msg" id="adminErrorMsg"></div>
+        <h1>K3 Admin Control Panel</h1>
+        
+        <div class="input-section">
+            <label for="issueNumber">Enter Current Issue Number:</label>
+            <input type="text" id="issueNumber" placeholder="e.g., 20251017101010000">
+            <button onclick="startCheck()">Start Auto Check</button>
+            <button onclick="stopCheck()">Stop Auto Check</button>
+            <button onclick="manualCheck()">Manual Check Now</button>
         </div>
 
-        <!-- Admin Panel -->
-        <div class="admin-panel" id="adminPanel">
-            <!-- Header -->
-            <div class="header">
-                <h1>🎲 K3 Enhanced Prediction System</h1>
-                <div class="header-right">
-                    <span class="status-dot"></span>
-                    <span style="color: #2ecc71; font-weight: bold;">Live</span>
-                    <button class="logout-btn" onclick="adminLogout()">Logout</button>
-                </div>
+        <div class="status">
+            <h3>Status: <span id="statusText">Idle</span></h3>
+        </div>
+
+        <div class="results-preview">
+            <h3>Preview Results:</h3>
+            <div class="dice-preview">
+                <div class="dice" id="previewDice1">-</div>
+                <div class="dice" id="previewDice2">-</div>
+                <div class="dice" id="previewDice3">-</div>
             </div>
+            <p>Predicted Number: <strong id="previewPredicted">-</strong></p>
+            <p>Sum: <strong id="previewSum">-</strong> (<strong id="previewSize">-</strong>)</p>
+        </div>
 
-            <!-- Auto Run Status -->
-            <div class="auto-run-status" id="autoRunStatus">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <strong>🤖 Auto Check System</strong>
-                        <div style="font-size: 13px; color: #666; margin-top: 5px;">
-                            Status: <span id="autoRunStatusText">Stopped</span> | 
-                            Next Check: <span id="nextCheckTime">-</span>
-                        </div>
-                    </div>
-                    <div class="auto-run-toggle">
-                        <label class="switch">
-                            <input type="checkbox" id="autoRunToggle" onchange="toggleAutoRun()">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Main Dashboard -->
-            <div class="dashboard-grid">
-                <!-- Left Column -->
-                <div>
-                    <!-- Period Input & Generator -->
-                    <div class="card">
-                        <h3>🎯 Enhanced Period Generator Check</h3>
-                        
-                        <div class="period-inputs">
-                            <div class="form-group">
-                                <label>🔢 Current Period (လက်ရှိပွဲစဥ်)</label>
-                                <input type="text" id="currentPeriod" placeholder="20251015101001156" />
-                            </div>
-                            <div class="form-group">
-                                <label>🔮 Next Period (နောက်ပွဲစဥ်)</label>
-                                <input type="text" id="nextPeriod" placeholder="20251015101001157" />
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>🎮 Game Type</label>
-                            <select id="gameType" onchange="gameTypeChanged()">
-                                <option value="1min">1 Minute K3</option>
-                                <option value="3min">3 Minutes K3</option>
-                                <option value="5min">5 Minutes K3</option>
-                                <option value="10min">10 Minutes K3</option>
-                            </select>
-                        </div>
-
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                            <button class="btn-primary btn-check" onclick="runEnhancedGeneratorCheck()">
-                                🔍 Enhanced Check
-                            </button>
-                            <button class="btn-primary btn-analyze" onclick="analyzePatterns()">
-                                📊 Analyze Patterns
-                            </button>
-                        </div>
-
-                        <div class="spinner" id="checkSpinner"></div>
-                        <div class="success-msg" id="checkSuccessMsg"></div>
-
-                        <!-- Analysis Display -->
-                        <div class="analysis-display" id="analysisDisplay" style="display: none;">
-                            <h4>🔍 Enhanced Dice Analysis</h4>
-                            <div class="dice-analysis" id="diceAnalysis"></div>
-                            <div id="extractionLog"></div>
-                        </div>
-                    </div>
-
-                    <!-- Enhanced Extraction Control -->
-                    <div class="card">
-                        <h3>🎯 Smart Extraction Control</h3>
-                        
-                        <div class="form-group">
-                            <label>📊 Extraction Method</label>
-                            <select id="extractionMethod">
-                                <option value="dice_color_detection">Dice Color Detection (Enhanced)</option>
-                                <option value="pattern_analysis">Pattern Analysis</option>
-                                <option value="frequency_analysis">Frequency Analysis</option>
-                                <option value="hot_cold_analysis">Hot/Cold Analysis</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label>🎯 Focus Detection</label>
-                            <select id="focusDetection">
-                                <option value="top_face_only">Top Face Only (အပေါ်မျက်နှာပြင်ပဲ)</option>
-                                <option value="all_visible">All Visible Faces</option>
-                                <option value="dominant_color">Dominant Color Detection</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label>🌈 Color Accuracy</label>
-                            <select id="colorAccuracy">
-                                <option value="high">High Accuracy (99%)</option>
-                                <option value="medium">Medium Accuracy (95%)</option>
-                                <option value="low">Low Accuracy (90%)</option>
-                            </select>
-                        </div>
-
-                        <button class="btn-primary" onclick="saveExtractionSettings()" style="width: 100%;">
-                            💾 Save Settings
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Right Column -->
-                <div>
-                    <!-- Timer & Current Period -->
-                    <div class="card">
-                        <h3>⏰ Live Timer</h3>
-                        <div class="timer-display">
-                            <div class="timer-label">Time Remaining</div>
-                            <div class="timer-value" id="timerValue">00:00</div>
-                            <div class="period-display">
-                                Current: <span id="currentPeriodDisplay">-</span><br>
-                                Next: <span id="nextPeriodDisplay">-</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Enhanced Prediction Result -->
-                    <div class="card">
-                        <h3>🔮 Enhanced Prediction Result</h3>
-                        <div class="prediction-box">
-                            <div class="prediction-label">Enhanced Extraction Result</div>
-                            <div class="prediction-result">
-                                <div class="dice-box" id="predDice1">-</div>
-                                <div class="dice-box" id="predDice2">-</div>
-                                <div class="dice-box" id="predDice3">-</div>
-                            </div>
-                            <div class="sum-display">
-                                Sum: <span id="predSum">-</span> | 
-                                <span id="predSize">-</span> | 
-                                <span id="predParity">-</span>
-                            </div>
-                            <div style="margin-top: 10px; font-size: 14px;">
-                                🎯 Method: <span id="predMethod">-</span><br>
-                                🎨 Colors: <span id="predColors">-</span><br>
-                                🔄 Duplicates: <span id="predDuplicates">-</span>
-                            </div>
-                            <div class="confidence-bar">
-                                <div class="confidence-label">Enhanced Confidence Level</div>
-                                <div class="progress-bar">
-                                    <div class="progress-fill" id="confidenceBar" style="width: 0%;">0%</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Preview Button -->
-                    <div class="card">
-                        <h3>👁️ Live Preview</h3>
-                        <button class="btn-primary btn-preview" onclick="togglePreview()" style="width: 100%;">
-                            📺 Open Preview Window
-                        </button>
-                        <div class="preview-container" id="previewContainer">
-                            <iframe id="previewFrame" src="https://6win598.com/#/home/AllLotteryGames/K3?"></iframe>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Enhanced Pattern Analysis (Full Width) -->
-                <div class="card card-full">
-                    <h3>📊 Enhanced Pattern Analysis</h3>
-                    <div class="pattern-grid" id="patternGrid">
-                        <div class="pattern-item">
-                            <div class="pattern-label">BIG (အကြီး)</div>
-                            <div class="pattern-value" id="bigCount">0</div>
-                            <div class="pattern-percent" id="bigPercent">0%</div>
-                        </div>
-                        <div class="pattern-item">
-                            <div class="pattern-label">SMALL (အသေး)</div>
-                            <div class="pattern-value" id="smallCount">0</div>
-                            <div class="pattern-percent" id="smallPercent">0%</div>
-                        </div>
-                        <div class="pattern-item">
-                            <div class="pattern-label">ODD (မ)</div>
-                            <div class="pattern-value" id="oddCount">0</div>
-                            <div class="pattern-percent" id="oddPercent">0%</div>
-                        </div>
-                        <div class="pattern-item">
-                            <div class="pattern-label">EVEN (စုံ)</div>
-                            <div class="pattern-value" id="evenCount">0</div>
-                            <div class="pattern-percent" id="evenPercent">0%</div>
-                        </div>
-                        <div class="pattern-item">
-                            <div class="pattern-label">WHITE DOTS</div>
-                            <div class="pattern-value" id="whiteDotsCount">0</div>
-                            <div class="pattern-percent" id="whiteDotsPercent">0%</div>
-                        </div>
-                        <div class="pattern-item">
-                            <div class="pattern-label">YELLOW DOTS</div>
-                            <div class="pattern-value" id="yellowDotsCount">0</div>
-                            <div class="pattern-percent" id="yellowDotsPercent">0%</div>
-                        </div>
-                        <div class="pattern-item">
-                            <div class="pattern-label">DUPLICATES</div>
-                            <div class="pattern-value" id="duplicatesCount">0</div>
-                            <div class="pattern-percent" id="duplicatesPercent">0%</div>
-                        </div>
-                        <div class="pattern-item">
-                            <div class="pattern-label">AVG SUM</div>
-                            <div class="pattern-value" id="avgSum">0</div>
-                            <div class="pattern-percent">Average</div>
-                        </div>
-                        <div class="pattern-item">
-                            <div class="pattern-label">ACCURACY</div>
-                            <div class="pattern-value" id="accuracyRate">0</div>
-                            <div class="pattern-percent">Success Rate</div>
-                        </div>
-                        <div class="pattern-item">
-                            <div class="pattern-label">TOTAL GAMES</div>
-                            <div class="pattern-value" id="totalGames">0</div>
-                            <div class="pattern-percent">Analyzed</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Enhanced Check Logs (Full Width) -->
-                <div class="card card-full">
-                    <h3>📝 Enhanced Generator Check Logs</h3>
-                    <table id="logsTable">
-                        <thead>
-                            <tr>
-                                <th>Time</th>
-                                <th>Game Type</th>
-                                <th>Current Period</th>
-                                <th>Next Period</th>
-                                <th>Prediction</th>
-                                <th>Colors</th>
-                                <th>Sum</th>
-                                <th>Size</th>
-                                <th>Confidence</th>
-                                <th>Method</th>
-                                <th>Status</th>
-                                <th>Result</th>
-                            </tr>
-                        </thead>
-                        <tbody id="logsTableBody"></tbody>
-                    </table>
-                </div>
-            </div>
+        <div class="logs">
+            <h3>System Logs:</h3>
+            <textarea id="logArea" rows="10" readonly></textarea>
         </div>
     </div>
 
     <script>
-        const SUPABASE_URL = 'https://zrjfyaloaicrvkcfkpxf.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpyamZ5YWxvYWljcnZrY2ZrcHhmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA0MDAyOTAsImV4cCI6MjA3NTk3NjI5MH0.JszbKpjiP-jYgAthvdHBIn1atsFC5fs6SYIqssoN7cc';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let checkInterval = null;
+        let currentIssue = '';
 
-        let timerInterval = null;
-        let autoRunInterval = null;
-        let autoRunEnabled = false;
-        let gameIntervals = { '1min': 60, '3min': 180, '5min': 300, '10min': 600 };
-        let currentGameType = '1min';
+        function log(message) {
+            const logArea = document.getElementById('logArea');
+            const timestamp = new Date().toLocaleTimeString();
+            logArea.value += `[${timestamp}] ${message}\n`;
+            logArea.scrollTop = logArea.scrollHeight;
+        }
 
-        // Admin Login
-        async function adminLogin() {
-            const password = document.getElementById('adminPasswordInput').value;
-            const errorMsg = document.getElementById('adminErrorMsg');
-
-            const { data: admin } = await supabase
-                .from('admin_users')
-                .select('*')
-                .eq('password', password)
-                .single();
-
-            if (!admin) {
-                errorMsg.textContent = 'Invalid admin password';
-                errorMsg.style.display = 'block';
+        function startCheck() {
+            currentIssue = document.getElementById('issueNumber').value.trim();
+            
+            if (!currentIssue) {
+                alert('Please enter issue number first!');
                 return;
             }
-
-            localStorage.setItem('adminLoggedIn', 'true');
-            document.getElementById('adminLoginBox').style.display = 'none';
-            document.getElementById('adminPanel').style.display = 'block';
-
-            initializeEnhancedDashboard();
+            
+            document.getElementById('statusText').textContent = 'Running...';
+            log(`Started auto-check for issue: ${currentIssue}`);
+            
+            checkInterval = setInterval(() => {
+                performCheck();
+            }, 60000);
+            
+            performCheck();
         }
 
-        // Admin Logout
-        function adminLogout() {
-            localStorage.removeItem('adminLoggedIn');
-            clearInterval(timerInterval);
-            clearInterval(autoRunInterval);
-            document.getElementById('adminLoginBox').style.display = 'block';
-            document.getElementById('adminPanel').style.display = 'none';
-            document.getElementById('adminPasswordInput').value = '';
+        function stopCheck() {
+            if (checkInterval) {
+                clearInterval(checkInterval);
+                checkInterval = null;
+                document.getElementById('statusText').textContent = 'Stopped';
+                log('Auto-check stopped');
+            }
         }
 
-        // Initialize Enhanced Dashboard
-        function initializeEnhancedDashboard() {
-            loadEnhancedPatternAnalysis();
-            loadEnhancedCheckLogs();
-            startEnhancedTimer();
-            
-            // Auto generate current periods
-            generateCurrentPeriods();
-            
-            // Auto refresh every 5 seconds
-            setInterval(() => {
-                loadEnhancedPatternAnalysis();
-                loadEnhancedCheckLogs();
-                generateCurrentPeriods();
-            }, 5000);
+        function manualCheck() {
+            currentIssue = document.getElementById('issueNumber').value.trim();
+            if (!currentIssue) {
+                alert('Please enter issue number first!');
+                return;
+            }
+            performCheck();
         }
 
-        // Generate Current Periods
-        function generateCurrentPeriods() {
-            const now = new Date();
-            const gameType = document.getElementById('gameType').value;
-            const interval = gameIntervals[gameType];
+        function performCheck() {
+            log(`Checking issue: ${currentIssue}`);
             
-            // Calculate current period based on game interval
-            const currentPeriod = generatePeriodNumber(now, gameType);
-            const nextPeriodTime = new Date(now.getTime() + (interval * 1000));
-            const nextPeriod = generatePeriodNumber(nextPeriodTime, gameType);
-            
-            document.getElementById('currentPeriod').value = currentPeriod;
-            document.getElementById('nextPeriod').value = nextPeriod;
-            document.getElementById('currentPeriodDisplay').textContent = currentPeriod;
-            document.getElementById('nextPeriodDisplay').textContent = nextPeriod;
-        }
-
-        // Generate Period Number
-        function generatePeriodNumber(date, gameType) {
-            const year = date.getFullYear().toString().slice(-2);
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            const hour = String(date.getHours()).padStart(2, '0');
-            const minute = String(date.getMinutes()).padStart(2, '0');
-            const second = String(date.getSeconds()).padStart(2, '0');
-            
-            // Different suffix for each game type
-            const suffix = gameType === '1min' ? '6' : 
-                          gameType === '3min' ? '7' : 
-                          gameType === '5min' ? '8' : '9';
-            
-            return `${year}${month}${day}${hour}${minute}${second}${suffix}`;
-        }
-
-        // Start Enhanced Timer
-        function startEnhancedTimer() {
-            const gameType = document.getElementById('gameType').value;
-            let timeLeft = gameIntervals[gameType];
-
-            clearInterval(timerInterval);
-            timerInterval = setInterval(() => {
-                timeLeft--;
-                if (timeLeft <= 0) {
-                    timeLeft = gameIntervals[gameType];
-                    generateCurrentPeriods();
+            setTimeout(() => {
+                try {
+                    const results = simulateDiceDetection(currentIssue);
                     
-                    // Auto run if enabled
-                    if (autoRunEnabled) {
-                        setTimeout(() => runEnhancedGeneratorCheck(), 1000);
-                    }
-                }
-
-                const minutes = Math.floor(timeLeft / 60);
-                const seconds = timeLeft % 60;
-                document.getElementById('timerValue').textContent = 
-                    `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-
-                // Update next check time
-                if (autoRunEnabled) {
-                    const nextCheck = new Date(Date.now() + (timeLeft * 1000));
-                    document.getElementById('nextCheckTime').textContent = 
-                        nextCheck.toLocaleTimeString();
+                    document.getElementById('previewDice1').textContent = results.dice1;
+                    document.getElementById('previewDice2').textContent = results.dice2;
+                    document.getElementById('previewDice3').textContent = results.dice3;
+                    document.getElementById('previewPredicted').textContent = results.predictedNumber;
+                    document.getElementById('previewSum').textContent = results.sum;
+                    document.getElementById('previewSize').textContent = results.size;
+                    
+                    window.opener.postMessage(results, '*');
+                    
+                    log(`Success: ${results.predictedNumber} (${results.sum} - ${results.size})`);
+                    
+                } catch (error) {
+                    log(`Error: ${error.message}`);
                 }
             }, 1000);
         }
 
-        // Enhanced Generator Check with Dice Analysis
-        async function runEnhancedGeneratorCheck() {
-            const currentPeriod = document.getElementById('currentPeriod').value;
-            const nextPeriod = document.getElementById('nextPeriod').value;
-            const gameType = document.getElementById('gameType').value;
-            const extractionMethod = document.getElementById('extractionMethod').value;
-            const focusDetection = document.getElementById('focusDetection').value;
-            const colorAccuracy = document.getElementById('colorAccuracy').value;
+        function simulateDiceDetection(issue) {
+            const datePart = issue.substring(0, 8);
+            const seed = parseInt(datePart) % 1000;
             
-            const spinner = document.getElementById('checkSpinner');
-            const successMsg = document.getElementById('checkSuccessMsg');
-            const analysisDisplay = document.getElementById('analysisDisplay');
-
-            if (!currentPeriod || !nextPeriod) {
-                alert('Please enter both current and next period numbers');
-                return;
-            }
-
-            spinner.style.display = 'block';
-            analysisDisplay.style.display = 'none';
-
-            try {
-                // Simulate enhanced dice analysis
-                const analysisResult = await performEnhancedDiceAnalysis(
-                    currentPeriod, gameType, extractionMethod, focusDetection, colorAccuracy
-                );
-
-                // Generate enhanced prediction
-                const prediction = generateEnhancedPrediction(analysisResult);
-
-                // Save enhanced prediction to database
-                const { data: predictionData } = await supabase
-                    .from('extracted_periods')
-                    .insert({
-                        game_type: gameType,
-                        period_number: nextPeriod,
-                        extracted_dice1: prediction.dice1,
-                        extracted_dice2: prediction.dice2,
-                        extracted_dice3: prediction.dice3,
-                        extracted_sum: prediction.sum,
-                        confidence_score: prediction.confidence,
-                        extraction_method: extractionMethod,
-                        dice_colors: JSON.stringify(prediction.colors),
-                        has_duplicates: prediction.hasDuplicates,
-                        size_classification: prediction.size,
-                        parity_classification: prediction.parity,
-                        analysis_data: JSON.stringify(analysisResult)
-                    })
-                    .select()
-                    .single();
-
-                // Update UI
-                updateEnhancedPredictionDisplay(prediction, analysisResult);
-                showEnhancedAnalysis(analysisResult);
-
-                spinner.style.display = 'none';
-                successMsg.textContent = `Enhanced check completed! Prediction: ${prediction.dice1}-${prediction.dice2}-${prediction.dice3} (${prediction.confidence}% confidence)`;
-                successMsg.style.display = 'block';
-                setTimeout(() => successMsg.style.display = 'none', 5000);
-
-                // Reload logs
-                loadEnhancedCheckLogs();
-
-            } catch (error) {
-                console.error('Enhanced check error:', error);
-                spinner.style.display = 'none';
-                alert('Enhanced check failed: ' + error.message);
-            }
-        }
-
-        // Perform Enhanced Dice Analysis
-        async function performEnhancedDiceAnalysis(currentPeriod, gameType, method, focus, accuracy) {
-            // Simulate advanced dice analysis
-            await new Promise(resolve => setTimeout(resolve, 2000));
-
-            // Mock enhanced analysis results
-            const analysisResult = {
-                method: method,
-                focus: focus,
-                accuracy: accuracy,
-                diceAnalysis: [
-                    {
-                        position: 1,
-                        topFaceNumber: Math.floor(Math.random() * 6) + 1,
-                        topFaceColor: Math.random() > 0.5 ? 'white' : 'yellow',
-                        visibleFaces: [1, 2, 3],
-                        colorDistribution: { white: 0.7, yellow: 0.3 },
-                        confidence: 85 + Math.random() * 15
-                    },
-                    {
-                        position: 2,
-                        topFaceNumber: Math.floor(Math.random() * 6) + 1,
-                        topFaceColor: Math.random() > 0.5 ? 'white' : 'yellow',
-                        visibleFaces: [2, 4, 5],
-                        colorDistribution: { white: 0.6, yellow: 0.4 },
-                        confidence: 80 + Math.random() * 20
-                    },
-                    {
-                        position: 3,
-                        topFaceNumber: Math.floor(Math.random() * 6) + 1,
-                        topFaceColor: Math.random() > 0.5 ? 'white' : 'yellow',
-                        visibleFaces: [1, 3, 6],
-                        colorDistribution: { white: 0.8, yellow: 0.2 },
-                        confidence: 90 + Math.random() * 10
-                    }
-                ],
-                overallConfidence: 85 + Math.random() * 15,
-                extractionQuality: accuracy === 'high' ? 'excellent' : accuracy === 'medium' ? 'good' : 'fair',
-                timestamp: new Date().toISOString()
-            };
-
-            return analysisResult;
-        }
-
-        // Generate Enhanced Prediction
-        function generateEnhancedPrediction(analysisResult) {
-            const dice1 = analysisResult.diceAnalysis[0].topFaceNumber;
-            const dice2 = analysisResult.diceAnalysis[1].topFaceNumber;
-            const dice3 = analysisResult.diceAnalysis[2].topFaceNumber;
+            const dice1 = ((seed * 7) % 6) + 1;
+            const dice2 = ((seed * 13) % 6) + 1;
+            const dice3 = ((seed * 19) % 6) + 1;
             
-            const colors = [
-                analysisResult.diceAnalysis[0].topFaceColor,
-                analysisResult.diceAnalysis[1].topFaceColor,
-                analysisResult.diceAnalysis[2].topFaceColor
-            ];
-            
+            const predictedNumber = `${dice1}${dice2}${dice3}`;
             const sum = dice1 + dice2 + dice3;
-            const size = sum >= 11 ? 'BIG' : 'SMALL';
-            const parity = sum % 2 === 1 ? 'ODD' : 'EVEN';
+            const size = sum <= 10 ? 'Small' : 'Big';
             
-            // Check for duplicates
-            const hasDuplicates = dice1 === dice2 || dice2 === dice3 || dice1 === dice3;
-            const duplicateType = hasDuplicates ? 
-                (dice1 === dice2 && dice2 === dice3 ? 'triple' : 'double') : 'none';
-            
-            // Calculate confidence based on analysis quality
-            const avgConfidence = analysisResult.diceAnalysis.reduce((sum, d) => sum + d.confidence, 0) / 3;
-            const confidence = Math.round(avgConfidence);
-
             return {
-                dice1,
-                dice2,
-                dice3,
-                sum,
-                size,
-                parity,
-                colors,
-                hasDuplicates,
-                duplicateType,
-                confidence,
-                method: analysisResult.method
+                issue: issue,
+                dice1: dice1,
+                dice2: dice2,
+                dice3: dice3,
+                predictedNumber: predictedNumber,
+                sum: sum,
+                size: size
             };
         }
 
-        // Update Enhanced Prediction Display
-        function updateEnhancedPredictionDisplay(prediction, analysisResult) {
-            // Update dice display with colors
-            const dice1El = document.getElementById('predDice1');
-            const dice2El = document.getElementById('predDice2');
-            const dice3El = document.getElementById('predDice3');
-            
-            dice1El.textContent = prediction.dice1;
-            dice2El.textContent = prediction.dice2;
-            dice3El.textContent = prediction.dice3;
-            
-            // Apply color classes
-            dice1El.className = `dice-box color-${prediction.colors[0]}`;
-            dice2El.className = `dice-box color-${prediction.colors[1]}`;
-            dice3El.className = `dice-box color-${prediction.colors[2]}`;
-            
-            // Update sum and attributes
-            document.getElementById('predSum').textContent = prediction.sum;
-            document.getElementById('predSize').textContent = prediction.size;
-            document.getElementById('predParity').textContent = prediction.parity;
-            
-            // Update method info
-            document.getElementById('predMethod').textContent = prediction.method.replace('_', ' ').toUpperCase();
-            document.getElementById('predColors').textContent = prediction.colors.join(', ').toUpperCase();
-            document.getElementById('predDuplicates').textContent = prediction.hasDuplicates ? 
-                `YES (${prediction.duplicateType})` : 'NO';
-            
-            // Update confidence
-            const confidenceBar = document.getElementById('confidenceBar');
-            confidenceBar.style.width = prediction.confidence + '%';
-            confidenceBar.textContent = prediction.confidence + '%';
-        }
-
-        // Show Enhanced Analysis
-        function showEnhancedAnalysis(analysisResult) {
-            const analysisDisplay = document.getElementById('analysisDisplay');
-            const diceAnalysis = document.getElementById('diceAnalysis');
-            const extractionLog = document.getElementById('extractionLog');
-            
-            // Clear previous analysis
-            diceAnalysis.innerHTML = '';
-            
-            // Display individual dice analysis
-            analysisResult.diceAnalysis.forEach((dice, index) => {
-                const diceInfo = document.createElement('div');
-                diceInfo.className = 'dice-info extracted';
-                diceInfo.innerHTML = `
-                    <strong>Dice ${index + 1}</strong><br>
-                    Top Face: <strong>${dice.topFaceNumber}</strong><br>
-                    Color: <span style="color: ${dice.topFaceColor === 'white' ? '#333' : '#ffd700'};">
-                        <strong>${dice.topFaceColor.toUpperCase()}</strong>
-                    </span><br>
-                    Confidence: <strong>${dice.confidence.toFixed(1)}%</strong><br>
-                    <small>Visible: ${dice.visibleFaces.join(', ')}</small>
-                `;
-                diceAnalysis.appendChild(diceInfo);
-            });
-            
-            // Update extraction log
-            extractionLog.innerHTML = `
-                <div style="font-size: 12px; color: #666; margin-top: 15px;">
-                    <strong>📊 Extraction Details:</strong><br>
-                    Method: ${analysisResult.method.replace('_', ' ')}<br>
-                    Focus: ${analysisResult.focus.replace('_', ' ')}<br>
-                    Quality: ${analysisResult.extractionQuality}<br>
-                    Overall Confidence: ${analysisResult.overallConfidence.toFixed(1)}%<br>
-                    Timestamp: ${new Date(analysisResult.timestamp).toLocaleString()}
-                </div>
-            `;
-            
-            analysisDisplay.style.display = 'block';
-        }
-
-        // Toggle Auto Run
-        function toggleAutoRun() {
-            autoRunEnabled = document.getElementById('autoRunToggle').checked;
-            const statusEl = document.getElementById('autoRunStatus');
-            const statusTextEl = document.getElementById('autoRunStatusText');
-            
-            if (autoRunEnabled) {
-                statusEl.classList.add('running');
-                statusTextEl.textContent = 'Running';
-                
-                // Set up auto run interval
-                const gameType = document.getElementById('gameType').value;
-                const interval = gameIntervals[gameType] * 1000; // Convert to milliseconds
-                
-                clearInterval(autoRunInterval);
-                autoRunInterval = setInterval(() => {
-                    runEnhancedGeneratorCheck();
-                }, interval);
-                
-            } else {
-                statusEl.classList.remove('running');
-                statusTextEl.textContent = 'Stopped';
-                document.getElementById('nextCheckTime').textContent = '-';
-                
-                clearInterval(autoRunInterval);
-            }
-        }
-
-        // Game Type Changed
-        function gameTypeChanged() {
-            currentGameType = document.getElementById('gameType').value;
-            startEnhancedTimer();
-            generateCurrentPeriods();
-            
-            // Restart auto run with new interval if enabled
-            if (autoRunEnabled) {
-                toggleAutoRun(); // Stop
-                document.getElementById('autoRunToggle').checked = true;
-                toggleAutoRun(); // Start with new interval
-            }
-        }
-
-        // Save Extraction Settings
-        async function saveExtractionSettings() {
-            const settings = {
-                extraction_method: document.getElementById('extractionMethod').value,
-                focus_detection: document.getElementById('focusDetection').value,
-                color_accuracy: document.getElementById('colorAccuracy').value,
-                updated_at: new Date().toISOString()
-            };
-
-            // Save to localStorage for now (could be database)
-            localStorage.setItem('extractionSettings', JSON.stringify(settings));
-            
-            alert('🎯 Extraction settings saved successfully!');
-        }
-
-        // Load Enhanced Pattern Analysis
-        async function loadEnhancedPatternAnalysis() {
-            const gameType = document.getElementById('gameType').value;
-            
-            const { data: periods } = await supabase
-                .from('extracted_periods')
-                .select('*')
-                .eq('game_type', gameType)
-                .order('extracted_at', { ascending: false })
-                .limit(100);
-
-            if (periods && periods.length > 0) {
-                const total = periods.length;
-                
-                // Calculate enhanced statistics
-                const bigCount = periods.filter(p => p.extracted_sum >= 11).length;
-                const smallCount = total - bigCount;
-                const oddCount = periods.filter(p => p.extracted_sum % 2 === 1).length;
-                const evenCount = total - oddCount;
-                
-                // Color analysis
-                let whiteCount = 0, yellowCount = 0;
-                periods.forEach(p => {
-                    if (p.dice_colors) {
-                        const colors = JSON.parse(p.dice_colors);
-                        whiteCount += colors.filter(c => c === 'white').length;
-                        yellowCount += colors.filter(c => c === 'yellow').length;
-                    }
-                });
-                
-                // Duplicates analysis
-                const duplicatesCount = periods.filter(p => p.has_duplicates).length;
-                
-                // Average sum
-                const avgSum = periods.reduce((sum, p) => sum + p.extracted_sum, 0) / total;
-                
-                // Accuracy (mock for now)
-                const accuracyRate = 85 + Math.random() * 15;
-                
-                // Update UI
-                document.getElementById('bigCount').textContent = bigCount;
-                document.getElementById('smallCount').textContent = smallCount;
-                document.getElementById('oddCount').textContent = oddCount;
-                document.getElementById('evenCount').textContent = evenCount;
-                document.getElementById('whiteDotsCount').textContent = whiteCount;
-                document.getElementById('yellowDotsCount').textContent = yellowCount;
-                document.getElementById('duplicatesCount').textContent = duplicatesCount;
-                document.getElementById('avgSum').textContent = avgSum.toFixed(1);
-                document.getElementById('accuracyRate').textContent = accuracyRate.toFixed(1) + '%';
-                document.getElementById('totalGames').textContent = total;
-                
-                // Update percentages
-                document.getElementById('bigPercent').textContent = ((bigCount / total) * 100).toFixed(1) + '%';
-                document.getElementById('smallPercent').textContent = ((smallCount / total) * 100).toFixed(1) + '%';
-                document.getElementById('oddPercent').textContent = ((oddCount / total) * 100).toFixed(1) + '%';
-                document.getElementById('evenPercent').textContent = ((evenCount / total) * 100).toFixed(1) + '%';
-                document.getElementById('whiteDotsPercent').textContent = ((whiteCount / (whiteCount + yellowCount)) * 100).toFixed(1) + '%';
-                document.getElementById('yellowDotsPercent').textContent = ((yellowCount / (whiteCount + yellowCount)) * 100).toFixed(1) + '%';
-                document.getElementById('duplicatesPercent').textContent = ((duplicatesCount / total) * 100).toFixed(1) + '%';
-            }
-        }
-
-        // Load Enhanced Check Logs
-        async function loadEnhancedCheckLogs() {
-            const { data: periods } = await supabase
-                .from('extracted_periods')
-                .select('*')
-                .order('extracted_at', { ascending: false })
-                .limit(20);
-
-            const tbody = document.getElementById('logsTableBody');
-            tbody.innerHTML = '';
-
-            periods?.forEach(period => {
-                const row = document.createElement('tr');
-                
-                const colors = period.dice_colors ? JSON.parse(period.dice_colors) : ['?', '?', '?'];
-                const colorsText = colors.map(c => c.charAt(0).toUpperCase()).join('-');
-                
-                row.innerHTML = `
-                    <td>${new Date(period.extracted_at).toLocaleString()}</td>
-                    <td><strong>${period.game_type}</strong></td>
-                    <td style="font-family: monospace; font-size: 12px;">${period.period_number || '-'}</td>
-                    <td style="font-family: monospace; font-size: 12px;">${period.period_number || '-'}</td>
-                    <td><strong>${period.extracted_dice1}-${period.extracted_dice2}-${period.extracted_dice3}</strong></td>
-                    <td style="color: #666;">${colorsText}</td>
-                    <td><strong>${period.extracted_sum}</strong></td>
-                    <td><span class="status-badge ${period.extracted_sum >= 11 ? 'status-failed' : 'status-success'}">${period.size_classification || (period.extracted_sum >= 11 ? 'BIG' : 'SMALL')}</span></td>
-                    <td>${period.confidence_score || 0}%</td>
-                    <td style="font-size: 11px;">${(period.extraction_method || 'unknown').replace('_', ' ')}</td>
-                    <td><span class="status-badge status-success">EXTRACTED</span></td>
-                    <td>${period.has_duplicates ? '🔄 DUP' : '✅ OK'}</td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-
-        // Analyze Patterns
-        async function analyzePatterns() {
-            await loadEnhancedPatternAnalysis();
-            alert('📊 Pattern analysis completed!');
-        }
-
-        // Toggle Preview
-        function togglePreview() {
-            const container = document.getElementById('previewContainer');
-            if (container.style.display === 'none' || !container.style.display) {
-                container.style.display = 'block';
-            } else {
-                container.style.display = 'none';
-            }
-        }
-
-        // Load saved settings on startup
-        function loadSavedSettings() {
-            const settings = localStorage.getItem('extractionSettings');
-            if (settings) {
-                const parsed = JSON.parse(settings);
-                document.getElementById('extractionMethod').value = parsed.extraction_method || 'dice_color_detection';
-                document.getElementById('focusDetection').value = parsed.focus_detection || 'top_face_only';
-                document.getElementById('colorAccuracy').value = parsed.color_accuracy || 'high';
-            }
-        }
-
-        // Check admin login on load
-        window.onload = function() {
-            if (localStorage.getItem('adminLoggedIn') === 'true') {
-                document.getElementById('adminLoginBox').style.display = 'none';
-                document.getElementById('adminPanel').style.display = 'block';
-                initializeEnhancedDashboard();
-            }
-            loadSavedSettings();
-        };
+        log('Admin panel initialized');
     </script>
 </body>
 </html>
