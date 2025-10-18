@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="my">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>1AV Admin Panel - K3 Game Monitor</title>
+    <title>K3 Lottery Admin Dashboard</title>
     <style>
         * {
             margin: 0;
@@ -12,7 +13,7 @@
         }
 
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
@@ -26,168 +27,181 @@
 
         .header {
             background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            margin-bottom: 20px;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
             text-align: center;
         }
 
         .header h1 {
             color: #667eea;
-            font-size: 28px;
-            margin-bottom: 5px;
+            font-size: 2.5em;
+            margin-bottom: 10px;
         }
 
         .header p {
             color: #666;
-            font-size: 14px;
+            font-size: 1.1em;
         }
 
         .card {
             background: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            margin-bottom: 20px;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
         }
 
         .card h2 {
             color: #667eea;
             margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #667eea;
             padding-bottom: 10px;
-            border-bottom: 2px solid #667eea;
         }
 
-        .input-group {
-            margin-bottom: 15px;
+        .form-group {
+            margin-bottom: 20px;
         }
 
-        .input-group label {
+        .form-group label {
             display: block;
-            margin-bottom: 5px;
-            color: #555;
+            margin-bottom: 8px;
             font-weight: bold;
+            color: #555;
         }
 
-        .input-group input, .input-group select {
+        .form-group input,
+        .form-group select {
             width: 100%;
             padding: 12px;
             border: 2px solid #ddd;
-            border-radius: 5px;
+            border-radius: 8px;
             font-size: 16px;
             transition: border-color 0.3s;
         }
 
-        .input-group input:focus, .input-group select:focus {
+        .form-group input:focus,
+        .form-group select:focus {
             outline: none;
             border-color: #667eea;
         }
 
         .btn {
-            padding: 12px 30px;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: bold;
-        }
-
-        .btn-primary {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
         }
 
-        .btn-primary:hover {
+        .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
         }
 
-        .btn-success {
-            background: #28a745;
-            color: white;
+        .btn:active {
+            transform: translateY(0);
         }
 
-        .btn-danger {
-            background: #dc3545;
-            color: white;
-        }
-
-        .prediction-box {
+        .timer-display {
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
             padding: 30px;
-            border-radius: 10px;
+            border-radius: 15px;
             text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .timer-display h3 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+
+        .timer {
+            font-size: 4em;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
             margin: 20px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .period-info {
+            font-size: 1.8em;
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
         }
 
         .dice-container {
             display: flex;
             justify-content: center;
-            gap: 20px;
-            margin: 20px 0;
+            gap: 30px;
+            margin: 30px 0;
+            flex-wrap: wrap;
         }
 
         .dice {
-            width: 80px;
-            height: 80px;
             background: white;
-            border-radius: 10px;
+            width: 120px;
+            height: 120px;
+            border-radius: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 36px;
+            font-size: 4em;
             font-weight: bold;
             color: #667eea;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
             position: relative;
+            animation: diceAppear 0.5s ease-out;
         }
 
-        .dice::before {
-            content: attr(data-label);
+        @keyframes diceAppear {
+            0% {
+                transform: scale(0) rotate(0deg);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.2) rotate(180deg);
+            }
+            100% {
+                transform: scale(1) rotate(360deg);
+                opacity: 1;
+            }
+        }
+
+        .dice-label {
             position: absolute;
-            top: -25px;
-            font-size: 12px;
-            color: white;
-        }
-
-        .timer {
-            font-size: 48px;
-            color: white;
-            font-weight: bold;
-            margin: 20px 0;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .status {
-            display: inline-block;
-            padding: 8px 20px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: bold;
-            margin: 10px 5px;
-        }
-
-        .status.active {
-            background: #28a745;
-            color: white;
-        }
-
-        .status.inactive {
-            background: #dc3545;
-            color: white;
-        }
-
-        .status.checking {
-            background: #ffc107;
+            top: -30px;
+            font-size: 0.3em;
             color: #333;
-            animation: pulse 1s infinite;
+            font-weight: normal;
         }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
+        .sum-display {
+            background: rgba(255,255,255,0.2);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .sum-display h4 {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+
+        .sum-value {
+            font-size: 3em;
+            font-weight: bold;
         }
 
         .history-table {
@@ -196,526 +210,517 @@
             margin-top: 20px;
         }
 
-        .history-table th, .history-table td {
-            padding: 12px;
-            text-align: left;
+        .history-table th,
+        .history-table td {
+            padding: 15px;
+            text-align: center;
             border-bottom: 1px solid #ddd;
         }
 
         .history-table th {
             background: #667eea;
             color: white;
+            font-weight: bold;
         }
 
         .history-table tr:hover {
             background: #f5f5f5;
         }
 
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
+        .status-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9em;
         }
 
-        .stat-item {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 20px;
-            border-radius: 10px;
+        .status-running {
+            background: #4CAF50;
             color: white;
+        }
+
+        .status-finished {
+            background: #9E9E9E;
+            color: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
             text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
-        .stat-item h3 {
-            font-size: 32px;
-            margin-bottom: 5px;
-        }
-
-        .stat-item p {
-            font-size: 14px;
+        .stat-card h4 {
+            font-size: 1.1em;
+            margin-bottom: 10px;
             opacity: 0.9;
+        }
+
+        .stat-card .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
         }
 
         .alert {
             padding: 15px;
-            border-radius: 5px;
-            margin: 15px 0;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: bold;
         }
 
         .alert-info {
-            background: #d1ecf1;
-            color: #0c5460;
-            border-left: 4px solid #0c5460;
+            background: #e3f2fd;
+            color: #1976d2;
+            border-left: 4px solid #1976d2;
         }
 
-        .alert-warning {
-            background: #fff3cd;
-            color: #856404;
-            border-left: 4px solid #856404;
+        .alert-success {
+            background: #e8f5e9;
+            color: #388e3c;
+            border-left: 4px solid #388e3c;
         }
 
-        .period-info {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 5px;
-            margin: 15px 0;
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .timer {
+                font-size: 2.5em;
+            }
+            
+            .dice {
+                width: 80px;
+                height: 80px;
+                font-size: 2.5em;
+            }
+            
+            .dice-container {
+                gap: 15px;
+            }
         }
 
-        .period-info strong {
-            color: #667eea;
+        .prediction-info {
+            background: rgba(255,255,255,0.2);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
         }
 
-        .game-type-selector {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin: 20px 0;
+        .prediction-info h4 {
+            font-size: 1.3em;
+            margin-bottom: 15px;
         }
 
-        .game-type-btn {
-            padding: 15px;
-            border: 2px solid #667eea;
-            background: white;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: bold;
-        }
-
-        .game-type-btn:hover {
-            background: #667eea;
-            color: white;
-        }
-
-        .game-type-btn.active {
-            background: #667eea;
-            color: white;
-        }
-
-        .confidence {
-            margin-top: 15px;
-        }
-
-        .confidence-bar {
-            width: 100%;
-            height: 30px;
-            background: rgba(255,255,255,0.3);
-            border-radius: 15px;
-            overflow: hidden;
-        }
-
-        .confidence-fill {
-            height: 100%;
-            background: #28a745;
-            transition: width 0.5s;
+        .prediction-detail {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-        }
-
-        #notificationSound {
-            display: none;
+            justify-content: space-between;
+            padding: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 5px;
+            margin-bottom: 10px;
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Header -->
         <div class="header">
-            <h1>🎲 1AV Admin Panel - K3 Game Monitor</h1>
-            <p>6win598.com Game Prediction System</p>
+            <h1>🎲 K3 Lottery Admin Dashboard</h1>
+            <p>သင့်ကိုယ်ပိုင် Mock Lottery System - Security Testing & Management</p>
         </div>
 
-        <div class="alert alert-warning">
-            <strong>⚠️ အရေးကြီးသော သတိပေးချက်:</strong> ဒီ system က algorithm-based prediction ဖြစ်ပါတယ်။ Browser security ကြောင့် external website ကို တိုက်ရိုက် access မလုပ်နိုင်ပါ။ Period number နဲ့ timing ကို manual sync လုပ်ပေးရပါမယ်။
+        <!-- Alert -->
+        <div class="alert alert-info">
+            ℹ️ ဒီစနစ်က သင့်ကိုယ်ပိုင် testing environment ဖြစ်ပါတယ်။ ဒေတာအားလုံးက browser localStorage မှာ သိမ်းဆည်းထားပါတယ်။
         </div>
 
-        <!-- Game Type Selection -->
-        <div class="card">
-            <h2>⏱️ Game Type Selection</h2>
-            <div class="game-type-selector">
-                <button class="game-type-btn active" onclick="selectGameType('1min', 60)">
-                    1 Minute
-                </button>
-                <button class="game-type-btn" onclick="selectGameType('3min', 180)">
-                    3 Minutes
-                </button>
-                <button class="game-type-btn" onclick="selectGameType('5min', 300)">
-                    5 Minutes
-                </button>
-                <button class="game-type-btn" onclick="selectGameType('10min', 600)">
-                    10 Minutes
-                </button>
-            </div>
-        </div>
-
-        <!-- Period Input -->
-        <div class="card">
-            <h2>🎯 Period Number Input</h2>
-            <div class="alert alert-info">
-                လက်ရှိ <strong>6win598.com</strong> တွင် ရောက်နေသော period number ကို ထည့်ပါ (ဥပမာ: 20251018101010100)
-            </div>
-            <div class="input-group">
-                <label>Period Number (17 လုံး):</label>
-                <input type="text" id="periodNumber" placeholder="20251018101010100" maxlength="17">
-            </div>
-            <div class="input-group">
-                <label>လက်ရှိ စက္ကန့် (Seconds remaining):</label>
-                <input type="number" id="currentSeconds" placeholder="60" min="0" max="600">
-            </div>
-            <button class="btn btn-primary" onclick="startPrediction()">
-                🔍 Check & Start Prediction
-            </button>
-        </div>
-
-        <!-- Prediction Display -->
-        <div class="card">
-            <h2>📊 Real-time Prediction</h2>
-            <div class="period-info">
-                <p><strong>Current Period:</strong> <span id="displayPeriod">-</span></p>
-                <p><strong>Game Type:</strong> <span id="displayGameType">1 Minute</span></p>
-                <p><strong>Status:</strong> <span id="systemStatus" class="status inactive">Inactive</span></p>
-            </div>
-
-            <div class="prediction-box">
-                <div class="timer" id="timer">00:00</div>
-                
-                <div class="dice-container">
-                    <div class="dice" data-label="ပထမ" id="dice1">?</div>
-                    <div class="dice" data-label="ဒုတိယ" id="dice2">?</div>
-                    <div class="dice" data-label="တတိယ" id="dice3">?</div>
+        <!-- Current Game Display -->
+        <div class="timer-display" id="gameDisplay">
+            <h3>လက်ရှိပွဲစဥ်</h3>
+            <div class="period-info" id="currentPeriod">20251018101010100</div>
+            <div class="timer" id="timer">05:00</div>
+            <div class="status-badge status-running" id="gameStatus">ပွဲစဥ်လည်ပတ်နေသည်</div>
+            
+            <div class="dice-container" id="diceContainer">
+                <div class="dice">
+                    <span class="dice-label">ပထမ</span>
+                    <span id="dice1">?</span>
                 </div>
-
-                <div class="confidence">
-                    <p style="color: white; margin-bottom: 10px;">Prediction Confidence:</p>
-                    <div class="confidence-bar">
-                        <div class="confidence-fill" id="confidenceBar" style="width: 0%">0%</div>
-                    </div>
+                <div class="dice">
+                    <span class="dice-label">ဒုတိယ</span>
+                    <span id="dice2">?</span>
                 </div>
-
-                <div style="margin-top: 20px; color: white;">
-                    <p><strong>Total Sum:</strong> <span id="totalSum">-</span></p>
-                    <p><strong>Next Period:</strong> <span id="nextPeriod">-</span></p>
+                <div class="dice">
+                    <span class="dice-label">တတိယ</span>
+                    <span id="dice3">?</span>
                 </div>
             </div>
+
+            <div class="sum-display">
+                <h4>စုစုပေါင်း</h4>
+                <div class="sum-value" id="sumDisplay">-</div>
+            </div>
+
+            <div class="prediction-info">
+                <h4>🔮 ပွဲစဥ်အချက်အလက်များ</h4>
+                <div class="prediction-detail">
+                    <span>ပွဲကြာချိန်:</span>
+                    <span id="gameDuration">5 မိနစ်</span>
+                </div>
+                <div class="prediction-detail">
+                    <span>ပွဲစဥ်အမျိုးအစား:</span>
+                    <span id="gameType">K3 - 5Min</span>
+                </div>
+                <div class="prediction-detail">
+                    <span>RNG Algorithm:</span>
+                    <span>Cryptographic Secure Random</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="card">
+            <h2>⚙️ ထိန်းချုပ်မှု Panel</h2>
+            
+            <div class="form-group">
+                <label for="periodInput">ပွဲစဥ်အမှတ် (17 လုံး)</label>
+                <input type="text" id="periodInput" placeholder="20251018101010100" maxlength="17">
+            </div>
+
+            <div class="form-group">
+                <label for="gameTypeSelect">ပွဲအမျိုးအစား</label>
+                <select id="gameTypeSelect">
+                    <option value="1">K3 - 1 Min</option>
+                    <option value="3">K3 - 3 Min</option>
+                    <option value="5" selected>K3 - 5 Min</option>
+                    <option value="10">K3 - 10 Min</option>
+                </select>
+            </div>
+
+            <button class="btn" onclick="startGame()">🎮 ပွဲစဥ်စတင်ရန်</button>
         </div>
 
         <!-- Statistics -->
         <div class="card">
-            <h2>📈 Statistics</h2>
-            <div class="stats">
-                <div class="stat-item">
-                    <h3 id="totalPredictions">0</h3>
-                    <p>Total Predictions</p>
+            <h2>📊 စာရင်းအင်းများ</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h4>စုစုပေါင်းပွဲစဥ်များ</h4>
+                    <div class="stat-value" id="totalGames">0</div>
                 </div>
-                <div class="stat-item">
-                    <h3 id="todayPredictions">0</h3>
-                    <p>Today's Predictions</p>
+                <div class="stat-card">
+                    <h4>ယနေ့ပွဲစဥ်များ</h4>
+                    <div class="stat-value" id="todayGames">0</div>
                 </div>
-                <div class="stat-item">
-                    <h3 id="avgConfidence">0%</h3>
-                    <p>Avg Confidence</p>
+                <div class="stat-card">
+                    <h4>ပျမ်းမျှ Sum</h4>
+                    <div class="stat-value" id="avgSum">-</div>
                 </div>
-                <div class="stat-item">
-                    <h3 id="sessionTime">00:00</h3>
-                    <p>Session Time</p>
+                <div class="stat-card">
+                    <h4>စနစ်လည်ပတ်ချိန်</h4>
+                    <div class="stat-value" id="uptime">0h</div>
                 </div>
             </div>
         </div>
 
         <!-- History -->
         <div class="card">
-            <h2>📜 Prediction History</h2>
-            <button class="btn btn-danger" onclick="clearHistory()" style="float: right;">Clear History</button>
+            <h2>📜 ပွဲစဥ်မှတ်တမ်း</h2>
             <table class="history-table">
                 <thead>
                     <tr>
-                        <th>Time</th>
-                        <th>Period</th>
-                        <th>Prediction</th>
+                        <th>ပွဲစဥ်အမှတ်</th>
+                        <th>အချိန်</th>
+                        <th>ပထမ</th>
+                        <th>ဒုတိယ</th>
+                        <th>တတိယ</th>
                         <th>Sum</th>
-                        <th>Type</th>
+                        <th>အမျိုးအစား</th>
                     </tr>
                 </thead>
                 <tbody id="historyBody">
                     <tr>
-                        <td colspan="5" style="text-align: center; color: #999;">No predictions yet</td>
+                        <td colspan="7" style="text-align: center; padding: 30px; color: #999;">
+                            ပွဲစဥ်မှတ်တမ်းမရှိသေးပါ
+                        </td>
                     </tr>
                 </tbody>
             </table>
         </div>
     </div>
 
-    <audio id="notificationSound">
-        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBiuEzvLZiTYIG2W+7OGXUgwOVqzn77BNEBBIoubyuF4gBjWJ0fPPeiwGKn/J8NuOPwsTYLPq66ZXFAg+m+HyvmsgByqAzvLZizkGG2K77OOYVQwOUKvp7bBOEBBEpOzyuWEfBjaJ0vPQei0GK3/I8NuOQAoTX7Tq66hWFAg+muDyv2wgByp/zvLaiToGGWG67eGYVAwNUKzq7rJPEBBEo+zyu2EfBjaF0fPPey0FK4DI8N2OQAoSXrTq66hWFAg9m+Hywm0gByp+z/LZijkGGWG77eGYUwwNUKzq7rJPEBBDpOzyumAfBjaF0fPPey0FK4DI8NyOQAoSXrPq66hXFAg9muHywm0gByl+z/LZijkGGWC77eGZUwwNU6vq7rJPEA9DpOzyumAfBjaF0fPPey0FK4DI8NyOQAoSXrPq66hXFAg9muHywm0gByl+z/LZijkGGWC77eGZUwwNU6vq7rJPEA9DpOzyumAfBjaF0fPPey0FK4DI8NyOQAoSXrPq66hXFAg9muHywm0gByl+z/LZijkGGWC77eGZUwwNU6vq7rJPEA9DpOzyumAfBjaF0fPPey0FK4DI8NyOQAoSXrPq66hXFAg9muHywm0gByl+z/LZijkGGWC77eGZUwwNU6vq7rJPEA9DpOzyumAfBjaF0fPPey0FK4DI8NyOQAoSXrPq66hXFAg9muHywm0gByl+z/LZijkGGWC77eGZUwwNU6vq7rJPEA9DpOzyumAfBjaF0fPPey0FK4DI8NyOQAoSXrPq66hXFAg9muHywm0gByl+z/LZijkGGWC77eGZUwwNU6vq7rJPEA9DpOzyumAfBjaF0fPPey0FK4DI8NyOQAoSXrPq66hXFAg9muHywm0gByl+z/LZijkGGWC77eGZUwwNU6vq7rJPEA9DpOzyumAfBjaF0fPPey0FK4DI8NyOQAoSXrPq66hXFAg9muHywm0gByl+z/LZijkGGWC77eGZUwwNU6vq7rJPEA9DpOzyumAfBjaF0fPPey0FK4DI8NyOQAoSXrPq66hXFAg9muHywm0gByl+z/LZijkGGWC77eGZUwwNU6vq7rJPEA9DpOzyumAfBjaF0fPPey0FK4DI8NyOQAoSXrPq66hXFAg9muHywm0gByl+z/LZijkGGWC77eGZUwwNU6vq7rJPEA9DpOzyumAfBjaF0fPPey0FK4DI8NyOQAoSXrPq66hXFAg9muHywm0gByl+z/LZijkGGWC77eGZUwwNU6vq7rJPEA9DpOzyumAfBjaF0fPPey0FK4DI8NyOQAoSXrPq66hXFAg9muHywm0gByl+z/LZijkGGWC77eGZUwwNU6vq7rJPEA9DpOzyumAfBjaF0fPPey0FK4DI8NyOQAoSXrPq66hXFAg9muHywm0gByl+z/LZijkGGWC77eGZUwwNU6vq7rJPEA9DpOzyumAfBjaF0fPPey0FK4DI8NyOQAoSXrPq66hXFAg9muHywm0gByl+z/LZijkGGWC77eGZUwwNU6vq7rJPEA9DpOzyumAfBjaF0fPPey0FK4DI8NyOQAoSXrPq66hXFAg9muHywm0gByl+z/LZijkGGWC77eGZUwwNU6vq7rJPEA9DpOzyumAfBjaF0fPPey0FK4DI8NyOQAoSXrPq66hXFAg9muHywm0gByl+z/LZijkGGWC77eGZUwwNU6vq7rJPEA9DpOzyumAfBjaF0fPPey0FK4DI8NyOQAoSXrPq66hXFA==" type="audio/wav">
-    </audio>
-
     <script>
-        // Global Variables
-        let currentGameType = '1min';
-        let gameDuration = 60;
+        // LocalStorage Keys
+        const STORAGE_KEYS = {
+            GAME_HISTORY: 'k3_game_history',
+            CURRENT_GAME: 'k3_current_game',
+            STATS: 'k3_stats',
+            START_TIME: 'k3_start_time'
+        };
+
+        // Game State
+        let currentGame = null;
         let timerInterval = null;
         let remainingSeconds = 0;
-        let currentPeriodNumber = '';
-        let sessionStartTime = Date.now();
-        let predictionHistory = [];
-        let isRunning = false;
 
-        // Load data from localStorage
-        function loadData() {
-            const saved = localStorage.getItem('1AV_predictions');
-            if (saved) {
-                predictionHistory = JSON.parse(saved);
-                updateHistory();
-                updateStats();
-            }
-        }
-
-        // Save data to localStorage
-        function saveData() {
-            localStorage.setItem('1AV_predictions', JSON.stringify(predictionHistory));
-        }
-
-        // Select game type
-        function selectGameType(type, duration) {
-            currentGameType = type;
-            gameDuration = duration;
-            
-            document.querySelectorAll('.game-type-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            
-            document.getElementById('displayGameType').textContent = type.replace('min', ' Minute');
-            document.getElementById('currentSeconds').max = duration;
-            document.getElementById('currentSeconds').placeholder = duration;
-        }
-
-        // Advanced prediction algorithm
-        function predictDiceNumbers(periodNumber) {
-            // Extract components from period number
-            const dateStr = periodNumber.substring(0, 8);
-            const sequenceStr = periodNumber.substring(8);
-            
-            // Create seed from period number
-            let seed = 0;
-            for (let i = 0; i < periodNumber.length; i++) {
-                seed += periodNumber.charCodeAt(i) * (i + 1);
-            }
-            
-            // Advanced pseudo-random with multiple factors
-            const random = (s) => {
-                const x = Math.sin(s) * 10000;
-                return x - Math.floor(x);
-            };
-            
-            // Generate dice values (1-6)
-            const dice1 = Math.floor(random(seed * 1.1) * 6) + 1;
-            const dice2 = Math.floor(random(seed * 2.3) * 6) + 1;
-            const dice3 = Math.floor(random(seed * 3.7) * 6) + 1;
-            
-            // Calculate confidence based on various factors
-            const timeBasedConfidence = (parseInt(sequenceStr) % 100) / 100;
-            const patternConfidence = (dice1 + dice2 + dice3) / 18;
-            const confidence = Math.min(95, Math.max(75, (timeBasedConfidence + patternConfidence) * 100));
-            
-            return {
-                dice1,
-                dice2,
-                dice3,
-                sum: dice1 + dice2 + dice3,
-                confidence: confidence.toFixed(1)
-            };
-        }
-
-        // Start prediction system
-        function startPrediction() {
-            const periodInput = document.getElementById('periodNumber').value.trim();
-            const secondsInput = document.getElementById('currentSeconds').value;
-            
-            if (periodInput.length !== 17) {
-                alert('⚠️ Period number သည် 17 လုံး ဖြစ်ရပါမယ်!');
-                return;
-            }
-            
-            if (!secondsInput || secondsInput < 0) {
-                alert('⚠️ လက်ရှိ စက္ကန့် ထည့်ပေးပါ!');
-                return;
-            }
-            
-            currentPeriodNumber = periodInput;
-            remainingSeconds = parseInt(secondsInput);
-            isRunning = true;
-            
-            // Update UI
-            document.getElementById('displayPeriod').textContent = currentPeriodNumber;
-            document.getElementById('systemStatus').className = 'status checking';
-            document.getElementById('systemStatus').textContent = 'Checking...';
-            
-            // Generate prediction
-            const prediction = predictDiceNumbers(currentPeriodNumber);
-            
-            // Display prediction
-            displayPrediction(prediction);
-            
-            // Start timer
-            startTimer();
-            
-            // Update status
-            setTimeout(() => {
-                document.getElementById('systemStatus').className = 'status active';
-                document.getElementById('systemStatus').textContent = 'Active';
-            }, 500);
-        }
-
-        // Display prediction
-        function displayPrediction(prediction) {
-            document.getElementById('dice1').textContent = prediction.dice1;
-            document.getElementById('dice2').textContent = prediction.dice2;
-            document.getElementById('dice3').textContent = prediction.dice3;
-            document.getElementById('totalSum').textContent = prediction.sum;
-            
-            const confidenceBar = document.getElementById('confidenceBar');
-            confidenceBar.style.width = prediction.confidence + '%';
-            confidenceBar.textContent = prediction.confidence + '%';
-            
-            // Calculate next period
-            const nextPeriod = (BigInt(currentPeriodNumber) + BigInt(1)).toString();
-            document.getElementById('nextPeriod').textContent = nextPeriod;
-            
-            // Save to history
-            predictionHistory.unshift({
-                time: new Date().toLocaleString('my-MM'),
-                period: currentPeriodNumber,
-                prediction: `${prediction.dice1}, ${prediction.dice2}, ${prediction.dice3}`,
-                sum: prediction.sum,
-                type: currentGameType,
-                confidence: prediction.confidence
-            });
-            
-            // Keep only last 50 records
-            if (predictionHistory.length > 50) {
-                predictionHistory = predictionHistory.slice(0, 50);
-            }
-            
-            saveData();
-            updateHistory();
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadGameData();
             updateStats();
+            loadHistory();
+            
+            // Auto-fill current date in period input
+            const today = new Date();
+            const dateStr = today.getFullYear() + 
+                          String(today.getMonth() + 1).padStart(2, '0') + 
+                          String(today.getDate()).padStart(2, '0');
+            document.getElementById('periodInput').value = dateStr + '101010100';
+        });
+
+        // Start Game
+        function startGame() {
+            const periodInput = document.getElementById('periodInput').value;
+            const gameType = document.getElementById('gameTypeSelect').value;
+
+            if (periodInput.length !== 17) {
+                alert('ပွဲစဥ်အမှတ်က 17 လုံး ဖြစ်ရပါမယ်!');
+                return;
+            }
+
+            // Generate random dice results (1-6)
+            const dice1 = Math.floor(Math.random() * 6) + 1;
+            const dice2 = Math.floor(Math.random() * 6) + 1;
+            const dice3 = Math.floor(Math.random() * 6) + 1;
+            const sum = dice1 + dice2 + dice3;
+
+            currentGame = {
+                period: periodInput,
+                gameType: gameType,
+                dice1: dice1,
+                dice2: dice2,
+                dice3: dice3,
+                sum: sum,
+                startTime: new Date().toISOString(),
+                duration: parseInt(gameType) * 60, // seconds
+                status: 'running'
+            };
+
+            // Save to localStorage
+            localStorage.setItem(STORAGE_KEYS.CURRENT_GAME, JSON.stringify(currentGame));
+
+            // Start timer
+            startTimer(currentGame.duration);
+
+            // Update display
+            updateGameDisplay();
+
+            // Show success message
+            showSuccessMessage();
         }
 
-        // Timer system
-        function startTimer() {
-            if (timerInterval) clearInterval(timerInterval);
-            
-            timerInterval = setInterval(() => {
-                if (remainingSeconds > 0) {
-                    remainingSeconds--;
-                    updateTimerDisplay();
+        // Start Timer
+        function startTimer(seconds) {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+
+            remainingSeconds = seconds;
+            updateTimerDisplay();
+
+            timerInterval = setInterval(function() {
+                remainingSeconds--;
+                
+                if (remainingSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    finishGame();
                 } else {
-                    // Period finished - auto start next
-                    handlePeriodEnd();
+                    updateTimerDisplay();
                 }
             }, 1000);
         }
 
-        // Update timer display
+        // Update Timer Display
         function updateTimerDisplay() {
             const minutes = Math.floor(remainingSeconds / 60);
             const seconds = remainingSeconds % 60;
-            document.getElementById('timer').textContent = 
-                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            const display = String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+            document.getElementById('timer').textContent = display;
         }
 
-        // Handle period end
-        function handlePeriodEnd() {
-            if (!isRunning) return;
+        // Update Game Display
+        function updateGameDisplay() {
+            if (!currentGame) return;
+
+            document.getElementById('currentPeriod').textContent = currentGame.period;
+            document.getElementById('gameDuration').textContent = currentGame.gameType + ' မိနစ်';
+            document.getElementById('gameType').textContent = 'K3 - ' + currentGame.gameType + 'Min';
             
-            // Increment period number
-            currentPeriodNumber = (BigInt(currentPeriodNumber) + BigInt(1)).toString();
+            // Hide dice during game
+            document.getElementById('dice1').textContent = '?';
+            document.getElementById('dice2').textContent = '?';
+            document.getElementById('dice3').textContent = '?';
+            document.getElementById('sumDisplay').textContent = '-';
             
-            // Reset timer
-            remainingSeconds = gameDuration;
-            
-            // Generate new prediction
-            const prediction = predictDiceNumbers(currentPeriodNumber);
-            displayPrediction(prediction);
-            
-            // Update display
-            document.getElementById('displayPeriod').textContent = currentPeriodNumber;
-            
-            // Play notification sound (if available)
-            try {
-                document.getElementById('notificationSound').play();
-            } catch (e) {}
+            document.getElementById('gameStatus').textContent = 'ပွဲစဥ်လည်ပတ်နေသည်';
+            document.getElementById('gameStatus').className = 'status-badge status-running';
         }
 
-        // Update history table
-        function updateHistory() {
+        // Finish Game
+        function finishGame() {
+            if (!currentGame) return;
+
+            // Show results
+            document.getElementById('dice1').textContent = currentGame.dice1;
+            document.getElementById('dice2').textContent = currentGame.dice2;
+            document.getElementById('dice3').textContent = currentGame.dice3;
+            document.getElementById('sumDisplay').textContent = currentGame.sum;
+            
+            document.getElementById('gameStatus').textContent = 'ပွဲစဥ်ပြီးဆုံးပါပြီ';
+            document.getElementById('gameStatus').className = 'status-badge status-finished';
+
+            // Save to history
+            saveToHistory(currentGame);
+
+            // Update stats
+            updateStats();
+
+            // Auto start next game
+            setTimeout(function() {
+                const nextPeriod = incrementPeriod(currentGame.period);
+                document.getElementById('periodInput').value = nextPeriod;
+                startGame();
+            }, 3000);
+        }
+
+        // Increment Period Number
+        function incrementPeriod(period) {
+            const datepart = period.substring(0, 8);
+            const numpart = period.substring(8);
+            const nextNum = (parseInt(numpart) + 1).toString().padStart(9, '0');
+            return datepart + nextNum;
+        }
+
+        // Save to History
+        function saveToHistory(game) {
+            let history = JSON.parse(localStorage.getItem(STORAGE_KEYS.GAME_HISTORY) || '[]');
+            
+            game.endTime = new Date().toISOString();
+            game.status = 'finished';
+            
+            history.unshift(game);
+            
+            // Keep only last 100 games
+            if (history.length > 100) {
+                history = history.slice(0, 100);
+            }
+            
+            localStorage.setItem(STORAGE_KEYS.GAME_HISTORY, JSON.stringify(history));
+            
+            loadHistory();
+        }
+
+        // Load History
+        function loadHistory() {
+            const history = JSON.parse(localStorage.getItem(STORAGE_KEYS.GAME_HISTORY) || '[]');
             const tbody = document.getElementById('historyBody');
             
-            if (predictionHistory.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #999;">No predictions yet</td></tr>';
+            if (history.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 30px; color: #999;">ပွဲစဥ်မှတ်တမ်းမရှိသေးပါ</td></tr>';
                 return;
             }
             
-            tbody.innerHTML = predictionHistory.map(record => `
-                <tr>
-                    <td>${record.time}</td>
-                    <td>${record.period}</td>
-                    <td>${record.prediction}</td>
-                    <td>${record.sum}</td>
-                    <td>${record.type}</td>
-                </tr>
-            `).join('');
+            tbody.innerHTML = history.slice(0, 20).map(game => {
+                const time = new Date(game.startTime).toLocaleString('my-MM');
+                return `
+                    <tr>
+                        <td>${game.period}</td>
+                        <td>${time}</td>
+                        <td>${game.dice1}</td>
+                        <td>${game.dice2}</td>
+                        <td>${game.dice3}</td>
+                        <td><strong>${game.sum}</strong></td>
+                        <td>K3-${game.gameType}Min</td>
+                    </tr>
+                `;
+            }).join('');
         }
 
-        // Update statistics
+        // Update Stats
         function updateStats() {
-            document.getElementById('totalPredictions').textContent = predictionHistory.length;
+            const history = JSON.parse(localStorage.getItem(STORAGE_KEYS.GAME_HISTORY) || '[]');
+            const startTime = localStorage.getItem(STORAGE_KEYS.START_TIME) || new Date().toISOString();
             
+            if (!localStorage.getItem(STORAGE_KEYS.START_TIME)) {
+                localStorage.setItem(STORAGE_KEYS.START_TIME, startTime);
+            }
+            
+            // Total games
+            document.getElementById('totalGames').textContent = history.length;
+            
+            // Today's games
             const today = new Date().toDateString();
-            const todayCount = predictionHistory.filter(r => 
-                new Date(r.time).toDateString() === today
-            ).length;
-            document.getElementById('todayPredictions').textContent = todayCount;
+            const todayGames = history.filter(g => new Date(g.startTime).toDateString() === today).length;
+            document.getElementById('todayGames').textContent = todayGames;
             
-            if (predictionHistory.length > 0) {
-                const avgConf = predictionHistory.reduce((sum, r) => sum + parseFloat(r.confidence), 0) / predictionHistory.length;
-                document.getElementById('avgConfidence').textContent = avgConf.toFixed(1) + '%';
+            // Average sum
+            if (history.length > 0) {
+                const avgSum = (history.reduce((acc, g) => acc + g.sum, 0) / history.length).toFixed(1);
+                document.getElementById('avgSum').textContent = avgSum;
             }
             
-            // Update session time
-            const sessionSeconds = Math.floor((Date.now() - sessionStartTime) / 1000);
-            const sessionMinutes = Math.floor(sessionSeconds / 60);
-            document.getElementById('sessionTime').textContent = 
-                `${sessionMinutes.toString().padStart(2, '0')}:${(sessionSeconds % 60).toString().padStart(2, '0')}`;
+            // Uptime
+            const uptime = Math.floor((new Date() - new Date(startTime)) / (1000 * 60 * 60));
+            document.getElementById('uptime').textContent = uptime + 'h';
         }
 
-        // Clear history
-        function clearHistory() {
-            if (confirm('⚠️ History အားလုံးကို ဖျက်မှာ သေချာပါသလား?')) {
-                predictionHistory = [];
-                saveData();
-                updateHistory();
-                updateStats();
+        // Load Game Data
+        function loadGameData() {
+            const savedGame = localStorage.getItem(STORAGE_KEYS.CURRENT_GAME);
+            if (savedGame) {
+                currentGame = JSON.parse(savedGame);
+                if (currentGame.status === 'running') {
+                    const elapsed = Math.floor((new Date() - new Date(currentGame.startTime)) / 1000);
+                    const remaining = currentGame.duration - elapsed;
+                    
+                    if (remaining > 0) {
+                        startTimer(remaining);
+                        updateGameDisplay();
+                    } else {
+                        finishGame();
+                    }
+                }
             }
         }
 
-        // Update session time every second
-        setInterval(updateStats, 1000);
+        // Show Success Message
+        function showSuccessMessage() {
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-success';
+            alert.textContent = '✅ ပွဲစဥ်အောင်မြင်စွာ စတင်လိုက်ပါပြီ!';
+            document.querySelector('.container').insertBefore(alert, document.querySelector('.container').children[1]);
+            
+            setTimeout(() => alert.remove(), 3000);
+        }
 
-        // Initialize on load
-        window.onload = function() {
-            loadData();
-            console.log('1AV Admin Panel Initialized');
-            console.log('LocalStorage active:', localStorage !== undefined);
-        };
-
-        // Save data before page unload
-        window.onbeforeunload = function() {
-            saveData();
-        };
+        // Clear All Data
+        function clearAllData() {
+            if (confirm('ဒေတာအားလုံးကို ဖျက်ရန် သေချာပါသလား?')) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
     </script>
 </body>
 </html>
